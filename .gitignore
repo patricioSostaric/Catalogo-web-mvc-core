@@ -1,0 +1,17 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.tmp
+*.log
+
+# Build results
+bin/
+obj/
+*.dll
+*.pdb
+*.cache
+
+# Archivos absolutos generados por Visual Studio
+*.FileListAbsolute.txt
+
