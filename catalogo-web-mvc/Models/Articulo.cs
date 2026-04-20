@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.RegularExpressions;
 
 namespace catalogo_web_mvc.Models
@@ -28,9 +29,11 @@ namespace catalogo_web_mvc.Models
         [DisplayName("Categoría")]
         public int CategoriaId { get; set; }   // FK explícita
         public Categoria Categoria { get; set; }
-        [Url]
+        
         public string? ImagenUrl { get; set; }
-        [Range(0, 999999)]
+        
+        
+        [DisplayFormat(DataFormatString = "{0:N2}", ApplyFormatInEditMode = true)]
         public decimal Precio { get; set; }
     }
 }

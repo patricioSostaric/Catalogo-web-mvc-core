@@ -1,0 +1,58 @@
+﻿/* Estilos generales */
+body {
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 0;
+}
+
+/* Encabezados */
+h1, h2, h3 {
+    font-weight: 600;
+    color: #343a40;
+}
+
+/* Tabla de artículos */
+.table th {
+    background-color: #0d6efd;
+    color: #fff;
+    text-align: center;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+/* Miniaturas de imágenes */
+.img-thumbnail {
+    max-height: 100px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+}
+
+/* Paginador */
+.pagination {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    padding-left: 0;
+}
+
+    .pagination li {
+        margin: 0 3px;
+    }
+
+        .pagination li a,
+        .pagination li span {
+            padding: 6px 12px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            color: #0d6efd;
+            text-decoration: none;
+            background-color: #fff;
+        }
+
+        .pagination li.active span {
+            background-color: #0d6efd;
+            color: #fff;
+        }

@@ -36,6 +36,10 @@ namespace catalogo_web_mvc.Data
                 .Property(a => a.Precio)
                 .HasColumnType("decimal(18,2)");
 
+            modelBuilder.Entity<Articulo>()
+            .Property(a => a.ImagenUrl)
+            .HasMaxLength(500); // suficiente para URLs largas
+
             // Seed de Marcas
             modelBuilder.Entity<Marca>().HasData(
                 new Marca { MarcaId = 1, Descripcion = "Samsung" },
@@ -56,7 +60,7 @@ namespace catalogo_web_mvc.Data
             // Seed de Artículos (15 en total)
             modelBuilder.Entity<Articulo>().HasData(
                 // Los 5 iniciales
-                new Articulo { Id = 1, Codigo = "S01", Nombre = "Galaxy S10", Descripcion = "Una canoa cara", MarcaId = 1, CategoriaId = 1, ImagenUrl = "https://images.samsung.com/...jpg", Precio = 69999 },
+                new Articulo { Id = 1, Codigo = "S01", Nombre = "Galaxy S10", Descripcion = "Una canoa cara", MarcaId = 1, CategoriaId = 1, ImagenUrl = "https://images.samsung.com/is/image/samsung/assets/ar/p6_gro2/p6_initial_mktpd/smartphones/galaxy-s10/specs/galaxy-s10-plus_specs_design_colors_prism_black.jpg?$163_346_PNG$", Precio = 69999 },
                 new Articulo { Id = 2, Codigo = "M03", Nombre = "Moto G Play 7ma Gen", Descripcion = "Ya siete de estos?", MarcaId = 5, CategoriaId = 1, ImagenUrl = "https://www.motorola.cl/...png", Precio = 15699 },
                 new Articulo { Id = 3, Codigo = "S99", Nombre = "Play 4", Descripcion = "Ya no se cuantas versiones hay", MarcaId = 3, CategoriaId = 3, ImagenUrl = "sin_imagen_para_que_de_error....muejeje", Precio = 35000 },
                 new Articulo { Id = 4, Codigo = "S56", Nombre = "Bravia 55", Descripcion = "Alta tele", MarcaId = 3, CategoriaId = 2, ImagenUrl = "https://intercompras.com/...jpg", Precio = 49500 },
