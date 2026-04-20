@@ -17,68 +17,87 @@
 
 <!-- Formulario de búsqueda y filtros -->
 <form asp-action="Index" method="get">
-    <div class="row">
+    <div class="row mb-3">
         <!-- Buscador simple -->
         <div class="col-6">
             <div class="mb-3">
+                
                 <label for="searchString">Buscar por nombre</label>
+                
                 <input type="text" id="searchString" name="searchString" class="form-control"
                        value="@Context.Request.Query["searchString"]" />
             </div>
         </div>
-
-        <!-- Checkbox filtro avanzado -->
-        <div class="col-6 d-flex flex-column justify-content-end">
-            <div class="mb-3 form-check">
-                <input type="checkbox" id="filtroAvanzado" name="filtroAvanzado" class="form-check-input"
-                @(Context.Request.Query["filtroAvanzado"] == "true" ? "checked" : "") />
+        <!-- Checkbox al lado derecho -->
+        <div class="col-md-4 d-flex align-items-end">
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" id="filtroAvanzado" name="filtroAvanzado" value="true"
+                @(Context.Request.Query["filtroAvanzado"] == "true" || Context.Request.Query["filtroAvanzado"] == "on" ? "checked" : "") />
                 <label class="form-check-label" for="filtroAvanzado">Filtro Avanzado</label>
             </div>
         </div>
-    </div>
-
-    <!-- Bloque de filtros avanzados -->
-    <div id="filtrosAvanzados" style="display:@(Context.Request.Query["filtroAvanzado"] == "true" ? "block" : "none");">
-        <div class="row">
-            <div class="col-3">
-                <label for="campo">Campo</label>
-                <select id="campo" name="campo" class="form-control">
-                    <option value="Codigo">Código</option>
-                    <option value="Nombre">Nombre</option>
-                    <option value="Precio">Precio</option>
-                    <option value="Marca">Marca</option>
-                    <option value="Categoria">Categoría</option>
+        
+        <div id="camposAvanzados" class="row mb-3" style="display:@(Context.Request.Query["filtroAvanzado"] == "true" || Context.Request.Query["filtroAvanzado"] == "on" ? "flex" : "none")">
+            <div class="col-md-3">
+                <label>Campo</label>
+                <select name="campo" class="form-control">
+                    <option value="Codigo" selected="@(Context.Request.Query["campo"] == "Codigo")">Código</option>
+                    <option value="Nombre" selected="@(Context.Request.Query["campo"] == "Nombre")">Nombre</option>
+                    <option value="Precio" selected="@(Context.Request.Query["campo"] == "Precio")">Precio</option>
+                    <option value="Marca" selected="@(Context.Request.Query["campo"] == "Marca")">Marca</option>
+                    <option value="Categoria" selected="@(Context.Request.Query["campo"] == "Categoria")">Categoría</option>
                 </select>
             </div>
-            <div class="col-3">
-                <label for="criterio">Criterio</label>
-                <select id="criterio" name="criterio" class="form-control">
-                    <option value="Contiene">Contiene</option>
-                    <option value="Comienza con">Comienza con</option>
-                    <option value="Termina con">Termina con</option>
-                    <option value="Igual a">Igual a</option>
-                    <option value="Mayor a">Mayor a</option>
-                    <option value="Menor a">Menor a</option>
+            <div class="col-md-3">
+                <label>Criterio</label>
+                <select name="criterio" class="form-control">
+                    <option value="Contiene" selected="@(Context.Request.Query["criterio"] == "Contiene")">Contiene</option>
+                    <option value="Empieza con" selected="@(Context.Request.Query["criterio"] == "Empieza con")">Empieza con</option>
+                    <option value="Termina con" selected="@(Context.Request.Query["criterio"] == "Termina con")">Termina con</option>
+                    <option value="Igual a" selected="@(Context.Request.Query["criterio"] == "Igual a")">Igual a</option>
+                    <option value="Mayor a" selected="@(Context.Request.Query["criterio"] == "Mayor a")">Mayor a</option>
+                    <option value="Menor a" selected="@(Context.Request.Query["criterio"] == "Menor a")">Menor a</option>
                 </select>
             </div>
-            <div class="col-3">
-                <label for="filtro">Filtro</label>
-                <input type="text" id="filtro" name="filtro" class="form-control"
-                       value="@Context.Request.Query["filtro"]" />
+            <div class="col-md-4">
+                <label>Filtro</label>
+                <input type="text" name="filtro" class="form-control" value="@Context.Request.Query["filtro"]" />
+        
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">Buscar</button>
             </div>
         </div>
 
-        <div class="row mt-2">
-            <div class="col-3">
-                <button type="submit" class="btn btn-primary">Buscar</button>
-                <a asp-action="Index" class="btn btn-secondary ms-2">Limpiar filtros</a>
-            </div>
-        </div>
+        
+        @section Scripts {
+            <script>
+                                document.addEventListener('DOMContentLoaded', function () {
+                            const check = document.getElementById('filtroAvanzado');
+                            const campos = document.getElementById('camposAvanzados');
+                            const searchInput = document.getElementById('searchString');
+            
+                            function toggleFiltros() {
+                                if (check.checked) {
+                                    campos.style.display = 'flex';
+                                    searchInput.disabled = true;
+                                    searchInput.value = '';
+                                    searchInput.placeholder = 'Deshabilitado por Filtro Avanzado';
+                                } else {
+                                    campos.style.display = 'none';
+                                    searchInput.disabled = false;
+                                    searchInput.placeholder = 'Ej: apple, samsung...';
+                                }
+                            }
+            
+                            check.addEventListener('change', toggleFiltros);
+                            toggleFiltros();
+                        });
+            </script>
+        }
     </div>
 </form>
-
-<hr />
-
+        
 <!-- Tabla de artículos -->
 <table class="table table-striped table-hover">
     <thead>
@@ -143,6 +162,6 @@
 </div>
 <!-- Botón nuevo artículo -->
 <p>
-    <a asp-action="Create"  class="btn btn-secondary">Nuevo artículo</a>
+    <a asp-action="Create" class="btn btn-secondary">Nuevo artículo</a>
 </p>
 
