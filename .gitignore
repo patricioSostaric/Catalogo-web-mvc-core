@@ -12,10 +12,6 @@ obj/
 *.pdb
 *.cache
 
-# NuGet packages
-packages/
-*.nupkg
-project.lock.json
 
 # Publicación y perfiles locales
 Properties/PublishProfiles/
@@ -25,6 +21,3 @@ Properties/PublishProfiles/
 # Archivos absolutos generados por Visual Studio
 *.FileListAbsolute.txt
 
-# Archivos de OneNote que se colaron
-*.one
-*.onetoc2

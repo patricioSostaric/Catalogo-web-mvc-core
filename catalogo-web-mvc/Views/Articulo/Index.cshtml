@@ -28,6 +28,7 @@
                        value="@Context.Request.Query["searchString"]" />
             </div>
         </div>
+       
         <!-- Checkbox al lado derecho -->
         <div class="col-md-4 d-flex align-items-end">
             <div class="form-check mb-3">
@@ -51,32 +52,40 @@
             <div class="col-md-3">
                 <label>Criterio</label>
                 <select name="criterio" class="form-control">
-                    <option value="Contiene" selected="@(Context.Request.Query["criterio"] == "Contiene")">Contiene</option>
-                    <option value="Empieza con" selected="@(Context.Request.Query["criterio"] == "Empieza con")">Empieza con</option>
-                    <option value="Termina con" selected="@(Context.Request.Query["criterio"] == "Termina con")">Termina con</option>
-                    <option value="Igual a" selected="@(Context.Request.Query["criterio"] == "Igual a")">Igual a</option>
-                    <option value="Mayor a" selected="@(Context.Request.Query["criterio"] == "Mayor a")">Mayor a</option>
-                    <option value="Menor a" selected="@(Context.Request.Query["criterio"] == "Menor a")">Menor a</option>
+
+                    @if (Context.Request.Query["campo"] == "Precio")
+                    {
+                        <option value="Igual a" selected="@(Context.Request.Query["criterio"] == "Igual a")">Igual a</option>
+                        <option value="Mayor a" selected="@(Context.Request.Query["criterio"] == "Mayor a")">Mayor a</option>
+                        <option value="Menor a" selected="@(Context.Request.Query["criterio"] == "Menor a")">Menor a</option>
+                    }
+                    else
+                    {
+                        <option value="Contiene" selected="@(Context.Request.Query["criterio"] == "Contiene")">Contiene</option>
+                        <option value="Comienza con" selected="@(Context.Request.Query["criterio"] == "Comienza con")">Comienza con</option>
+                        <option value="Termina con" selected="@(Context.Request.Query["criterio"] == "Termina con")">Termina con</option>
+                    }
                 </select>
             </div>
             <div class="col-md-4">
                 <label>Filtro</label>
-                <input type="text" name="filtro" class="form-control" value="@Context.Request.Query["filtro"]" />
+                <input type="text" name="filtro" class="form-control"  autocomplete="off" value="@Context.Request.Query["filtro"]" />
         
             </div>
             <div class="col-md-2 d-flex align-items-end">
                 <button type="submit" class="btn btn-primary w-100">Buscar</button>
             </div>
         </div>
-
         
         @section Scripts {
             <script>
-                                document.addEventListener('DOMContentLoaded', function () {
+                                 document.addEventListener('DOMContentLoaded', function () {
                             const check = document.getElementById('filtroAvanzado');
                             const campos = document.getElementById('camposAvanzados');
                             const searchInput = document.getElementById('searchString');
-            
+                            const campoSelect = document.querySelector('select[name="campo"]');
+                            const criterioSelect = document.querySelector('select[name="criterio"]');
+
                             function toggleFiltros() {
                                 if (check.checked) {
                                     campos.style.display = 'flex';
@@ -89,9 +98,30 @@
                                     searchInput.placeholder = 'Ej: apple, samsung...';
                                 }
                             }
-            
+
+                            function actualizarCriterios() {
+                                criterioSelect.innerHTML = '';
+                                if (campoSelect.value === 'Precio') {
+                                    criterioSelect.innerHTML += '<option value="Igual a">Igual a</option>';
+                                    criterioSelect.innerHTML += '<option value="Mayor a">Mayor a</option>';
+                                    criterioSelect.innerHTML += '<option value="Menor a">Menor a</option>';
+                                } else {
+                                    criterioSelect.innerHTML += '<option value="Contiene">Contiene</option>';
+                                    criterioSelect.innerHTML += '<option value="Comienza con">Comienza con</option>';
+                                    criterioSelect.innerHTML += '<option value="Termina con">Termina con</option>';
+                                }
+                            }
+
+                            // Eventos
                             check.addEventListener('change', toggleFiltros);
+                            campoSelect.addEventListener('change', function() {
+                                document.querySelector('input[name="filtro"]').value = '';
+                                actualizarCriterios();
+                            });
+
+                            // Inicializar al cargar
                             toggleFiltros();
+                            actualizarCriterios();
                         });
             </script>
         }
