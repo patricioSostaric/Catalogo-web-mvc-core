@@ -16,11 +16,23 @@ var localizationOptions = new RequestLocalizationOptions
     SupportedUICultures = new List<CultureInfo> { defaultCulture }
 };
 
+// Activar User Secrets en desarrollo
+if (builder.Environment.IsDevelopment())
+{
+    builder.Configuration.AddUserSecrets<Program>();
+}
+
+// Obtener la cadena de conexión
+var connectionString = builder.Configuration.GetConnectionString("CatalogoDB");
+
+Console.WriteLine($"Cadena usada: {connectionString ?? "NULL"}");
+
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddMvc();
 builder.Services.AddDbContext<CatalogoContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("CatalogoDB")));
+    options.UseSqlServer(connectionString));
 
 var app = builder.Build();
 
@@ -46,3 +58,4 @@ app.MapControllerRoute(
     .WithStaticAssets();
 
 app.Run();
+

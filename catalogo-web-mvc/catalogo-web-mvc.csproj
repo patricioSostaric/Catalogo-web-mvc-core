@@ -1,10 +1,13 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>catalogo_web_mvc</RootNamespace>
+	  <!-- Identificador único para tus secretos -->
+	  <UserSecretsId>b1cc3b04-d3e0-4a5b-824a-d176f74fca4c</UserSecretsId>
+	                 
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,8 +26,6 @@
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="10.0.2" />
     <PackageReference Include="X.PagedList.Mvc.Core" Version="10.5.9" />
-    <PackageReference Include="NuGet.Packaging" Version="6.13.1" />
-    <PackageReference Include="NuGet.Protocol" Version="6.13.1" />
   </ItemGroup>
 
 </Project>
