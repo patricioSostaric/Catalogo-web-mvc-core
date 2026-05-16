@@ -18,12 +18,18 @@ namespace catalogo_web_mvc.Repository.Articulos
 
         public IQueryable<Articulo> GetAll()
         {
-            return _context.Set<Articulo>().AsNoTracking();
+            return _context.Set<Articulo>()
+                .Include(a => a.Marca)
+                .Include(a => a.Categoria)
+                .AsNoTracking();
         }
 
         public async Task<Articulo?> GetByIdAsync(int id)
         {
-            return await _context.Set<Articulo>().FindAsync(id);
+            return await _context.Set<Articulo>()
+                .Include(a => a.Marca)
+                .Include(a => a.Categoria)
+                .FirstOrDefaultAsync(a => a.Id == id);
         }
 
         public async Task AddAsync(Articulo articulo)

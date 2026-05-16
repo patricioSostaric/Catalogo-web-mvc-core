@@ -1,0 +1,43 @@
+﻿
+<div id="camposAvanzados" class="row mb-3"
+     style="display:@(Context.Request.Query["filtroAvanzado"] == "true" || Context.Request.Query["filtroAvanzado"] == "on" ? "flex" : "none")">
+
+    <div class="col-md-3">
+        <label for="campo">Campo</label>
+        <select id="campo" name="campo" class="form-control">
+            <option value="Codigo" selected="@(Context.Request.Query["campo"] == "Codigo")">Código</option>
+            <option value="Nombre" selected="@(Context.Request.Query["campo"] == "Nombre")">Nombre</option>
+            <option value="Precio" selected="@(Context.Request.Query["campo"] == "Precio")">Precio</option>
+            <option value="Marca" selected="@(Context.Request.Query["campo"] == "Marca")">Marca</option>
+            <option value="Categoria" selected="@(Context.Request.Query["campo"] == "Categoria")">Categoría</option>
+        </select>
+    </div>
+
+    <div class="col-md-3">
+        <label for="criterio">Criterio</label>
+        <select id="criterio" name="criterio" class="form-control">
+            @if (Context.Request.Query["campo"] == "Precio")
+            {
+                <option value="Igual a" selected="@(Context.Request.Query["criterio"] == "Igual a")">Igual a</option>
+                <option value="Mayor a" selected="@(Context.Request.Query["criterio"] == "Mayor a")">Mayor a</option>
+                <option value="Menor a" selected="@(Context.Request.Query["criterio"] == "Menor a")">Menor a</option>
+            }
+            else
+            {
+                <option value="Contiene" selected="@(Context.Request.Query["criterio"] == "Contiene")">Contiene</option>
+                <option value="Comienza con" selected="@(Context.Request.Query["criterio"] == "Comienza con")">Comienza con</option>
+                <option value="Termina con" selected="@(Context.Request.Query["criterio"] == "Termina con")">Termina con</option>
+            }
+        </select>
+    </div>
+
+    <div class="col-md-4">
+        <label for="filtro">Filtro</label>
+        <input type="text" id="filtro" name="filtro" class="form-control" autocomplete="off"
+               value="@Context.Request.Query["filtro"]" />
+    </div>
+
+    <div class="col-md-2 d-flex align-items-end">
+        <button type="submit" class="btn btn-primary w-100">Buscar</button>
+    </div>
+</div>

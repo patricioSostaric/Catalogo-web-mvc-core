@@ -42,6 +42,32 @@ namespace catalogo_web_mvc.Controllers
             return View(articulo);
         }
 
+        // GET: Articulo/Create
+        public async Task<IActionResult> Create()
+        {
+            ViewBag.MarcaId = await _service.GetMarcasSelectList();
+            ViewBag.CategoriaId = await _service.GetCategoriasSelectList();
+            return View();
+        }
+
+        // GET: Articulo/Edit/5
+        public async Task<IActionResult> Edit(int id)
+        {
+            var articulo = await _service.GetByIdAsync(id);
+            if (articulo == null) return NotFound();
+            ViewBag.MarcaId = await _service.GetMarcasSelectList(articulo.MarcaId);
+            ViewBag.CategoriaId = await _service.GetCategoriasSelectList(articulo.CategoriaId);
+            return View(articulo);
+        }
+
+        // GET: Articulo/Delete/5
+        public async Task<IActionResult> Delete(int id)
+        {
+            var articulo = await _service.GetByIdAsync(id);
+            if (articulo == null) return NotFound();
+            return View(articulo);
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Articulo articulo)
@@ -51,6 +77,8 @@ namespace catalogo_web_mvc.Controllers
                 await _service.AddAsync(articulo);
                 return RedirectToAction(nameof(Index));
             }
+            ViewBag.MarcaId = await _service.GetMarcasSelectList(articulo.MarcaId);
+            ViewBag.CategoriaId = await _service.GetCategoriasSelectList(articulo.CategoriaId);
             return View(articulo);
         }
 
@@ -65,12 +93,14 @@ namespace catalogo_web_mvc.Controllers
                 await _service.UpdateAsync(articulo);
                 return RedirectToAction(nameof(Index));
             }
+            ViewBag.MarcaId = await _service.GetMarcasSelectList(articulo.MarcaId);
+            ViewBag.CategoriaId = await _service.GetCategoriasSelectList(articulo.CategoriaId);
             return View(articulo);
         }
 
-        [HttpPost]
+        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
             await _service.DeleteAsync(id);
             return RedirectToAction(nameof(Index));
