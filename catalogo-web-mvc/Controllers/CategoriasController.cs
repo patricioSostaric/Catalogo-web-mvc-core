@@ -1,157 +1,83 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using catalogo_web_mvc.Data;
+using catalogo_web_mvc.Interfaces.Categorias;
 using catalogo_web_mvc.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace catalogo_web_mvc.Controllers
 {
     public class CategoriasController : Controller
     {
-        private readonly CatalogoContext _context;
+        private readonly ICategoriaService _service;
 
-        public CategoriasController(CatalogoContext context)
+        public CategoriasController(ICategoriaService service)
         {
-            _context = context;
+            _service = service;
         }
 
-        // GET: Categorias
         public async Task<IActionResult> Index()
-        {
-            return View(await _context.Categorias.ToListAsync());
-        }
+            => View(await _service.GetAllAsync());
 
-        // GET: Categorias/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var categoria = await _context.Categorias
-                .FirstOrDefaultAsync(m => m.CategoriaId == id);
-            if (categoria == null)
-            {
-                return NotFound();
-            }
-
+            if (id == null) return NotFound();
+            var categoria = await _service.GetByIdAsync(id.Value);
+            if (categoria == null) return NotFound();
             return View(categoria);
         }
 
-        // GET: Categorias/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
+        public IActionResult Create() => View();
 
-        // POST: Categorias/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("CategoriaId,Descripcion")] Categoria categoria)
         {
-            if (ModelState.IsValid)
-            {
-                _context.Add(categoria);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(categoria);
+            if (!ModelState.IsValid) return View(categoria);
+            await _service.AddAsync(categoria);
+            return RedirectToAction(nameof(Index));
         }
 
-        // GET: Categorias/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var categoria = await _context.Categorias.FindAsync(id);
-            if (categoria == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
+            var categoria = await _service.GetByIdAsync(id.Value);
+            if (categoria == null) return NotFound();
             return View(categoria);
         }
 
-        // POST: Categorias/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("CategoriaId,Descripcion")] Categoria categoria)
         {
-            if (id != categoria.CategoriaId)
+            if (id != categoria.CategoriaId) return NotFound();
+            if (!ModelState.IsValid) return View(categoria);
+
+            try
             {
-                return NotFound();
+                await _service.UpdateAsync(categoria);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!await _service.ExistsAsync(categoria.CategoriaId)) return NotFound();
+                throw;
             }
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(categoria);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!CategoriaExists(categoria.CategoriaId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(categoria);
+            return RedirectToAction(nameof(Index));
         }
 
-        // GET: Categorias/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var categoria = await _context.Categorias
-                .FirstOrDefaultAsync(m => m.CategoriaId == id);
-            if (categoria == null)
-            {
-                return NotFound();
-            }
-
+            if (id == null) return NotFound();
+            var categoria = await _service.GetByIdAsync(id.Value);
+            if (categoria == null) return NotFound();
             return View(categoria);
         }
 
-        // POST: Categorias/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var categoria = await _context.Categorias.FindAsync(id);
-            if (categoria != null)
-            {
-                _context.Categorias.Remove(categoria);
-            }
-
-            await _context.SaveChangesAsync();
+            await _service.DeleteAsync(id);
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool CategoriaExists(int id)
-        {
-            return _context.Categorias.Any(e => e.CategoriaId == id);
         }
     }
 }
