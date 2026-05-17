@@ -1,11 +1,14 @@
 using catalogo_web_mvc.Data;
 using catalogo_web_mvc.Interfaces.Articulos;
 using catalogo_web_mvc.Interfaces.Categorias;
+using catalogo_web_mvc.Interfaces.Marcas;
 using catalogo_web_mvc.Models; // tu clase Usuario extendida de IdentityUser
 using catalogo_web_mvc.Repository.Articulos;
 using catalogo_web_mvc.Repository.Categorias;
+using catalogo_web_mvc.Repository.Marcas;
 using catalogo_web_mvc.Services.Articulos;
 using catalogo_web_mvc.Services.Categorias;
+using catalogo_web_mvc.Services.Marcas;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
@@ -45,6 +48,8 @@ builder.Services.AddScoped<IArticuloRepository, ArticuloRepository>();
 builder.Services.AddScoped<IArticuloService, ArticuloService>();
 builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
 builder.Services.AddScoped<ICategoriaService, CategoriaService>();
+builder.Services.AddScoped<IMarcaRepository, MarcaRepository>();
+builder.Services.AddScoped<IMarcaService, MarcaService>();
 
 // Controllers + Views
 builder.Services.AddControllersWithViews();

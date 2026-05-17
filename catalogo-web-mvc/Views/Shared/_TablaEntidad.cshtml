@@ -1,0 +1,29 @@
+@model TablaEntidadViewModel
+
+<table class="table table-striped table-hover">
+    <thead>
+        <tr>
+            @foreach (var columna in Model.Columnas)
+            {
+                <th>@columna</th>
+            }
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var fila in Model.Filas)
+        {
+            <tr>
+                @foreach (var valor in fila.Valores)
+                {
+                    <td>@valor</td>
+                }
+                <td>
+                    <a asp-action="Edit"    asp-route-id="@fila.Id" class="btn btn-outline-primary">Editar</a> |
+                    <a asp-action="Details" asp-route-id="@fila.Id" class="btn btn-outline-success">Detalles</a> |
+                    <a asp-action="Delete"  asp-route-id="@fila.Id" class="btn btn-outline-danger">Eliminar</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
