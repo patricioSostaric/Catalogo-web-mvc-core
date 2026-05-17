@@ -1,157 +1,83 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using catalogo_web_mvc.Data;
+using catalogo_web_mvc.Interfaces.Marcas;
 using catalogo_web_mvc.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace catalogo_web_mvc.Controllers
 {
     public class MarcasController : Controller
     {
-        private readonly CatalogoContext _context;
+        private readonly IMarcaService _service;
 
-        public MarcasController(CatalogoContext context)
+        public MarcasController(IMarcaService service)
         {
-            _context = context;
+            _service = service;
         }
 
-        // GET: Marcas
         public async Task<IActionResult> Index()
-        {
-            return View(await _context.Marcas.ToListAsync());
-        }
+            => View(await _service.GetAllAsync());
 
-        // GET: Marcas/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var marca = await _context.Marcas
-                .FirstOrDefaultAsync(m => m.MarcaId == id);
-            if (marca == null)
-            {
-                return NotFound();
-            }
-
+            if (id == null) return NotFound();
+            var marca = await _service.GetByIdAsync(id.Value);
+            if (marca == null) return NotFound();
             return View(marca);
         }
 
-        // GET: Marcas/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
+        public IActionResult Create() => View();
 
-        // POST: Marcas/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("MarcaId,Descripcion")] Marca marca)
         {
-            if (ModelState.IsValid)
-            {
-                _context.Add(marca);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(marca);
+            if (!ModelState.IsValid) return View(marca);
+            await _service.AddAsync(marca);
+            return RedirectToAction(nameof(Index));
         }
 
-        // GET: Marcas/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var marca = await _context.Marcas.FindAsync(id);
-            if (marca == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
+            var marca = await _service.GetByIdAsync(id.Value);
+            if (marca == null) return NotFound();
             return View(marca);
         }
 
-        // POST: Marcas/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("MarcaId,Descripcion")] Marca marca)
         {
-            if (id != marca.MarcaId)
+            if (id != marca.MarcaId) return NotFound();
+            if (!ModelState.IsValid) return View(marca);
+
+            try
             {
-                return NotFound();
+                await _service.UpdateAsync(marca);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!await _service.ExistsAsync(marca.MarcaId)) return NotFound();
+                throw;
             }
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(marca);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!MarcaExists(marca.MarcaId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(marca);
+            return RedirectToAction(nameof(Index));
         }
 
-        // GET: Marcas/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var marca = await _context.Marcas
-                .FirstOrDefaultAsync(m => m.MarcaId == id);
-            if (marca == null)
-            {
-                return NotFound();
-            }
-
+            if (id == null) return NotFound();
+            var marca = await _service.GetByIdAsync(id.Value);
+            if (marca == null) return NotFound();
             return View(marca);
         }
 
-        // POST: Marcas/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var marca = await _context.Marcas.FindAsync(id);
-            if (marca != null)
-            {
-                _context.Marcas.Remove(marca);
-            }
-
-            await _context.SaveChangesAsync();
+            await _service.DeleteAsync(id);
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool MarcaExists(int id)
-        {
-            return _context.Marcas.Any(e => e.MarcaId == id);
         }
     }
 }
