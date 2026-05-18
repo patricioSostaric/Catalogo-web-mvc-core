@@ -1,8 +1,53 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@model IEnumerable<catalogo_web_mvc.Models.Articulo>
+
+@{
+    ViewData["Title"] = "Inicio";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<h1 class="CentrarTitulo">¡Bienvenido/a!</h1>
+<p>Te encontrás en la web de artículos.</p>
+<h3>Lista de Artículos</h3>
+
+<form asp-action="Index" method="get">
+    <div class="row mb-3">
+        @await Html.PartialAsync("_filtroComun")
+    </div>
+</form>
+
+@if (ViewBag.Mensaje != null)
+{
+    <div class="mb-3">
+        <span class="text-danger">@ViewBag.Mensaje</span>
+    </div>
+}
+
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    @foreach (var articulo in Model)
+    {
+        <div class="col">
+            <div class="card h-100 card-unificada">
+                <img src="@articulo.ImagenUrl"
+                     class="img-fluid rounded detalle-img"
+                     alt="Imagen del artículo"
+                     onerror="this.src='/img/sin-imagen.png'" />
+                <div class="card-body">
+                    <span class="card-title h5 d-block">@articulo.Nombre</span>
+                    <span class="card-text descripcion d-block">@articulo.Descripcion</span>
+                    <span class="card-text d-block fw-semibold">$@articulo.Precio.ToString("N2")</span>
+                    <div class="mt-2">
+                        <a asp-controller="Articulo" asp-action="Details" asp-route-id="@articulo.Id"
+                           class="btn btn-outline-primary btn-sm">Ver detalle</a>
+                        <button type="button" class="btn btn-secondary btn-sm mt-1"
+                                disabled title="Próximamente">Comprar</button>
+                        <button type="button" class="btn btn-outline-danger btn-sm mt-1 ms-1"
+                                disabled title="Próximamente">&#9825; Favorito</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
 </div>
+
+@section Scripts {
+    <script src="~/js/home-index.js"></script>
+}
