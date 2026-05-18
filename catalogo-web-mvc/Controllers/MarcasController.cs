@@ -17,14 +17,6 @@ namespace catalogo_web_mvc.Controllers
         public async Task<IActionResult> Index()
             => View(await _service.GetAllAsync());
 
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null) return NotFound();
-            var marca = await _service.GetByIdAsync(id.Value);
-            if (marca == null) return NotFound();
-            return View(marca);
-        }
-
         public IActionResult Create() => View();
 
         [HttpPost]

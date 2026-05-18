@@ -49,38 +49,6 @@ namespace CatalogoWeb.Tests.Controllers
             Assert.Empty(modelo);
         }
 
-        // ── Details ───────────────────────────────────────────────────────────
-
-        [Fact]
-        public async Task Details_RetornaVista_CuandoExiste()
-        {
-            var marca = new Marca { MarcaId = 1, Descripcion = "Samsung" };
-            _serviceMock.Setup(s => s.GetByIdAsync(1)).ReturnsAsync(marca);
-
-            var resultado = await _controller.Details(1);
-
-            var viewResult = Assert.IsType<ViewResult>(resultado);
-            Assert.Equal(marca, viewResult.Model);
-        }
-
-        [Fact]
-        public async Task Details_RetornaNotFound_CuandoIdEsNull()
-        {
-            var resultado = await _controller.Details(null);
-
-            Assert.IsType<NotFoundResult>(resultado);
-        }
-
-        [Fact]
-        public async Task Details_RetornaNotFound_CuandoNoExiste()
-        {
-            _serviceMock.Setup(s => s.GetByIdAsync(99)).ReturnsAsync((Marca?)null);
-
-            var resultado = await _controller.Details(99);
-
-            Assert.IsType<NotFoundResult>(resultado);
-        }
-
         // ── Create GET ────────────────────────────────────────────────────────
 
         [Fact]
