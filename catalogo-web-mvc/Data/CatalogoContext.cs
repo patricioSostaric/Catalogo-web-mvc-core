@@ -11,6 +11,8 @@ namespace catalogo_web_mvc.Data
         public DbSet<Articulo> Articulos { get; set; }
         public DbSet<Categoria> Categorias { get; set; }
         public DbSet<Marca> Marcas { get; set; }
+        public DbSet<ArticuloFavorito> ArticuloFavoritos { get; set; }
+        public DbSet<AuditLog> AuditLogs { get; set; }
 
 
 
@@ -38,7 +40,23 @@ namespace catalogo_web_mvc.Data
 
             modelBuilder.Entity<Articulo>()
             .Property(a => a.ImagenUrl)
-            .HasMaxLength(500); // suficiente para URLs largas
+            .HasMaxLength(500);
+
+            modelBuilder.Entity<ArticuloFavorito>()
+                .HasOne(f => f.Usuario)
+                .WithMany()
+                .HasForeignKey(f => f.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ArticuloFavorito>()
+                .HasOne(f => f.Articulo)
+                .WithMany()
+                .HasForeignKey(f => f.ArticuloId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ArticuloFavorito>()
+                .HasIndex(f => new { f.UserId, f.ArticuloId })
+                .IsUnique();
 
         }
 

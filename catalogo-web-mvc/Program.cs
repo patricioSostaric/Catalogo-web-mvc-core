@@ -1,6 +1,7 @@
 using catalogo_web_mvc.Data;
-using Microsoft.AspNetCore.Identity;
 using catalogo_web_mvc.Interfaces.Articulos;
+using catalogo_web_mvc.Interfaces.Audit;
+using catalogo_web_mvc.Services.Audit;
 using catalogo_web_mvc.Interfaces.Categorias;
 using catalogo_web_mvc.Interfaces.Marcas;
 using catalogo_web_mvc.Models; // tu clase Usuario extendida de IdentityUser
@@ -35,25 +36,35 @@ if (builder.Environment.IsDevelopment())
 // Obtener la cadena de conexión
 var connectionString = builder.Configuration.GetConnectionString("CatalogoDB");
 
-Console.WriteLine($"Cadena usada: {connectionString ?? "NULL"}");
-
+if (builder.Environment.IsDevelopment())
+    Console.WriteLine($"Cadena usada: {connectionString ?? "NULL"}");
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-builder.Services.AddMvc();
 builder.Services.AddDbContext<CatalogoContext>(options =>
     options.UseSqlServer(connectionString));
 
 builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 {
     options.SignIn.RequireConfirmedAccount = false;
+
+    // Política de contraseña
     options.Password.RequireDigit = true;
-    options.Password.RequiredLength = 6;
-    options.Password.RequireNonAlphanumeric = false;
-    options.Password.RequireUppercase = false;
+    options.Password.RequiredLength = 8;
+    options.Password.RequireNonAlphanumeric = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireLowercase = true;
+
+    // Lockout por intentos fallidos
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+    options.Lockout.MaxFailedAccessAttempts = 5;
+    options.Lockout.AllowedForNewUsers = true;
 })
 .AddRoles<IdentityRole>()
 .AddEntityFrameworkStores<CatalogoContext>();
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IAuditService, AuditService>();
 
 // Repository + Service
 builder.Services.AddScoped<IArticuloRepository, ArticuloRepository>();
@@ -63,8 +74,6 @@ builder.Services.AddScoped<ICategoriaService, CategoriaService>();
 builder.Services.AddScoped<IMarcaRepository, MarcaRepository>();
 builder.Services.AddScoped<IMarcaService, MarcaService>();
 
-// Controllers + Views
-builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 

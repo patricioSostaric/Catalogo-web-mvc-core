@@ -10,7 +10,7 @@ namespace catalogo_web_mvc.Models.ViewModels
 
         [Required(ErrorMessage = "La contraseña es obligatoria")]
         [DataType(DataType.Password)]
-        [StringLength(100, ErrorMessage = "Mínimo {2} caracteres", MinimumLength = 6)]
+        [StringLength(100, ErrorMessage = "Mínimo {2} caracteres", MinimumLength = 8)]
         public string Password { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Confirmá la contraseña")]

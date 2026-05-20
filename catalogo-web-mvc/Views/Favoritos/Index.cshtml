@@ -1,0 +1,62 @@
+@model X.PagedList.IPagedList<catalogo_web_mvc.Models.ViewModels.FavoritoViewModel>
+@using X.PagedList.Mvc.Core
+@{
+    ViewData["Title"] = "Mis Favoritos";
+}
+
+<h2 class="CentrarTitulo mb-4">Mis artículos favoritos</h2>
+
+@if (!Model.Any() && Model.PageNumber == 1)
+{
+    <div class="d-flex justify-content-center mt-5">
+        <div class="card shadow-sm p-4 text-center d-flex flex-column align-items-center gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="40" height="40" fill="gold">
+                <polygon points="12 2 15 9 22 9 17 14 19 21 12 17 5 21 7 14 2 9 9 9"/>
+            </svg>
+            <p class="text-muted fs-5 mb-0">No tenés artículos favoritos.</p>
+            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-primary btn-sm">Ver catálogo</a>
+        </div>
+    </div>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        @foreach (var item in Model)
+        {
+            <div class="col">
+                <div class="card h-100 card-unificada">
+                    <img src="@item.ImagenUrl"
+                         class="card-img-top card-img-uniform img-fluid rounded"
+                         alt="Imagen del artículo"
+                         onerror="this.src='https://www.mansor.com.uy/wp-content/uploads/2020/06/imagen-no-disponible2.jpg'" />
+                    <div class="card-body">
+                        <h5 class="card-title">@item.Nombre</h5>
+                        <p class="card-text descripcion">@item.Descripcion</p>
+                        <p class="card-text"><strong>Precio:</strong> $@item.Precio.ToString("N2")</p>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between align-items-center">
+                        <a asp-controller="Home" asp-action="Detalle" asp-route-id="@item.ArticuloId"
+                           class="btn btn-link btn-sm p-0">Ver detalle</a>
+                        <form asp-controller="Favoritos" asp-action="Remove"
+                              asp-route-id="@item.ArticuloId" method="post">
+                            <button type="submit" class="btn btn-outline-danger btn-sm">❌ Quitar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="d-flex justify-content-center mt-4">
+        @Html.PagedListPager(Model, page => Url.Action("Index", new { page }),
+        new PagedListRenderOptions
+        {
+            DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+            DisplayLinkToLastPage = PagedListDisplayMode.Always,
+            DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+            DisplayLinkToNextPage = PagedListDisplayMode.Always,
+            MaximumPageNumbersToDisplay = 5,
+            UlElementClasses = new[] { "pagination" }
+        })
+    </div>
+}
