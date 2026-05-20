@@ -1,8 +1,10 @@
+using catalogo_web_mvc.Interfaces.Audit;
 using catalogo_web_mvc.Interfaces.Categorias;
 using catalogo_web_mvc.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace catalogo_web_mvc.Controllers
 {
@@ -10,10 +12,12 @@ namespace catalogo_web_mvc.Controllers
     public class CategoriasController : Controller
     {
         private readonly ICategoriaService _service;
+        private readonly IAuditService _audit;
 
-        public CategoriasController(ICategoriaService service)
+        public CategoriasController(ICategoriaService service, IAuditService audit)
         {
             _service = service;
+            _audit = audit;
         }
 
         public async Task<IActionResult> Index()
@@ -27,6 +31,7 @@ namespace catalogo_web_mvc.Controllers
         {
             if (!ModelState.IsValid) return View(categoria);
             await _service.AddAsync(categoria);
+            await _audit.RegistrarAsync("CREATE", User.Identity?.Name, User.FindFirstValue(ClaimTypes.NameIdentifier), $"Categoría: {categoria.Descripcion}");
             return RedirectToAction(nameof(Index));
         }
 
@@ -48,6 +53,7 @@ namespace catalogo_web_mvc.Controllers
             try
             {
                 await _service.UpdateAsync(categoria);
+                await _audit.RegistrarAsync("UPDATE", User.Identity?.Name, User.FindFirstValue(ClaimTypes.NameIdentifier), $"Categoría ID {id}: {categoria.Descripcion}");
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -71,6 +77,7 @@ namespace catalogo_web_mvc.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             await _service.DeleteAsync(id);
+            await _audit.RegistrarAsync("DELETE", User.Identity?.Name, User.FindFirstValue(ClaimTypes.NameIdentifier), $"Categoría ID {id}");
             return RedirectToAction(nameof(Index));
         }
     }

@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using X.PagedList;
 using X.PagedList.Extensions;
 using Microsoft.AspNetCore.Authorization;
+using catalogo_web_mvc.Interfaces.Audit;
+using System.Security.Claims;
 
 namespace catalogo_web_mvc.Controllers
 {
@@ -17,10 +19,12 @@ namespace catalogo_web_mvc.Controllers
     public class ArticuloController : Controller
     {
         private readonly IArticuloService _service;
+        private readonly IAuditService _audit;
 
-        public ArticuloController(IArticuloService service)
+        public ArticuloController(IArticuloService service, IAuditService audit)
         {
             _service = service;
+            _audit = audit;
         }
 
         public async Task<IActionResult> Index(string searchString, bool filtroAvanzado,
@@ -77,6 +81,7 @@ namespace catalogo_web_mvc.Controllers
             if (ModelState.IsValid)
             {
                 await _service.AddAsync(articulo);
+                await _audit.RegistrarAsync("CREATE", User.Identity?.Name, User.FindFirstValue(ClaimTypes.NameIdentifier), $"Artículo: {articulo.Nombre} (Cód: {articulo.Codigo})");
                 return RedirectToAction(nameof(Index));
             }
             ViewBag.MarcaId = await _service.GetMarcasSelectList(articulo.MarcaId);
@@ -93,6 +98,7 @@ namespace catalogo_web_mvc.Controllers
             if (ModelState.IsValid)
             {
                 await _service.UpdateAsync(articulo);
+                await _audit.RegistrarAsync("UPDATE", User.Identity?.Name, User.FindFirstValue(ClaimTypes.NameIdentifier), $"Artículo ID {id}: {articulo.Nombre}");
                 return RedirectToAction(nameof(Index));
             }
             ViewBag.MarcaId = await _service.GetMarcasSelectList(articulo.MarcaId);
@@ -105,6 +111,7 @@ namespace catalogo_web_mvc.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             await _service.DeleteAsync(id);
+            await _audit.RegistrarAsync("DELETE", User.Identity?.Name, User.FindFirstValue(ClaimTypes.NameIdentifier), $"Artículo ID {id}");
             return RedirectToAction(nameof(Index));
         }
     }

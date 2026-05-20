@@ -22,8 +22,8 @@ namespace catalogo_web_mvc.Data
                     await roleManager.CreateAsync(new IdentityRole(role));
             }
 
-            await CrearUsuario(userManager, "admin@catalogo.com", "Admin123!", "Admin");
-            await CrearUsuario(userManager, "usuario@catalogo.com", "Usuario123!", "Usuario");
+            await CrearUsuario(userManager, "admin@catalogo.com", "Admin@1234", "Admin");
+            await CrearUsuario(userManager, "usuario@catalogo.com", "Usuario@1234", "Usuario");
         }
 
         private static async Task CrearUsuario(UserManager<ApplicationUser> userManager, string email, string password, string rol)

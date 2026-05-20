@@ -1,0 +1,40 @@
+@model catalogo_web_mvc.Models.Articulo
+
+<div class="row align-items-start">
+    <div class="col-6 mt-3">
+        <dl class="row">
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Codigo)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.Codigo)</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Nombre)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.Nombre)</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Descripcion)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.Descripcion)</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Marca)</dt>
+            <dd class="col-sm-9">@Model.Marca?.Descripcion</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Categoria)</dt>
+            <dd class="col-sm-9">@Model.Categoria?.Descripcion</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Precio)</dt>
+            <dd class="col-sm-9">@String.Format("{0:N2}", Model.Precio)</dd>
+        </dl>
+    </div>
+
+    <div class="col-4 d-flex justify-content-start align-items-start ms-3">
+        @if (!string.IsNullOrEmpty(Model.ImagenUrl))
+        {
+            <img src="@Model.ImagenUrl"
+                 class="img-fluid rounded"
+                 style="max-width:100%; max-height:300px;"
+                 alt="@Model.Nombre"
+                 onerror="this.src='https://www.mansor.com.uy/wp-content/uploads/2020/06/imagen-no-disponible2.jpg'" />
+        }
+        else
+        {
+            <span class="text-muted">Imagen no disponible</span>
+        }
+    </div>
+</div>
