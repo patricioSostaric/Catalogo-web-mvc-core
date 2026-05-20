@@ -1,0 +1,16 @@
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<catalogo_web_mvc.Models.ApplicationUser> SignInManager
+
+@if (SignInManager.IsSignedIn(User))
+{
+    <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+        <button type="submit" class="btn btn-link nav-link text-dark px-0">
+            Cerrar sesión (@User.Identity?.Name)
+        </button>
+    </form>
+}
+else
+{
+    <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Ingresar</a>
+    <a class="nav-link text-dark" asp-controller="Account" asp-action="Register">Registrarse</a>
+}

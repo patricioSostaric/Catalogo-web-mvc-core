@@ -1,10 +1,12 @@
 using catalogo_web_mvc.Interfaces.Categorias;
 using catalogo_web_mvc.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace catalogo_web_mvc.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class CategoriasController : Controller
     {
         private readonly ICategoriaService _service;

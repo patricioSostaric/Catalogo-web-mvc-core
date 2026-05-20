@@ -1,10 +1,12 @@
 using catalogo_web_mvc.Interfaces.Marcas;
 using catalogo_web_mvc.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace catalogo_web_mvc.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class MarcasController : Controller
     {
         private readonly IMarcaService _service;

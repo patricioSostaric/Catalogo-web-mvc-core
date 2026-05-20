@@ -9,9 +9,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using X.PagedList;
 using X.PagedList.Extensions;
+using Microsoft.AspNetCore.Authorization;
 
 namespace catalogo_web_mvc.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class ArticuloController : Controller
     {
         private readonly IArticuloService _service;

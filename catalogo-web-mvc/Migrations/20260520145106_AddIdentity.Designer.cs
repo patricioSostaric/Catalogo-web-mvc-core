@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using catalogo_web_mvc.Data;
 
@@ -11,9 +12,11 @@ using catalogo_web_mvc.Data;
 namespace catalogo_web_mvc.Migrations
 {
     [DbContext(typeof(CatalogoContext))]
-    partial class CatalogoContextModelSnapshot : ModelSnapshot
+    [Migration("20260520145106_AddIdentity")]
+    partial class AddIdentity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -267,6 +270,173 @@ namespace catalogo_web_mvc.Migrations
                     b.HasIndex("MarcaId");
 
                     b.ToTable("Articulos");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CategoriaId = 1,
+                            Codigo = "S01",
+                            Descripcion = "Una canoa cara",
+                            ImagenUrl = "https://images.samsung.com/is/image/samsung/assets/ar/p6_gro2/p6_initial_mktpd/smartphones/galaxy-s10/specs/galaxy-s10-plus_specs_design_colors_prism_black.jpg?$163_346_PNG$",
+                            MarcaId = 1,
+                            Nombre = "Galaxy S10",
+                            Precio = 69999m
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CategoriaId = 1,
+                            Codigo = "M03",
+                            Descripcion = "Ya siete de estos?",
+                            ImagenUrl = "https://i.blogs.es/baafde/motorola-moto-g7/1366_2000.webp",
+                            MarcaId = 5,
+                            Nombre = "Moto G Play 7ma Gen",
+                            Precio = 15699m
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CategoriaId = 3,
+                            Codigo = "S99",
+                            Descripcion = "Ya no se cuantas versiones hay",
+                            ImagenUrl = "https://images.fravega.com/f1000/b88b497b0887aa2110d09fe389a29054.jpg",
+                            MarcaId = 3,
+                            Nombre = "Play 4",
+                            Precio = 35000m
+                        },
+                        new
+                        {
+                            Id = 4,
+                            CategoriaId = 2,
+                            Codigo = "S56",
+                            Descripcion = "Alta tele",
+                            ImagenUrl = "https://fulltec.com.bo/medios/2021/08/KD-55X725E-4.jpg",
+                            MarcaId = 3,
+                            Nombre = "Bravia 55",
+                            Precio = 49500m
+                        },
+                        new
+                        {
+                            Id = 5,
+                            CategoriaId = 3,
+                            Codigo = "A23",
+                            Descripcion = "lindo loro",
+                            ImagenUrl = "https://www.apple.com/newsroom/images/2023/12/redesigned-apple-tv-app-simplifies-the-viewing-experience/article/Apple-TV-app-home-screen_big.jpg.large_2x.jpg",
+                            MarcaId = 2,
+                            Nombre = "Apple TV",
+                            Precio = 7850m
+                        },
+                        new
+                        {
+                            Id = 6,
+                            CategoriaId = 1,
+                            Codigo = "H01",
+                            Descripcion = "Celular con triple cámara",
+                            ImagenUrl = "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRMFcq4Q7dPGPOLzhbIaeSTcZ7wuDSmHkWLmhlm0Nz-PsY6yWBwF5DnqdOfFx7UkKiCRDwPNOdtgK8SRX1mtGmYHZZnCwFlQJv1H4FpukAAJhbR2889GyFxaMswxa7o4gWZeZ7FvKm2Eg&usqp=CAc ",
+                            MarcaId = 4,
+                            Nombre = "Huawei P30",
+                            Precio = 45999m
+                        },
+                        new
+                        {
+                            Id = 7,
+                            CategoriaId = 2,
+                            Codigo = "S20",
+                            Descripcion = "Televisor de alta definición",
+                            ImagenUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ9iqqSfTfIlR4odS9nlUOxO8wH1lu98ceyvA&s",
+                            MarcaId = 1,
+                            Nombre = "Samsung QLED 65",
+                            Precio = 120000m
+                        },
+                        new
+                        {
+                            Id = 8,
+                            CategoriaId = 4,
+                            Codigo = "A50",
+                            Descripcion = "Auriculares inalámbricos con cancelación",
+                            ImagenUrl = "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRJ9QKeD42BVe8PcDCAbL9fvLS2Jzwe94dXAqJ0oavHxv_j0czNzcjJ_GV5mb08uhWwYxgQ-jiG9OcKmrtnzto6LFQC8jj9_KH2yHu-gfLRx4-yyqXGLUpGjo5M6MhQ_NxmX4cTlwo&usqp=CAc",
+                            MarcaId = 2,
+                            Nombre = "AirPods Pro",
+                            Precio = 8999m
+                        },
+                        new
+                        {
+                            Id = 9,
+                            CategoriaId = 1,
+                            Codigo = "M10",
+                            Descripcion = "Celular económico",
+                            ImagenUrl = "https://ar.celulares.com/fotos/motorola-moto-e20-94506-g.jpg",
+                            MarcaId = 5,
+                            Nombre = "Moto E20",
+                            Precio = 10999m
+                        },
+                        new
+                        {
+                            Id = 10,
+                            CategoriaId = 4,
+                            Codigo = "S77",
+                            Descripcion = "Auriculares con cancelación de ruido",
+                            ImagenUrl = "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRwSPDvpeUVbL_SSTHEnUu9Wblp5hGqrjpY9gRjUplzy--_EbtfWpYKKi78wXxnCPR-bSBYx_gRI4LkRsCeyNNSpwpfbRPKNl0upmwAgdCX8wQzWJBkilJt2ID1c91RsijIkWngOk0&usqp=CAc",
+                            MarcaId = 3,
+                            Nombre = "Sony WH-1000XM4",
+                            Precio = 29999m
+                        },
+                        new
+                        {
+                            Id = 11,
+                            CategoriaId = 3,
+                            Codigo = "A99",
+                            Descripcion = "Tablet de alto rendimiento",
+                            ImagenUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS0roqcdNDvARcExaG2lSjzefvfrittrcbpbw&s",
+                            MarcaId = 2,
+                            Nombre = "Apple iPad Pro",
+                            Precio = 150000m
+                        },
+                        new
+                        {
+                            Id = 12,
+                            CategoriaId = 3,
+                            Codigo = "H55",
+                            Descripcion = "Notebook ligera",
+                            ImagenUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSilXc9Z-LL-TY3amhFEDmSbRGHMQx030hskg&s",
+                            MarcaId = 4,
+                            Nombre = "Huawei MateBook",
+                            Precio = 95000m
+                        },
+                        new
+                        {
+                            Id = 13,
+                            CategoriaId = 4,
+                            Codigo = "S88",
+                            Descripcion = "Auriculares inalámbricos",
+                            ImagenUrl = "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcSHFJCqbFx9N3cSRQrooUZxZrG_0BHZJ_9mNkzAgsEE6aV4Bi8bDRgYX-lm0HI7DEjSaLxr_arVnDhd2-9CvM5jMcSW2aheoIOUwjEh706K-2cU8JrQLmxjxzVx8XxKQLRfGNh20Q&usqp=CAc",
+                            MarcaId = 1,
+                            Nombre = "Samsung Galaxy Buds",
+                            Precio = 12999m
+                        },
+                        new
+                        {
+                            Id = 14,
+                            CategoriaId = 1,
+                            Codigo = "M22",
+                            Descripcion = "Celular gama media",
+                            ImagenUrl = "https://http2.mlstatic.com/D_NQ_NP_2X_787732-MLU54979244644_042023-F.webp",
+                            MarcaId = 5,
+                            Nombre = "Motorola Edge 30",
+                            Precio = 39999m
+                        },
+                        new
+                        {
+                            Id = 15,
+                            CategoriaId = 3,
+                            Codigo = "S90",
+                            Descripcion = "Consola de última generación",
+                            ImagenUrl = "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcQ5UaDAgLwtkEMiUEkVqydxn0tOezRPg87TI2KiIvzRLhiqlN-HsGu2MQSL-VCbJRa_wuwiS7-0Bto7_DuvgqIKYqGW2xutu_MmUmMt6RjUAqQcnjXZZlSbWB37-e84osdqKWPJZNX-1FNc&usqp=CAc",
+                            MarcaId = 3,
+                            Nombre = "Sony PlayStation 5",
+                            Precio = 250000m
+                        });
                 });
 
             modelBuilder.Entity("catalogo_web_mvc.Models.Categoria", b =>
@@ -285,6 +455,28 @@ namespace catalogo_web_mvc.Migrations
                     b.HasKey("CategoriaId");
 
                     b.ToTable("Categorias");
+
+                    b.HasData(
+                        new
+                        {
+                            CategoriaId = 1,
+                            Descripcion = "Celulares"
+                        },
+                        new
+                        {
+                            CategoriaId = 2,
+                            Descripcion = "Televisores"
+                        },
+                        new
+                        {
+                            CategoriaId = 3,
+                            Descripcion = "Media"
+                        },
+                        new
+                        {
+                            CategoriaId = 4,
+                            Descripcion = "Audio"
+                        });
                 });
 
             modelBuilder.Entity("catalogo_web_mvc.Models.Marca", b =>
@@ -303,6 +495,33 @@ namespace catalogo_web_mvc.Migrations
                     b.HasKey("MarcaId");
 
                     b.ToTable("Marcas");
+
+                    b.HasData(
+                        new
+                        {
+                            MarcaId = 1,
+                            Descripcion = "Samsung"
+                        },
+                        new
+                        {
+                            MarcaId = 2,
+                            Descripcion = "Apple"
+                        },
+                        new
+                        {
+                            MarcaId = 3,
+                            Descripcion = "Sony"
+                        },
+                        new
+                        {
+                            MarcaId = 4,
+                            Descripcion = "Huawei"
+                        },
+                        new
+                        {
+                            MarcaId = 5,
+                            Descripcion = "Motorola"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
