@@ -1,7 +1,9 @@
-@model IEnumerable<catalogo_web_mvc.Models.Articulo>
-
+@using X.PagedList
+@using X.PagedList.Mvc.Core
+@model IPagedList<catalogo_web_mvc.Models.Articulo>
 @{
     ViewData["Title"] = "Inicio";
+    var favoritos = ViewBag.Favoritos as HashSet<int> ?? new HashSet<int>();
 }
 
 <h1 class="CentrarTitulo">¡Bienvenido/a!</h1>
@@ -24,6 +26,7 @@
 <div class="row row-cols-1 row-cols-md-3 g-4">
     @foreach (var articulo in Model)
     {
+        bool esFavorito = favoritos.Contains(articulo.Id);
         <div class="col">
             <div class="card h-100 card-unificada">
                 <img src="@articulo.ImagenUrl"
@@ -35,12 +38,31 @@
                     <span class="card-text descripcion d-block">@articulo.Descripcion</span>
                     <span class="card-text d-block fw-semibold">$@articulo.Precio.ToString("N2")</span>
                     <div class="mt-2">
-                        <a asp-controller="Articulo" asp-action="Details" asp-route-id="@articulo.Id"
+                        <a asp-controller="Home" asp-action="Detalle" asp-route-id="@articulo.Id"
                            class="btn btn-outline-primary btn-sm">Ver detalle</a>
+
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            if (esFavorito)
+                            {
+                                <form asp-controller="Favoritos" asp-action="Remove" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@articulo.Id" />
+                                    <button type="submit" class="btn btn-warning btn-sm mt-1 ms-1">⭐ Quitar</button>
+                                </form>
+                            }
+                            else
+                            {
+                                <form asp-controller="Favoritos" asp-action="Add" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@articulo.Id" />
+                                    <button type="submit" class="btn btn-outline-warning btn-sm mt-1 ms-1">♡ Favorito</button>
+                                </form>
+                            }
+                        }
+
                         <button type="button" class="btn btn-secondary btn-sm mt-1"
                                 disabled title="Próximamente">Comprar</button>
-                        <button type="button" class="btn btn-outline-danger btn-sm mt-1 ms-1"
-                                disabled title="Próximamente">&#9825; Favorito</button>
                     </div>
                 </div>
             </div>
@@ -48,6 +70,9 @@
     }
 </div>
 
-@section Scripts {
-    <script src="~/js/home-index.js"></script>
+@if (Model.PageCount > 1)
+{
+    <div class="d-flex justify-content-center mt-4">
+        @Html.PagedListPager(Model, page => Url.Action("Index", new { page, searchString = Context.Request.Query["searchString"] })!)
+    </div>
 }

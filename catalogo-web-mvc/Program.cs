@@ -1,13 +1,14 @@
 using catalogo_web_mvc.Data;
-using Microsoft.AspNetCore.Identity;
 using catalogo_web_mvc.Interfaces.Articulos;
+using catalogo_web_mvc.Interfaces.Audit;
 using catalogo_web_mvc.Interfaces.Categorias;
 using catalogo_web_mvc.Interfaces.Marcas;
-using catalogo_web_mvc.Models; // tu clase Usuario extendida de IdentityUser
+using catalogo_web_mvc.Models;
 using catalogo_web_mvc.Repository.Articulos;
 using catalogo_web_mvc.Repository.Categorias;
 using catalogo_web_mvc.Repository.Marcas;
 using catalogo_web_mvc.Services.Articulos;
+using catalogo_web_mvc.Services.Audit;
 using catalogo_web_mvc.Services.Categorias;
 using catalogo_web_mvc.Services.Marcas;
 using Microsoft.AspNetCore.Identity;
@@ -54,6 +55,10 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 })
 .AddRoles<IdentityRole>()
 .AddEntityFrameworkStores<CatalogoContext>();
+
+// Audit
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IAuditService, AuditService>();
 
 // Repository + Service
 builder.Services.AddScoped<IArticuloRepository, ArticuloRepository>();

@@ -58,12 +58,12 @@ namespace CatalogoWeb.Tests.Models
         }
 
         [Fact]
-        public void Articulo_Precio_PuedeSerCero()
+        public void Articulo_Precio_CeroEsInvalido()
         {
             var articulo = ArticuloValido();
             articulo.Precio = 0m;
             var errores = Validar(articulo);
-            Assert.Empty(errores);
+            Assert.NotEmpty(errores);
         }
 
         [Fact]
@@ -160,6 +160,44 @@ namespace CatalogoWeb.Tests.Models
             articulo.Descripcion = new string('D', 251);
             var errores = Validar(articulo);
             Assert.Contains(errores, e => e.MemberNames.Contains(nameof(Articulo.Descripcion)));
+        }
+
+        // ── Stock ─────────────────────────────────────────────────────────────
+
+        [Fact]
+        public void Articulo_Stock_ValorPositivo_EsValido()
+        {
+            var articulo = ArticuloValido();
+            articulo.Stock = 10;
+            var errores = Validar(articulo);
+            Assert.Empty(errores);
+        }
+
+        [Fact]
+        public void Articulo_Stock_CeroEsValido()
+        {
+            var articulo = ArticuloValido();
+            articulo.Stock = 0;
+            var errores = Validar(articulo);
+            Assert.Empty(errores);
+        }
+
+        [Fact]
+        public void Articulo_Stock_NegativoEsInvalido()
+        {
+            var articulo = ArticuloValido();
+            articulo.Stock = -1;
+            var errores = Validar(articulo);
+            Assert.Contains(errores, e => e.MemberNames.Contains(nameof(Articulo.Stock)));
+        }
+
+        [Fact]
+        public void Articulo_Stock_ValorMaximoEsValido()
+        {
+            var articulo = ArticuloValido();
+            articulo.Stock = int.MaxValue;
+            var errores = Validar(articulo);
+            Assert.Empty(errores);
         }
 
         // ── navegación ────────────────────────────────────────────────────────

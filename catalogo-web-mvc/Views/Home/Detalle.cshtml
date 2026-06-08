@@ -1,0 +1,21 @@
+@model catalogo_web_mvc.Models.Articulo
+@{
+    ViewData["Title"] = Model.Nombre;
+}
+
+<h2>@Model.Nombre</h2>
+<hr />
+
+@await Html.PartialAsync("_ArticuloDetalle", Model)
+
+<div class="mt-3">
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <form asp-controller="Favoritos" asp-action="Add" method="post" class="d-inline">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" value="@Model.Id" />
+            <button type="submit" class="btn btn-outline-warning">⭐ Agregar a favoritos</button>
+        </form>
+    }
+    <a asp-controller="Home" asp-action="Index" class="btn btn-secondary ms-2">Volver</a>
+</div>

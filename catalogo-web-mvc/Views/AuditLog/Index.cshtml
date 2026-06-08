@@ -1,0 +1,100 @@
+@model List<catalogo_web_mvc.Models.AuditLog>
+@{
+    ViewData["Title"] = "Auditoría";
+    int totalPaginas = ViewBag.TotalPaginas;
+    int paginaActual = ViewBag.PaginaActual;
+    string filtroAccion = ViewBag.FiltroAccion ?? "";
+    string filtroEmail = ViewBag.FiltroEmail ?? "";
+    string[] acciones = new[] { "LOGIN_OK", "LOGIN_FAIL", "LOCKOUT", "REGISTER", "LOGOUT", "CREATE", "UPDATE", "DELETE" };
+    var tzArgentina = TimeZoneInfo.FindSystemTimeZoneById("Argentina Standard Time");
+}
+
+<h2>Registro de Auditoría</h2>
+
+<form method="get" class="row align-items-end mb-3 g-2">
+    <div class="col-auto">
+        <label class="form-label">Acción</label>
+        <select name="accion" class="form-select">
+            <option value="">Todas</option>
+            @foreach (string accion in acciones)
+            {
+                if (accion == filtroAccion)
+                {
+                    <option value="@accion" selected="selected">@accion</option>
+                }
+                else
+                {
+                    <option value="@accion">@accion</option>
+                }
+            }
+        </select>
+    </div>
+    <div class="col-auto">
+        <label class="form-label">Email</label>
+        <input name="email" class="form-control" value="@filtroEmail" placeholder="usuario@@ejemplo.com" />
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-primary">Filtrar</button>
+        <a asp-action="Index" class="btn btn-secondary ms-1">Limpiar</a>
+    </div>
+</form>
+
+<div class="table-responsive">
+    <table class="table table-sm table-striped table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>Fecha (AR)</th>
+                <th>Acción</th>
+                <th>Email</th>
+                <th>Detalle</th>
+                <th>IP</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var log in Model)
+            {
+                string badgeClass;
+                if (log.Accion == "LOGIN_OK" || log.Accion == "REGISTER")
+                {
+                    badgeClass = "bg-success";
+                }
+                else if (log.Accion == "LOGIN_FAIL" || log.Accion == "LOCKOUT")
+                {
+                    badgeClass = "bg-danger";
+                }
+                else if (log.Accion == "LOGOUT")
+                {
+                    badgeClass = "bg-secondary";
+                }
+                else if (log.Accion == "DELETE")
+                {
+                    badgeClass = "bg-warning text-dark";
+                }
+                else
+                {
+                    badgeClass = "bg-primary";
+                }
+                var fechaAr = TimeZoneInfo.ConvertTimeFromUtc(log.Fecha, tzArgentina);
+                <tr>
+                    <td>@fechaAr.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                    <td><span class="badge @badgeClass">@log.Accion</span></td>
+                    <td>@log.Email</td>
+                    <td>@log.Detalle</td>
+                    <td>@log.IpAddress</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@if (totalPaginas > 1)
+{
+    <ul class="pagination justify-content-center">
+        @for (int i = 1; i <= totalPaginas; i++)
+        {
+            string liClass = (i == paginaActual) ? "page-item active" : "page-item";
+            string pageUrl = Url.Action("Index", new { page = i, accion = filtroAccion, email = filtroEmail })!;
+            <li class="@liClass"><a class="page-link" href="@pageUrl">@i</a></li>
+        }
+    </ul>
+}

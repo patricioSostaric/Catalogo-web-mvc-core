@@ -1,6 +1,7 @@
 using catalogo_web_mvc.Controllers;
 using catalogo_web_mvc.Models;
 using catalogo_web_mvc.Models.ViewModels;
+using catalogo_web_mvc.Interfaces.Audit;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -12,6 +13,7 @@ namespace CatalogoWeb.Tests.Controllers
     {
         private readonly Mock<UserManager<ApplicationUser>> _userManagerMock;
         private readonly Mock<SignInManager<ApplicationUser>> _signInManagerMock;
+        private readonly Mock<IAuditService> _auditMock;
         private readonly AccountController _controller;
 
         public AccountControllerTests()
@@ -21,12 +23,18 @@ namespace CatalogoWeb.Tests.Controllers
                 userStoreMock.Object, null, null, null, null, null, null, null, null);
 
             _signInManagerMock = new Mock<SignInManager<ApplicationUser>>(
-                _userManagerMock.Object,
+                _userManagerMock.Object,        
                 new Mock<IHttpContextAccessor>().Object,
                 new Mock<IUserClaimsPrincipalFactory<ApplicationUser>>().Object,
                 null, null, null, null);
 
-            _controller = new AccountController(_userManagerMock.Object, _signInManagerMock.Object);
+            _auditMock = new Mock<IAuditService>();
+
+            _controller = new AccountController(_userManagerMock.Object, _signInManagerMock.Object, _auditMock.Object);
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext()
+            };
         }
 
         // ── Login GET ──────────────────────────────────────────────────────────
