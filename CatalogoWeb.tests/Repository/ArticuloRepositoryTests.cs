@@ -225,5 +225,82 @@ namespace CatalogoWeb.Tests.Repository
 
             Assert.False(existe);
         }
+
+        // ── Activo y Stock ────────────────────────────────────────────────────
+
+        [Fact]
+        public async Task AddAsync_PersistActivoTrue_Correctamente()
+        {
+            using var ctx = CrearContexto();
+            SeedData(ctx);
+            var repo = new ArticuloRepository(ctx);
+            var nuevo = new Articulo { Id = 10, Codigo = "ACT-01", Nombre = "Artículo Activo", Descripcion = "Desc", Precio = 100, MarcaId = 1, CategoriaId = 1, Activo = true, Stock = 50 };
+
+            await repo.AddAsync(nuevo);
+
+            var guardado = await ctx.Articulos.FindAsync(10);
+            Assert.NotNull(guardado);
+            Assert.True(guardado.Activo);
+        }
+
+        [Fact]
+        public async Task AddAsync_PersistActivoTrue_PorDefecto()
+        {
+            using var ctx = CrearContexto();
+            SeedData(ctx);
+            var repo = new ArticuloRepository(ctx);
+            var nuevo = new Articulo { Id = 10, Codigo = "ACT-02", Nombre = "Artículo Activo Por Defecto", Descripcion = "Desc", Precio = 100, MarcaId = 1, CategoriaId = 1 };
+
+            await repo.AddAsync(nuevo);
+
+            var guardado = await ctx.Articulos.FindAsync(10);
+            Assert.NotNull(guardado);
+            Assert.True(guardado.Activo);
+        }
+
+        [Fact]
+        public async Task AddAsync_PersistStock_Correctamente()
+        {
+            using var ctx = CrearContexto();
+            SeedData(ctx);
+            var repo = new ArticuloRepository(ctx);
+            var nuevo = new Articulo { Id = 10, Codigo = "STK-01", Nombre = "Artículo Con Stock", Descripcion = "Desc", Precio = 100, MarcaId = 1, CategoriaId = 1, Stock = 25 };
+
+            await repo.AddAsync(nuevo);
+
+            var guardado = await ctx.Articulos.FindAsync(10);
+            Assert.NotNull(guardado);
+            Assert.Equal(25, guardado.Stock);
+        }
+
+        [Fact]
+        public async Task UpdateAsync_ActualizaActivo_Correctamente()
+        {
+            using var ctx = CrearContexto();
+            SeedData(ctx);
+            var repo = new ArticuloRepository(ctx);
+            var articulo = await ctx.Articulos.FindAsync(1);
+            articulo!.Activo = true;
+
+            await repo.UpdateAsync(articulo);
+
+            var actualizado = await ctx.Articulos.FindAsync(1);
+            Assert.True(actualizado!.Activo);
+        }
+
+        [Fact]
+        public async Task UpdateAsync_ActualizaStock_Correctamente()
+        {
+            using var ctx = CrearContexto();
+            SeedData(ctx);
+            var repo = new ArticuloRepository(ctx);
+            var articulo = await ctx.Articulos.FindAsync(1);
+            articulo!.Stock = 99;
+
+            await repo.UpdateAsync(articulo);
+
+            var actualizado = await ctx.Articulos.FindAsync(1);
+            Assert.Equal(99, actualizado!.Stock);
+        }
     }
 }

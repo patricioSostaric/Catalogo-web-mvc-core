@@ -40,7 +40,9 @@ namespace catalogo_web_mvc.Repository.Articulos
 
         public async Task UpdateAsync(Articulo articulo)
         {
-            _context.Set<Articulo>().Update(articulo);
+            var existing = await _context.Set<Articulo>().FindAsync(articulo.Id);
+            if (existing == null) return;
+            _context.Entry(existing).CurrentValues.SetValues(articulo);
             await _context.SaveChangesAsync();
         }
 

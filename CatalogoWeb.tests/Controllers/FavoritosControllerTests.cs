@@ -42,7 +42,7 @@ namespace CatalogoWeb.Tests.Controllers
                 ControllerContext = ContextoAutenticado("user-1")
             };
 
-            var resultado = await controller.Index();
+            var resultado = await controller.Index(null);
 
             var viewResult = Assert.IsType<ViewResult>(resultado);
             var modelo = Assert.IsAssignableFrom<IEnumerable<catalogo_web_mvc.Models.ViewModels.FavoritoViewModel>>(viewResult.Model);
@@ -59,7 +59,7 @@ namespace CatalogoWeb.Tests.Controllers
                 ControllerContext = ContextoAutenticado("user-sin-favoritos")
             };
 
-            var resultado = await controller.Index();
+            var resultado = await controller.Index(null);
 
             var viewResult = Assert.IsType<ViewResult>(resultado);
             var modelo = Assert.IsAssignableFrom<IEnumerable<catalogo_web_mvc.Models.ViewModels.FavoritoViewModel>>(viewResult.Model);
@@ -87,7 +87,7 @@ namespace CatalogoWeb.Tests.Controllers
                 ControllerContext = ContextoAutenticado("user-1")
             };
 
-            var resultado = await controller.Index();
+            var resultado = await controller.Index(null);
 
             var viewResult = Assert.IsType<ViewResult>(resultado);
             var modelo = Assert.IsAssignableFrom<IEnumerable<catalogo_web_mvc.Models.ViewModels.FavoritoViewModel>>(viewResult.Model);

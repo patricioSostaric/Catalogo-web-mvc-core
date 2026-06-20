@@ -1,9 +1,12 @@
 using catalogo_web_mvc.Controllers;
 using catalogo_web_mvc.Interfaces.Articulos;
+using catalogo_web_mvc.Interfaces.Audit;
 using catalogo_web_mvc.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Moq;
+using System.Security.Claims;
 using X.PagedList;
 using X.PagedList.Extensions;
 
@@ -12,12 +15,25 @@ namespace CatalogoWeb.Tests.Controllers
     public class ArticuloControllerTests
     {
         private readonly Mock<IArticuloService> _serviceMock;
+        private readonly Mock<IAuditService> _auditMock;
         private readonly ArticuloController _controller;
 
         public ArticuloControllerTests()
         {
             _serviceMock = new Mock<IArticuloService>();
-            _controller = new ArticuloController(_serviceMock.Object);
+            _auditMock = new Mock<IAuditService>();
+            _controller = new ArticuloController(_serviceMock.Object, _auditMock.Object);
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    User = new ClaimsPrincipal(new ClaimsIdentity(new[]
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, "test-user-id"),
+                        new Claim(ClaimTypes.Name, "test@test.com")
+                    }, "TestAuth"))
+                }
+            };
         }
 
         private static IPagedList<Articulo> ListaPaginada(IEnumerable<Articulo> articulos, int page = 1, int size = 10)
@@ -42,7 +58,7 @@ namespace CatalogoWeb.Tests.Controllers
                 new() { Id = 1, Codigo = "S01", Nombre = "Galaxy S10", MarcaId = 1, CategoriaId = 1 }
             });
             _serviceMock.Setup(s => s.BuscarAsync(It.IsAny<string>(), It.IsAny<bool>(),
-                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>()))
                 .ReturnsAsync(articulos);
 
             var resultado = await _controller.Index(null, false, null, null, null, null);
@@ -56,7 +72,7 @@ namespace CatalogoWeb.Tests.Controllers
         {
             var listaVacia = ListaPaginada(new List<Articulo>());
             _serviceMock.Setup(s => s.BuscarAsync(It.IsAny<string>(), It.IsAny<bool>(),
-                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>()))
                 .ReturnsAsync(listaVacia);
 
             await _controller.Index("criterio_sin_match", false, null, null, null, null);
@@ -73,7 +89,7 @@ namespace CatalogoWeb.Tests.Controllers
                 new() { Id = 1, Codigo = "S01", Nombre = "Galaxy S10", MarcaId = 1, CategoriaId = 1 }
             });
             _serviceMock.Setup(s => s.BuscarAsync(It.IsAny<string>(), It.IsAny<bool>(),
-                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>()))
                 .ReturnsAsync(articulos);
 
             await _controller.Index(null, false, null, null, null, null);
@@ -92,7 +108,7 @@ namespace CatalogoWeb.Tests.Controllers
             await _controller.Index(null, false, null, null, null, null);
 
             _serviceMock.Verify(s => s.BuscarAsync(It.IsAny<string>(), It.IsAny<bool>(),
-                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), 1, 5), Times.Once);
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), 1, 5, false), Times.Once);
         }
 
         [Fact]
@@ -106,7 +122,7 @@ namespace CatalogoWeb.Tests.Controllers
             await _controller.Index(null, false, null, null, null, page: 3);
 
             _serviceMock.Verify(s => s.BuscarAsync(It.IsAny<string>(), It.IsAny<bool>(),
-                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), 3, 5), Times.Once);
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), 3, 5, false), Times.Once);
         }
 
         // ── Details ───────────────────────────────────────────────────────────

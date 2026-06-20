@@ -21,9 +21,12 @@ namespace catalogo_web_mvc.Services.Articulos
         }
 
         public Task<IPagedList<Articulo>> BuscarAsync(string? searchString, bool filtroAvanzado,
-            string? campo, string? criterio, string? filtro, int pageNumber, int pageSize)
+            string? campo, string? criterio, string? filtro, int pageNumber, int pageSize, bool soloActivos = false)
         {
             var query = _repo.GetAll();
+
+            if (soloActivos)
+                query = query.Where(a => a.Activo && a.Stock >= 1);
 
             if (!string.IsNullOrEmpty(searchString) && !filtroAvanzado)
                 query = query.Where(a => a.Nombre.Contains(searchString));

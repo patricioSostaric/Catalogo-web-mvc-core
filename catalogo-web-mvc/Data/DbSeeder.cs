@@ -28,11 +28,30 @@ namespace catalogo_web_mvc.Data
 
         private static async Task CrearUsuario(UserManager<ApplicationUser> userManager, string email, string password, string rol)
         {
-            if (await userManager.FindByEmailAsync(email) != null) return;
+            var user = await userManager.FindByEmailAsync(email);
 
-            var user = new ApplicationUser { UserName = email, Email = email, EmailConfirmed = true };
-            var result = await userManager.CreateAsync(user, password);
-            if (result.Succeeded)
+            if (user == null)
+            {
+                user = new ApplicationUser { UserName = email, Email = email, EmailConfirmed = true };
+                var result = await userManager.CreateAsync(user, password);
+                if (result.Succeeded)
+                    await userManager.AddToRoleAsync(user, rol);
+                return;
+            }
+
+            // Desbloquear si está en lockout
+            if (await userManager.IsLockedOutAsync(user))
+                await userManager.SetLockoutEndDateAsync(user, DateTimeOffset.MinValue);
+
+            // Resetear password si no coincide con el valor seed
+            if (!await userManager.CheckPasswordAsync(user, password))
+            {
+                var token = await userManager.GeneratePasswordResetTokenAsync(user);
+                await userManager.ResetPasswordAsync(user, token, password);
+            }
+
+            // Asegurar que el rol está asignado
+            if (!await userManager.IsInRoleAsync(user, rol))
                 await userManager.AddToRoleAsync(user, rol);
         }
     }

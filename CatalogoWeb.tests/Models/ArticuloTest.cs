@@ -188,6 +188,62 @@ namespace CatalogoWeb.Tests.Models
             Assert.Equal("Electrónica", articulo.Categoria.Descripcion);
         }
 
+        // ── Activo ────────────────────────────────────────────────────────────
+
+        [Fact]
+        public void Articulo_Activo_ValorPorDefectoEsTrue()
+        {
+            var articulo = new Articulo();
+            Assert.True(articulo.Activo);
+        }
+
+        [Fact]
+        public void Articulo_Activo_PuedeSetearseTrue()
+        {
+            var articulo = ArticuloValido();
+            articulo.Activo = true;
+            var errores = Validar(articulo);
+            Assert.Empty(errores);
+            Assert.True(articulo.Activo);
+        }
+
+        [Fact]
+        public void Articulo_Activo_PuedeSeteaseFalse()
+        {
+            var articulo = ArticuloValido();
+            articulo.Activo = false;
+            var errores = Validar(articulo);
+            Assert.Empty(errores);
+            Assert.False(articulo.Activo);
+        }
+
+        // ── Stock ─────────────────────────────────────────────────────────────
+
+        [Fact]
+        public void Articulo_Stock_ValorPorDefectoEsCero()
+        {
+            var articulo = new Articulo();
+            Assert.Equal(0, articulo.Stock);
+        }
+
+        [Fact]
+        public void Articulo_Stock_PuedeAsignarseValorPositivo()
+        {
+            var articulo = ArticuloValido();
+            articulo.Stock = 100;
+            var errores = Validar(articulo);
+            Assert.Empty(errores);
+            Assert.Equal(100, articulo.Stock);
+        }
+
+        [Fact]
+        public void Articulo_Stock_PuedeSerCero()
+        {
+            var articulo = ArticuloValido();
+            articulo.Stock = 0;
+            var errores = Validar(articulo);
+            Assert.Empty(errores);
+        }
 
     }
 }

@@ -12,8 +12,9 @@ namespace catalogo_web_mvc.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            // Seed removido de OnModelCreating — los datos existentes se preservan.
-            // Ahora el seed es responsabilidad de DbSeeder (runtime seeding).
+            migrationBuilder.DeleteData(table: "Articulos", keyColumn: "Id", keyValues: new object[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 });
+            migrationBuilder.DeleteData(table: "Marcas",   keyColumn: "MarcaId", keyValues: new object[] { 1, 2, 3, 4, 5 });
+            migrationBuilder.DeleteData(table: "Categorias", keyColumn: "CategoriaId", keyValues: new object[] { 1, 2, 3, 4 });
         }
 
         /// <inheritdoc />

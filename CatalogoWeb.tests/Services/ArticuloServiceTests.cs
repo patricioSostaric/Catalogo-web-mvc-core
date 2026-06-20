@@ -292,6 +292,61 @@ namespace CatalogoWeb.Tests.Services
             Assert.Single(resultado);
         }
 
+        // ── BuscarAsync – soloActivos ─────────────────────────────────────────
+
+        private static List<Articulo> ArticulosConVariosEstados() => new()
+        {
+            new Articulo { Id = 1, Codigo = "A1", Nombre = "Activo Con Stock",    MarcaId = 1, CategoriaId = 1, Activo = true,  Stock = 5,  Precio = 100,
+                Marca = new Marca { MarcaId = 1, Descripcion = "Samsung" }, Categoria = new Categoria { CategoriaId = 1, Descripcion = "Celulares" } },
+            new Articulo { Id = 2, Codigo = "A2", Nombre = "Activo Sin Stock",    MarcaId = 1, CategoriaId = 1, Activo = true,  Stock = 0,  Precio = 200,
+                Marca = new Marca { MarcaId = 1, Descripcion = "Samsung" }, Categoria = new Categoria { CategoriaId = 1, Descripcion = "Celulares" } },
+            new Articulo { Id = 3, Codigo = "A3", Nombre = "Inactivo Con Stock",  MarcaId = 1, CategoriaId = 1, Activo = false, Stock = 10, Precio = 300,
+                Marca = new Marca { MarcaId = 1, Descripcion = "Samsung" }, Categoria = new Categoria { CategoriaId = 1, Descripcion = "Celulares" } },
+            new Articulo { Id = 4, Codigo = "A4", Nombre = "Inactivo Sin Stock",  MarcaId = 1, CategoriaId = 1, Activo = false, Stock = 0,  Precio = 400,
+                Marca = new Marca { MarcaId = 1, Descripcion = "Samsung" }, Categoria = new Categoria { CategoriaId = 1, Descripcion = "Celulares" } },
+        };
+
+        [Fact]
+        public async Task BuscarAsync_SoloActivos_RetornaSoloActivosConStock()
+        {
+            _repoMock.Setup(r => r.GetAll()).Returns(ArticulosConVariosEstados().AsQueryable());
+
+            var resultado = await _service.BuscarAsync(null, false, null, null, null, 1, 10, soloActivos: true);
+
+            Assert.Single(resultado);
+            Assert.Equal("Activo Con Stock", resultado.First().Nombre);
+        }
+
+        [Fact]
+        public async Task BuscarAsync_SoloActivos_ExcluyeActivosSinStock()
+        {
+            _repoMock.Setup(r => r.GetAll()).Returns(ArticulosConVariosEstados().AsQueryable());
+
+            var resultado = await _service.BuscarAsync(null, false, null, null, null, 1, 10, soloActivos: true);
+
+            Assert.DoesNotContain(resultado, a => a.Nombre == "Activo Sin Stock");
+        }
+
+        [Fact]
+        public async Task BuscarAsync_SoloActivos_ExcluyeInactivos()
+        {
+            _repoMock.Setup(r => r.GetAll()).Returns(ArticulosConVariosEstados().AsQueryable());
+
+            var resultado = await _service.BuscarAsync(null, false, null, null, null, 1, 10, soloActivos: true);
+
+            Assert.DoesNotContain(resultado, a => a.Activo == false);
+        }
+
+        [Fact]
+        public async Task BuscarAsync_SinSoloActivos_RetornaTodosLosArticulos()
+        {
+            _repoMock.Setup(r => r.GetAll()).Returns(ArticulosConVariosEstados().AsQueryable());
+
+            var resultado = await _service.BuscarAsync(null, false, null, null, null, 1, 10, soloActivos: false);
+
+            Assert.Equal(4, resultado.TotalItemCount);
+        }
+
         // ── SelectLists ───────────────────────────────────────────────────────
 
         [Fact]

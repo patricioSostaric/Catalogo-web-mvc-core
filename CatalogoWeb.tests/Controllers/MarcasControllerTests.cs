@@ -1,20 +1,36 @@
 using catalogo_web_mvc.Controllers;
+using catalogo_web_mvc.Interfaces.Audit;
 using catalogo_web_mvc.Interfaces.Marcas;
 using catalogo_web_mvc.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using System.Security.Claims;
 
 namespace CatalogoWeb.Tests.Controllers
 {
     public class MarcasControllerTests
     {
         private readonly Mock<IMarcaService> _serviceMock;
+        private readonly Mock<IAuditService> _auditMock;
         private readonly MarcasController _controller;
 
         public MarcasControllerTests()
         {
             _serviceMock = new Mock<IMarcaService>();
-            _controller = new MarcasController(_serviceMock.Object);
+            _auditMock = new Mock<IAuditService>();
+            _controller = new MarcasController(_serviceMock.Object, _auditMock.Object);
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    User = new ClaimsPrincipal(new ClaimsIdentity(new[]
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, "test-user-id"),
+                        new Claim(ClaimTypes.Name, "test@test.com")
+                    }, "TestAuth"))
+                }
+            };
         }
 
         private static List<Marca> MarcasDeEjemplo() => new()
