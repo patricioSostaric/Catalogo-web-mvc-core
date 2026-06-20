@@ -20,6 +20,12 @@
 
             <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Precio)</dt>
             <dd class="col-sm-9">@String.Format("{0:N2}", Model.Precio)</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Stock)</dt>
+            <dd class="col-sm-9">@Model.Stock</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Activo)</dt>
+            <dd class="col-sm-9">@(Model.Activo ? "Sí" : "No")</dd>
         </dl>
     </div>
 

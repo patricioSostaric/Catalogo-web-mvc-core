@@ -60,14 +60,14 @@ namespace CatalogoWeb.Tests.Controllers
         {
             using var context = CrearContexto();
             _serviceMock.Setup(s => s.BuscarAsync(It.IsAny<string>(), It.IsAny<bool>(),
-                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>()))
                 .ReturnsAsync(ListaPaginada(ArticulosDeEjemplo()));
             var controller = new HomeController(_serviceMock.Object, context)
             {
                 ControllerContext = ContextoAnonimo()
             };
 
-            var resultado = await controller.Index(null);
+            var resultado = await controller.Index(null, null);
 
             var viewResult = Assert.IsType<ViewResult>(resultado);
             Assert.IsAssignableFrom<IEnumerable<Articulo>>(viewResult.Model);
@@ -78,14 +78,14 @@ namespace CatalogoWeb.Tests.Controllers
         {
             using var context = CrearContexto();
             _serviceMock.Setup(s => s.BuscarAsync(It.IsAny<string>(), It.IsAny<bool>(),
-                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>()))
                 .ReturnsAsync(ListaPaginada([]));
             var controller = new HomeController(_serviceMock.Object, context)
             {
                 ControllerContext = ContextoAnonimo()
             };
 
-            var resultado = await controller.Index("zzz");
+            var resultado = await controller.Index("zzz", null);
 
             var viewResult = Assert.IsType<ViewResult>(resultado);
             Assert.NotNull(viewResult.ViewData["Mensaje"] ?? controller.ViewBag.Mensaje);
@@ -96,14 +96,14 @@ namespace CatalogoWeb.Tests.Controllers
         {
             using var context = CrearContexto();
             _serviceMock.Setup(s => s.BuscarAsync(It.IsAny<string>(), It.IsAny<bool>(),
-                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>()))
                 .ReturnsAsync(ListaPaginada(ArticulosDeEjemplo()));
             var controller = new HomeController(_serviceMock.Object, context)
             {
                 ControllerContext = ContextoAnonimo()
             };
 
-            await controller.Index(null);
+            await controller.Index(null, null);
 
             var favoritos = controller.ViewBag.Favoritos as HashSet<int>;
             Assert.NotNull(favoritos);
@@ -118,14 +118,14 @@ namespace CatalogoWeb.Tests.Controllers
             await context.SaveChangesAsync();
 
             _serviceMock.Setup(s => s.BuscarAsync(It.IsAny<string>(), It.IsAny<bool>(),
-                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>()))
                 .ReturnsAsync(ListaPaginada(ArticulosDeEjemplo()));
             var controller = new HomeController(_serviceMock.Object, context)
             {
                 ControllerContext = ContextoAutenticado("user-1")
             };
 
-            await controller.Index(null);
+            await controller.Index(null, null);
 
             var favoritos = controller.ViewBag.Favoritos as HashSet<int>;
             Assert.NotNull(favoritos);
@@ -161,6 +161,29 @@ namespace CatalogoWeb.Tests.Controllers
             var resultado = await controller.Detalle(99);
 
             Assert.IsType<NotFoundResult>(resultado);
+        }
+
+        // ── soloActivos ────────────────────────────────────────────────────────
+
+        [Fact]
+        public async Task Index_LlamaBuscarAsync_ConSoloActivosTrue()
+        {
+            using var context = CrearContexto();
+            _serviceMock.Setup(s => s.BuscarAsync(It.IsAny<string>(), It.IsAny<bool>(),
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>()))
+                .ReturnsAsync(ListaPaginada(ArticulosDeEjemplo()));
+            var controller = new HomeController(_serviceMock.Object, context)
+            {
+                ControllerContext = ContextoAnonimo()
+            };
+
+            await controller.Index(null, null);
+
+            _serviceMock.Verify(s => s.BuscarAsync(
+                It.IsAny<string>(), false,
+                null, null, null,
+                It.IsAny<int>(), It.IsAny<int>(),
+                true), Times.Once);
         }
     }
 }

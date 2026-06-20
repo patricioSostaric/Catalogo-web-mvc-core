@@ -23,7 +23,7 @@ namespace catalogo_web_mvc.Controllers
         {
             int pageNumber = page ?? 1;
             int pageSize = 6;
-            var articulos = await _service.BuscarAsync(searchString, false, null, null, null, pageNumber, pageSize);
+            var articulos = await _service.BuscarAsync(searchString, false, null, null, null, pageNumber, pageSize, soloActivos: true);
 
             if (!articulos.Any())
                 ViewBag.Mensaje = "No se encontraron artículos con ese criterio.";
