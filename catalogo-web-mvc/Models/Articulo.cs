@@ -30,12 +30,23 @@ namespace catalogo_web_mvc.Models
         public int CategoriaId { get; set; }
         public Categoria? Categoria { get; set; }
         
+        [DisplayName("Imagen URL")]
+        [StringLength(500, ErrorMessage = "La URL de la imagen no puede superar los 500 caracteres.")]
         public string? ImagenUrl { get; set; }
         
         
         [DisplayFormat(DataFormatString = "{0:N2}", ApplyFormatInEditMode = true)]
+        [Required(ErrorMessage = "El precio es obligatorio.")]
+        [Range(0.01, 100000000, ErrorMessage = "El precio debe ser mayor a 0.00")]
+        [Column(TypeName = "decimal(18, 2)")]
         public decimal Precio { get; set; }
-        public int Stock { get; set; }
+
+        [DisplayName("Activo")]
         public bool Activo { get; set; } = true;
+
+        [DisplayName("Stock")]
+        [Required(ErrorMessage = "El stock es obligatorio.")]
+        [Range(0, int.MaxValue, ErrorMessage = "El stock debe ser un número entero no negativo.")]
+        public int Stock { get; set; } = 0;
     }
 }

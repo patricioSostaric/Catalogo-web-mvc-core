@@ -58,12 +58,21 @@ namespace CatalogoWeb.Tests.Models
         }
 
         [Fact]
-        public void Articulo_Precio_PuedeSerCero()
+        public void Articulo_PrecioCero_FallaValidacion()
         {
             var articulo = ArticuloValido();
             articulo.Precio = 0m;
             var errores = Validar(articulo);
-            Assert.Empty(errores);
+            Assert.Contains(errores, e => e.MemberNames.Contains(nameof(Articulo.Precio)));
+        }
+
+        [Fact]
+        public void Articulo_PrecioNegativo_FallaValidacion()
+        {
+            var articulo = ArticuloValido();
+            articulo.Precio = -1m;
+            var errores = Validar(articulo);
+            Assert.Contains(errores, e => e.MemberNames.Contains(nameof(Articulo.Precio)));
         }
 
         [Fact]
@@ -160,6 +169,62 @@ namespace CatalogoWeb.Tests.Models
             articulo.Descripcion = new string('D', 251);
             var errores = Validar(articulo);
             Assert.Contains(errores, e => e.MemberNames.Contains(nameof(Articulo.Descripcion)));
+        }
+
+        // ── Stock ─────────────────────────────────────────────────────────────
+
+        [Fact]
+        public void Articulo_StockCero_EsValido()
+        {
+            var articulo = ArticuloValido();
+            articulo.Stock = 0;
+            var errores = Validar(articulo);
+            Assert.Empty(errores);
+        }
+
+        [Fact]
+        public void Articulo_StockPositivo_EsValido()
+        {
+            var articulo = ArticuloValido();
+            articulo.Stock = 100;
+            var errores = Validar(articulo);
+            Assert.Empty(errores);
+        }
+
+        [Fact]
+        public void Articulo_StockNegativo_FallaValidacion()
+        {
+            var articulo = ArticuloValido();
+            articulo.Stock = -1;
+            var errores = Validar(articulo);
+            Assert.Contains(errores, e => e.MemberNames.Contains(nameof(Articulo.Stock)));
+        }
+
+        [Fact]
+        public void Articulo_StockPorDefecto_EsCero()
+        {
+            var articulo = new Articulo();
+            Assert.Equal(0, articulo.Stock);
+        }
+
+        // ── ImagenUrl ─────────────────────────────────────────────────────────
+
+        [Fact]
+        public void Articulo_ImagenUrlExacto500Caracteres_EsValido()
+        {
+            var articulo = ArticuloValido();
+            articulo.ImagenUrl = new string('x', 500);
+            var errores = Validar(articulo);
+            Assert.Empty(errores);
+        }
+
+        [Fact]
+        public void Articulo_ImagenUrlMasDe500Caracteres_FallaValidacion()
+        {
+            var articulo = ArticuloValido();
+            articulo.ImagenUrl = new string('x', 501);
+            var errores = Validar(articulo);
+            Assert.Contains(errores, e => e.MemberNames.Contains(nameof(Articulo.ImagenUrl)));
         }
 
         // ── navegación ────────────────────────────────────────────────────────
