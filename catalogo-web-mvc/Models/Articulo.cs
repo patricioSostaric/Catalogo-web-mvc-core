@@ -37,7 +37,7 @@ namespace catalogo_web_mvc.Models
         
         [DisplayFormat(DataFormatString = "{0:N2}", ApplyFormatInEditMode = true)]
         [Required(ErrorMessage = "El precio es obligatorio.")]
-        [Range(0.01, 100000000, ErrorMessage = "El precio debe ser mayor a 0.00")]
+        [Range(0.01, 1000000000000, ErrorMessage = "El precio debe estar entre {1} y {2}.")]
         [Column(TypeName = "decimal(18, 2)")]
         public decimal Precio { get; set; }
 
