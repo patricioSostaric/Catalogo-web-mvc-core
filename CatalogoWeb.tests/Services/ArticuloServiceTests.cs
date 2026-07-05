@@ -46,21 +46,21 @@ namespace CatalogoWeb.Tests.Services
         {
             new Articulo
             {
-                Id = 1, Codigo = "S01", Nombre = "Galaxy S10", Precio = 69999,
+                Id = 1, Codigo = "S01", Nombre = "Galaxy S10", Precio = 69999, Stock = 10,
                 MarcaId = 1, CategoriaId = 1,
                 Marca = new Marca { MarcaId = 1, Descripcion = "Samsung" },
                 Categoria = new Categoria { CategoriaId = 1, Descripcion = "Celulares" }
             },
             new Articulo
             {
-                Id = 2, Codigo = "A01", Nombre = "iPhone 14", Precio = 120000,
+                Id = 2, Codigo = "A01", Nombre = "iPhone 14", Precio = 120000, Stock = 0,
                 MarcaId = 2, CategoriaId = 2,
                 Marca = new Marca { MarcaId = 2, Descripcion = "Apple" },
                 Categoria = new Categoria { CategoriaId = 2, Descripcion = "Televisores" }
             },
             new Articulo
             {
-                Id = 3, Codigo = "SONY01", Nombre = "Bravia 55", Precio = 49500,
+                Id = 3, Codigo = "SONY01", Nombre = "Bravia 55", Precio = 49500, Stock = 5,
                 MarcaId = 1, CategoriaId = 2,
                 Marca = new Marca { MarcaId = 1, Descripcion = "Samsung" },
                 Categoria = new Categoria { CategoriaId = 2, Descripcion = "Televisores" }
@@ -241,6 +241,52 @@ namespace CatalogoWeb.Tests.Services
 
             // "abc" no parsea como decimal → no aplica filtro
             var resultado = await _service.BuscarAsync(null, true, "Precio", "Mayor a", "abc", 1, 10);
+
+            Assert.Equal(3, resultado.TotalItemCount);
+        }
+
+        // ── BuscarAsync – filtro avanzado: Stock ──────────────────────────────
+
+        [Fact]
+        public async Task BuscarAsync_FiltroAvanzado_StockIgualA_RetornaCoincidencia()
+        {
+            ConfigurarGetAll(ArticulosDeEjemplo());
+
+            var resultado = await _service.BuscarAsync(null, true, "Stock", "Igual a", "0", 1, 10);
+
+            Assert.Single(resultado);
+            Assert.Equal("iPhone 14", resultado.First().Nombre);
+        }
+
+        [Fact]
+        public async Task BuscarAsync_FiltroAvanzado_StockMayorA_RetornaCoincidencias()
+        {
+            ConfigurarGetAll(ArticulosDeEjemplo());
+
+            // 10 y 5 son > 1; 0 no
+            var resultado = await _service.BuscarAsync(null, true, "Stock", "Mayor a", "1", 1, 10);
+
+            Assert.Equal(2, resultado.TotalItemCount);
+        }
+
+        [Fact]
+        public async Task BuscarAsync_FiltroAvanzado_StockMenorA_RetornaCoincidencias()
+        {
+            ConfigurarGetAll(ArticulosDeEjemplo());
+
+            // Solo 0 < 5
+            var resultado = await _service.BuscarAsync(null, true, "Stock", "Menor a", "5", 1, 10);
+
+            Assert.Single(resultado);
+            Assert.Equal("iPhone 14", resultado.First().Nombre);
+        }
+
+        [Fact]
+        public async Task BuscarAsync_FiltroAvanzado_StockInvalido_RetornaTodos()
+        {
+            ConfigurarGetAll(ArticulosDeEjemplo());
+
+            var resultado = await _service.BuscarAsync(null, true, "Stock", "Mayor a", "abc", 1, 10);
 
             Assert.Equal(3, resultado.TotalItemCount);
         }

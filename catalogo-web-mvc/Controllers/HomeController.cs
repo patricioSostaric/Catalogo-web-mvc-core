@@ -47,7 +47,7 @@ namespace catalogo_web_mvc.Controllers
         public async Task<IActionResult> Detalle(int id)
         {
             var articulo = await _service.GetByIdAsync(id);
-            if (articulo == null) return NotFound();
+            if (articulo == null || !articulo.Activo ) return NotFound();
             return View(articulo);
         }
 

@@ -7,6 +7,9 @@ namespace catalogo_web_mvc.Services.Audit
 {
     public class AuditService : IAuditService
     {
+        private static readonly TimeZoneInfo ArgentinaZone =
+            TimeZoneInfo.FindSystemTimeZoneById("Argentina Standard Time");
+
         private readonly CatalogoContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ILogger<AuditService> _logger;
@@ -24,7 +27,7 @@ namespace catalogo_web_mvc.Services.Audit
 
             var log = new AuditLog
             {
-                Fecha = DateTime.UtcNow,
+                Fecha = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ArgentinaZone),
                 Accion = accion,
                 Email = email,
                 UserId = userId,

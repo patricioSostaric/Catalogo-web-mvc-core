@@ -9,8 +9,8 @@
             <th>@Html.DisplayNameFor(m => m[0].Marca)</th>
             <th>@Html.DisplayNameFor(m => m[0].Categoria)</th>
             <th class="text-end">@Html.DisplayNameFor(m => m[0].Precio)</th>
-            <th>@Html.DisplayNameFor(m => m[0].Activo)</th>
             <th class="text-end">@Html.DisplayNameFor(m => m[0].Stock)</th>
+            <th class="text-center">@Html.DisplayNameFor(m => m[0].Activo)</th>
             <th>Acción</th>
         </tr>
     </thead>
@@ -26,8 +26,17 @@
                     <td>@item.Marca?.Descripcion</td>
                     <td>@item.Categoria?.Descripcion</td>
                     <td class="text-end">@String.Format("{0:N2}", item.Precio)</td>
-                    <td>@(item.Activo ? "Sí" : "No")</td>
                     <td class="text-end">@item.Stock</td>
+                    <td class="text-center">
+                        @if (item.Activo)
+                        {
+                            <span class="badge bg-success">Sí</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">No</span>
+                        }
+                    </td>
                     <td>
                         <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-primary btn-sm">Editar</a>
                         <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-success btn-sm">Detalles</a>
@@ -39,7 +48,7 @@
         else
         {
             <tr>
-                <td colspan="7">
+                <td colspan="9">
                     <div class="alert alert-danger d-flex align-items-center" role="alert">
                         <span class="me-2">⚠️</span>
                         <span>No se encontraron artículos con ese criterio.</span>

@@ -73,12 +73,14 @@ builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
 builder.Services.AddScoped<ICategoriaService, CategoriaService>();
 builder.Services.AddScoped<IMarcaRepository, MarcaRepository>();
 builder.Services.AddScoped<IMarcaService, MarcaService>();
-
+var argentinaZone = TimeZoneInfo.FindSystemTimeZoneById("Argentina Standard Time");
+builder.Services.AddSingleton(argentinaZone);
 
 var app = builder.Build();
 
 // Middleware de localización: esto es lo que hace que el binder entienda la coma
 app.UseRequestLocalization(localizationOptions);
+
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -88,6 +90,15 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
+    context.Response.Headers.Append("X-Frame-Options", "DENY");
+    context.Response.Headers.Append("Referrer-Policy", "strict-origin-when-cross-origin");
+    await next();
+});
+
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();

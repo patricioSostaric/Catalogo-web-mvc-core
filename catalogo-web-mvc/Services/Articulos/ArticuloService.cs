@@ -56,6 +56,13 @@ namespace catalogo_web_mvc.Services.Articulos
                         "Menor a" => query.Where(a => a.Precio < precio),
                         _ => query
                     } : query,
+                    "Stock" => int.TryParse(filtro, out var stock) ? criterio switch
+                    {
+                        "Igual a" => query.Where(a => a.Stock == stock),
+                        "Mayor a" => query.Where(a => a.Stock > stock),
+                        "Menor a" => query.Where(a => a.Stock < stock),
+                        _ => query
+                    } : query,
                     "Marca" => query.Where(a => a.Marca.Descripcion.Contains(filtro)),
                     "Categoria" => query.Where(a => a.Categoria.Descripcion.Contains(filtro)),
                     _ => query

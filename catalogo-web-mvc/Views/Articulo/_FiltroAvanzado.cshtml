@@ -8,19 +8,25 @@
             <option value="Codigo" selected="@(Context.Request.Query["campo"] == "Codigo")">Código</option>
             <option value="Nombre" selected="@(Context.Request.Query["campo"] == "Nombre")">Nombre</option>
             <option value="Precio" selected="@(Context.Request.Query["campo"] == "Precio")">Precio</option>
+            <option value="Stock" selected="@(Context.Request.Query["campo"] == "Stock")">Stock</option>
             <option value="Marca" selected="@(Context.Request.Query["campo"] == "Marca")">Marca</option>
             <option value="Categoria" selected="@(Context.Request.Query["campo"] == "Categoria")">Categoría</option>
+            <option value="Activo" selected="@(Context.Request.Query["campo"] == "Activo")">Activo</option>
         </select>
     </div>
 
     <div class="col-md-3">
         <label for="criterio">Criterio</label>
         <select id="criterio" name="criterio" class="form-control">
-            @if (Context.Request.Query["campo"] == "Precio")
+            @if (Context.Request.Query["campo"] == "Precio" || Context.Request.Query["campo"] == "Stock")
             {
                 <option value="Igual a" selected="@(Context.Request.Query["criterio"] == "Igual a")">Igual a</option>
                 <option value="Mayor a" selected="@(Context.Request.Query["criterio"] == "Mayor a")">Mayor a</option>
                 <option value="Menor a" selected="@(Context.Request.Query["criterio"] == "Menor a")">Menor a</option>
+            }
+            else if (Context.Request.Query["campo"] == "Activo")
+            {
+                <option value="Igual a" selected>Igual a</option>
             }
             else
             {

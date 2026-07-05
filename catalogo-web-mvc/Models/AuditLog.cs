@@ -6,7 +6,7 @@ namespace catalogo_web_mvc.Models
     {
         [Key]
         public int Id { get; set; }
-        public DateTime Fecha { get; set; } = DateTime.UtcNow;
+        public DateTime Fecha { get; set; }
 
         [Required]
         public string Accion { get; set; } = string.Empty;  // LOGIN_OK, LOGIN_FAIL, LOCKOUT, REGISTER, LOGOUT, CREATE, UPDATE, DELETE

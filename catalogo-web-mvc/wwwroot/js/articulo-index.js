@@ -20,10 +20,12 @@
 
     function actualizarCriterios() {
         criterioSelect.innerHTML = '';
-        if (campoSelect.value === 'Precio') {
+        if (campoSelect.value === 'Precio' || campoSelect.value === 'Stock') {
             criterioSelect.innerHTML += '<option value="Igual a">Igual a</option>';
             criterioSelect.innerHTML += '<option value="Mayor a">Mayor a</option>';
             criterioSelect.innerHTML += '<option value="Menor a">Menor a</option>';
+        } else if (campoSelect.value === 'Activo') {
+            criterioSelect.innerHTML += '<option value="Igual a">Igual a</option>';
         } else {
             criterioSelect.innerHTML += '<option value="Contiene">Contiene</option>';
             criterioSelect.innerHTML += '<option value="Comienza con">Comienza con</option>';
