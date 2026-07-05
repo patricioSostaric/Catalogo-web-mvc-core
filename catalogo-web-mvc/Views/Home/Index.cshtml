@@ -30,55 +30,12 @@
     {
         bool esFavorito = favoritos.Contains(articulo.Id);
 
-        <div class="col">
-            <div class="card h-100 card-unificada">
-                <img src="@articulo.ImagenUrl"
-                     class="img-fluid rounded detalle-img"
-                     alt="Imagen del artículo"
-                     onerror="this.src='https://www.mansor.com.uy/wp-content/uploads/2020/06/imagen-no-disponible2.jpg'" />
-                <div class="card-body">
-                    <span class="card-title h5 d-block">@articulo.Nombre</span>
-                    <span class="card-text descripcion d-block">@articulo.Descripcion</span>
-                    <span class="card-text d-block fw-semibold">Precio: $@articulo.Precio.ToString("N2")</span>
-
-                    <div class="mt-2 d-flex flex-wrap gap-1">
-                        <a asp-controller="Home" asp-action="Detalle" asp-route-id="@articulo.Id"
-                           class="btn btn-outline-primary btn-sm">Ver detalle</a>
-
-                        @if (logueado)
-                        {
-                            <button type="button" class="btn btn-secondary btn-sm"
-                                    disabled title="Disponible próximamente">Comprar</button>
-
-                            <form asp-controller="Favoritos"
-                                  asp-action="@(esFavorito ? "Remove" : "Add")"
-                                  asp-route-id="@articulo.Id" method="post" class="d-inline">
-                                <button type="submit"
-                                        class="btn btn-sm @(esFavorito ? "btn-warning" : "btn-outline-warning")">
-                                    @(esFavorito ? "⭐ Quitar de favoritos" : "♡ Agregar a favoritos")
-                                </button>
-                            </form>
-                        }
-                    </div>
-                </div>
-            </div>
-        </div>
+        @await Html.PartialAsync("_CardArticulo", articulo, new ViewDataDictionary(ViewData)
+        {
+            ["EsFavorito"] = esFavorito,
+            ["Logueado"] = logueado
+        })
     }
 </div>
 
-<div class="d-flex justify-content-center mt-4">
-    @Html.PagedListPager(Model, page => Url.Action("Index", new
-    {
-        page,
-        searchString = Context.Request.Query["searchString"]
-    }),
-    new PagedListRenderOptions
-    {
-        DisplayLinkToFirstPage = PagedListDisplayMode.Always,
-        DisplayLinkToLastPage = PagedListDisplayMode.Always,
-        DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
-        DisplayLinkToNextPage = PagedListDisplayMode.Always,
-        MaximumPageNumbersToDisplay = 5,
-        UlElementClasses = new[] { "pagination" }
-    })
-</div>
+@await Html.PartialAsync("_Paginado", Model)

@@ -1,0 +1,40 @@
+@model catalogo_web_mvc.Models.Articulo
+
+@{
+    bool esFavorito = ViewData["EsFavorito"] as bool? ?? false;
+    bool logueado = ViewData["Logueado"] as bool? ?? false;
+}
+
+<div class="col">
+    <div class="card h-100 card-unificada">
+        <img src="@Model.ImagenUrl"
+             class="img-fluid rounded detalle-img"
+             alt="Imagen del artículo"
+             onerror="this.src='https://www.mansor.com.uy/wp-content/uploads/2020/06/imagen-no-disponible2.jpg'" />
+        <div class="card-body">
+            <span class="card-title h5 d-block">@Model.Nombre</span>
+            <span class="card-text descripcion d-block">@Model.Descripcion</span>
+            <span class="card-text d-block fw-semibold">Precio: $@Model.Precio.ToString("N2")</span>
+
+            <div class="mt-2 d-flex flex-wrap gap-1">
+                <a asp-controller="Home" asp-action="Detalle" asp-route-id="@Model.Id"
+                   class="btn btn-outline-primary btn-sm">Ver detalle</a>
+
+                @if (logueado)
+                {
+                    <button type="button" class="btn btn-secondary btn-sm"
+                            disabled title="Disponible próximamente">Comprar</button>
+
+                    <form asp-controller="Favoritos"
+                          asp-action="@(esFavorito ? "Remove" : "Add")"
+                          asp-route-id="@Model.Id" method="post" class="d-inline">
+                        <button type="submit"
+                                class="btn btn-sm @(esFavorito ? "btn-warning" : "btn-outline-warning")">
+                            @(esFavorito ? "⭐ Quitar de favoritos" : "♡ Agregar a favoritos")
+                        </button>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+</div>
