@@ -30,26 +30,7 @@
 
 @await Html.PartialAsync("_tablaArticulos", Model)
 
-<div class="d-flex justify-content-center mt-3">
-    @Html.PagedListPager(Model, page => Url.Action("Index", new
-    {
-        page,
-        searchString = Context.Request.Query["searchString"],
-        filtroAvanzado = Context.Request.Query["filtroAvanzado"],
-        campo = Context.Request.Query["campo"],
-        criterio = Context.Request.Query["criterio"],
-        filtro = Context.Request.Query["filtro"]
-    }),
-        new PagedListRenderOptions
-        {
-            DisplayLinkToFirstPage = PagedListDisplayMode.Always,
-            DisplayLinkToLastPage = PagedListDisplayMode.Always,
-            DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
-            DisplayLinkToNextPage = PagedListDisplayMode.Always,
-            MaximumPageNumbersToDisplay = 5,
-            UlElementClasses = new[] { "pagination" }
-        })
-</div>
+@await Html.PartialAsync("_Paginado", Model)
 
 <p>
     <a asp-action="Create" class="btn btn-secondary">Nuevo artículo</a>

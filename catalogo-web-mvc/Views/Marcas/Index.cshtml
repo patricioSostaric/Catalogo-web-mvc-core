@@ -1,4 +1,4 @@
-@model IEnumerable<Marca>
+@model X.PagedList.IPagedList<Marca>
 
 @{
     ViewData["Title"] = "Lista de marcas";
@@ -21,3 +21,5 @@
 </p>
 
 <partial name="_TablaEntidad" model="vm" />
+
+@await Html.PartialAsync("_Paginado", Model)

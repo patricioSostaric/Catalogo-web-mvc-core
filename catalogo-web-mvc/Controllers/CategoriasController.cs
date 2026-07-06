@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using X.PagedList.Extensions;
 
 namespace catalogo_web_mvc.Controllers
 {
@@ -20,8 +21,14 @@ namespace catalogo_web_mvc.Controllers
             _audit = audit;
         }
 
-        public async Task<IActionResult> Index()
-            => View(await _service.GetAllAsync());
+        public async Task<IActionResult> Index(int? page)
+        {
+            int pageNumber = page ?? 1;
+            int pageSize = 10;
+
+            var categorias = await _service.GetAllAsync();
+            return View(categorias.ToPagedList(pageNumber, pageSize));
+        }
 
         public IActionResult Create() => View();
 

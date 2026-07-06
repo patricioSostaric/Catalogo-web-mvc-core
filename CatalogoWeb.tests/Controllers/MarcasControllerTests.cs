@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using System.Security.Claims;
+using X.PagedList;
 
 namespace CatalogoWeb.Tests.Controllers
 {
@@ -46,10 +47,10 @@ namespace CatalogoWeb.Tests.Controllers
         {
             _serviceMock.Setup(s => s.GetAllAsync()).ReturnsAsync(MarcasDeEjemplo());
 
-            var resultado = await _controller.Index();
+            var resultado = await _controller.Index(null);
 
             var viewResult = Assert.IsType<ViewResult>(resultado);
-            var modelo = Assert.IsAssignableFrom<List<Marca>>(viewResult.Model);
+            var modelo = Assert.IsAssignableFrom<IPagedList<Marca>>(viewResult.Model);
             Assert.Equal(2, modelo.Count);
         }
 
@@ -58,11 +59,44 @@ namespace CatalogoWeb.Tests.Controllers
         {
             _serviceMock.Setup(s => s.GetAllAsync()).ReturnsAsync(new List<Marca>());
 
-            var resultado = await _controller.Index();
+            var resultado = await _controller.Index(null);
 
             var viewResult = Assert.IsType<ViewResult>(resultado);
-            var modelo = Assert.IsAssignableFrom<List<Marca>>(viewResult.Model);
+            var modelo = Assert.IsAssignableFrom<IPagedList<Marca>>(viewResult.Model);
             Assert.Empty(modelo);
+        }
+
+        [Fact]
+        public async Task Index_PaginaMarcas_SegunPageSizeYNumeroDePagina()
+        {
+            var marcas = Enumerable.Range(1, 15)
+                .Select(i => new Marca { MarcaId = i, Descripcion = $"Marca {i}" })
+                .ToList();
+            _serviceMock.Setup(s => s.GetAllAsync()).ReturnsAsync(marcas);
+
+            var resultado = await _controller.Index(2);
+
+            var viewResult = Assert.IsType<ViewResult>(resultado);
+            var modelo = Assert.IsAssignableFrom<IPagedList<Marca>>(viewResult.Model);
+            Assert.Equal(2, modelo.PageNumber);
+            Assert.Equal(5, modelo.Count);
+            Assert.Equal(15, modelo.TotalItemCount);
+        }
+
+        [Fact]
+        public async Task Index_SinPage_UsaPrimeraPagina()
+        {
+            var marcas = Enumerable.Range(1, 15)
+                .Select(i => new Marca { MarcaId = i, Descripcion = $"Marca {i}" })
+                .ToList();
+            _serviceMock.Setup(s => s.GetAllAsync()).ReturnsAsync(marcas);
+
+            var resultado = await _controller.Index(null);
+
+            var viewResult = Assert.IsType<ViewResult>(resultado);
+            var modelo = Assert.IsAssignableFrom<IPagedList<Marca>>(viewResult.Model);
+            Assert.Equal(1, modelo.PageNumber);
+            Assert.Equal(10, modelo.Count);
         }
 
         // ── Create GET ────────────────────────────────────────────────────────
