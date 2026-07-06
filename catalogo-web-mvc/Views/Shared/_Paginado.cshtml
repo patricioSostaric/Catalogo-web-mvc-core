@@ -1,16 +1,22 @@
-@model X.PagedList.IPagedList<catalogo_web_mvc.Models.Articulo>
+@model X.PagedList.IPagedList
 @using X.PagedList.Mvc.Core
+@using Microsoft.AspNetCore.Routing
 
 @{
     string accion = ViewData["Accion"] as string ?? "Index";
+
+    var routeValues = new RouteValueDictionary();
+    foreach (var query in Context.Request.Query)
+    {
+        if (!string.Equals(query.Key, "page", StringComparison.OrdinalIgnoreCase))
+        {
+            routeValues[query.Key] = query.Value.ToString();
+        }
+    }
 }
 
 <div class="d-flex justify-content-center mt-5 pt-4">
-    @Html.PagedListPager(Model, page => Url.Action(accion, new
-    {
-        page,
-        searchString = Context.Request.Query["searchString"]
-    }),
+    @Html.PagedListPager(Model, page => Url.Action(accion, new RouteValueDictionary(routeValues) { ["page"] = page }),
     new PagedListRenderOptions
     {
         DisplayLinkToFirstPage = PagedListDisplayMode.Always,

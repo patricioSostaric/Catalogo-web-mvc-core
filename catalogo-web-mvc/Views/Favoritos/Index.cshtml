@@ -1,5 +1,4 @@
 @model X.PagedList.IPagedList<catalogo_web_mvc.Models.ViewModels.FavoritoViewModel>
-@using X.PagedList.Mvc.Core
 @{
     ViewData["Title"] = "Mis Favoritos";
 }
@@ -47,16 +46,5 @@ else
         }
     </div>
 
-    <div class="d-flex justify-content-center mt-4">
-        @Html.PagedListPager(Model, page => Url.Action("Index", new { page }),
-        new PagedListRenderOptions
-        {
-            DisplayLinkToFirstPage = PagedListDisplayMode.Always,
-            DisplayLinkToLastPage = PagedListDisplayMode.Always,
-            DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
-            DisplayLinkToNextPage = PagedListDisplayMode.Always,
-            MaximumPageNumbersToDisplay = 5,
-            UlElementClasses = new[] { "pagination" }
-        })
-    </div>
+    @await Html.PartialAsync("_Paginado", Model)
 }
