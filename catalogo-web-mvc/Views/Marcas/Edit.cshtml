@@ -1,33 +1,23 @@
-﻿@model catalogo_web_mvc.Models.Marca
+@model Marca
 
 @{
     ViewData["Title"] = "Edit";
+    var vm = new DescripcionFormViewModel
+    {
+        Id = Model.MarcaId,
+        IdFieldName = "MarcaId",
+        NombreEntidad = "Marca",
+        Accion = "Editar",
+        FormAction = "Edit",
+        SubmitText = "Guardar",
+        VolverTexto = "Volver a la lista de Marcas",
+        Descripcion = Model.Descripcion
+    };
 }
 
-<h1>Modificar marcas</h1>
 
 
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="MarcaId" />
-            <div class="form-group">
-                <label asp-for="Descripcion" class="control-label"></label>
-                <input asp-for="Descripcion" class="form-control" />
-                <span asp-validation-for="Descripcion" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Guardar" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
-</div>
-
-<div>
-    <a asp-action="Index">Volver a la lista de marcas</a>
-</div>
+<partial name="_FormularioDescripcion" model="vm" />
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

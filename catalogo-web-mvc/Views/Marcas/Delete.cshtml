@@ -1,27 +1,15 @@
-﻿@model catalogo_web_mvc.Models.Marca
+@model Marca
 
 @{
     ViewData["Title"] = "Delete";
+    var vm = new DescripcionDeleteViewModel
+    {
+        Id = Model.MarcaId,
+        IdFieldName = "MarcaId",
+        NombreEntidad = "Marca",
+        VolverTexto = "Volver a listado de Marcas",
+        Descripcion = Model.Descripcion
+    };
 }
 
-<h1>Eliminar</h1>
-
-<h3>¿Estás seguro de que deseas eliminar esta marca?</h3>
-<div>
-   
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Descripcion)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Descripcion)
-        </dd>
-    </dl>
-    
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="MarcaId" />
-        <input type="submit" value="Eliminar" class="btn btn-danger" /> |
-        <a asp-action="Index">Volver a listado de marcas</a>
-    </form>
-</div>
+<partial name="_EliminarDescripcion" model="vm" />

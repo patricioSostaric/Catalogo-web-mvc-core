@@ -1,0 +1,21 @@
+@model DescripcionDeleteViewModel
+
+<h1 class="mb-3">Eliminar @Model.NombreEntidad</h1>
+<h3 class="mb-3">¿Estás seguro de que deseas eliminar esta @Model.NombreEntidad.ToLower()?</h3>
+<div>
+    
+    
+    <dl class="row mb-3">
+        <dt class="col-sm-2">Descripción</dt>
+        <dd class="col-sm-10">@Model.Descripcion</dd>
+    </dl>
+
+    <form asp-action="Delete">
+        <input type="hidden" name="@Model.IdFieldName" value="@Model.Id" />
+       
+
+            <input type="submit" value="Eliminar" class="btn btn-danger" /> 
+             <span class="mb-2">| </span>
+        <a asp-action="Index">@Model.VolverTexto</a>
+    </form>
+</div>
