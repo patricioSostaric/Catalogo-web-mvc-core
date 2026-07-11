@@ -1,27 +1,17 @@
-﻿@model catalogo_web_mvc.Models.Categoria
+@model Categoria
 
 @{
     ViewData["Title"] = "Eliminar";
+    var vm = new DescripcionDeleteViewModel
+    {
+        Id = Model.CategoriaId,
+        IdFieldName = "CategoriaId",
+        NombreEntidad = "Categoria",
+        VolverTexto = "Volver a listado de Categorias",
+        Descripcion = Model.Descripcion
+    };
 }
 
-<h1>Eliminar</h1>
 
-<h3>¿Está seguro de que desea eliminar esto?</h3>
-<div>
-    <h4>Categoria</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Descripcion)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Descripcion)
-        </dd>
-    </dl>
-    
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="CategoriaId" />
-        <input type="submit" value="Eliminar" class="btn btn-danger" /> |
-        <a asp-action="Index">volver a listado de  categorias</a>
-    </form>
-</div>
+
+<partial name="_EliminarDescripcion" model="vm" />

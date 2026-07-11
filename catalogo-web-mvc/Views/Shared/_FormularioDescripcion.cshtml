@@ -1,0 +1,29 @@
+@model DescripcionFormViewModel
+
+<h1 class="mb-3">@Model.Accion @Model.NombreEntidad</h1>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="@Model.FormAction">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            @if (Model.Id.HasValue)
+            {
+                <input type="hidden" name="@Model.IdFieldName" value="@Model.Id" />
+            }
+            <div class="form-group mb-3">
+                <label asp-for="Descripcion" class="control-label"></label>
+                <input asp-for="Descripcion" class="form-control" />
+                <span asp-validation-for="Descripcion" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <input type="submit" value="@Model.SubmitText" class="btn btn-primary" />
+                <span class=" mb-3">|</span>
+                
+                    <a asp-action="Index">@Model.VolverTexto</a>
+                
+            </div>
+        </form>
+    </div>
+</div>
+
+
