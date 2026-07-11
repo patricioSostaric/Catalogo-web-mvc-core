@@ -25,21 +25,28 @@ else
             <div class="col">
                 <div class="card h-100 card-unificada">
                     <img src="@item.ImagenUrl"
-                         class="card-img-top card-img-uniform img-fluid rounded"
+                         class="img-fluid rounded detalle-img"
                          alt="Imagen del artículo"
                          onerror="this.src='https://www.mansor.com.uy/wp-content/uploads/2020/06/imagen-no-disponible2.jpg'" />
                     <div class="card-body">
-                        <h5 class="card-title">@item.Nombre</h5>
-                        <p class="card-text descripcion">@item.Descripcion</p>
-                        <p class="card-text"><strong>Precio:</strong> $@item.Precio.ToString("N2")</p>
-                    </div>
-                    <div class="card-footer d-flex justify-content-between align-items-center">
-                        <a asp-controller="Home" asp-action="Detalle" asp-route-id="@item.ArticuloId"
-                           class="btn btn-link btn-sm p-0">Ver detalle</a>
-                        <form asp-controller="Favoritos" asp-action="Remove"
-                              asp-route-id="@item.ArticuloId" method="post">
-                            <button type="submit" class="btn btn-outline-danger btn-sm">❌ Quitar</button>
-                        </form>
+                        <span class="card-title h5 d-block">@item.Nombre</span>
+                        <span class="card-text descripcion d-block">@item.Descripcion</span>
+                        <span class="card-text d-block fw-semibold">Precio: $@item.Precio.ToString("N2")</span>
+
+                        <div class="mt-2 d-flex flex-wrap gap-1">
+                            <a asp-controller="Home" asp-action="Detalle" asp-route-id="@item.ArticuloId"
+                               class="btn btn-outline-primary btn-sm">Ver detalle</a>
+
+                            <button type="button" class="btn btn-secondary btn-sm"
+                                    disabled title="Disponible próximamente">Comprar</button>
+
+                            <form asp-controller="Favoritos" asp-action="Remove"
+                                  asp-route-id="@item.ArticuloId" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-warning">
+                                    ⭐ Quitar de favoritos
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>

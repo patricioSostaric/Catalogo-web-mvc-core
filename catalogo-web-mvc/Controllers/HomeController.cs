@@ -48,6 +48,18 @@ namespace catalogo_web_mvc.Controllers
         {
             var articulo = await _service.GetByIdAsync(id);
             if (articulo == null || !articulo.Activo ) return NotFound();
+
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                ViewBag.EsFavorito = await _context.ArticuloFavoritos
+                    .AnyAsync(f => f.UserId == userId && f.ArticuloId == id);
+            }
+            else
+            {
+                ViewBag.EsFavorito = false;
+            }
+
             return View(articulo);
         }
 
