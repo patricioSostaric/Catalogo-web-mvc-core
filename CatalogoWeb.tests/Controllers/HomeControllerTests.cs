@@ -141,7 +141,10 @@ namespace CatalogoWeb.Tests.Controllers
             using var context = CrearContexto();
             _serviceMock.Setup(s => s.GetByIdAsync(1))
                 .ReturnsAsync(ArticulosDeEjemplo()[0]);
-            var controller = new HomeController(_serviceMock.Object, context);
+            var controller = new HomeController(_serviceMock.Object, context)
+            {
+                ControllerContext = ContextoAnonimo()
+            };
 
             var resultado = await controller.Detalle(1);
 
@@ -161,6 +164,57 @@ namespace CatalogoWeb.Tests.Controllers
             var resultado = await controller.Detalle(99);
 
             Assert.IsType<NotFoundResult>(resultado);
+        }
+
+        [Fact]
+        public async Task Detalle_UsuarioNoLogueado_EsFavoritoFalse()
+        {
+            using var context = CrearContexto();
+            _serviceMock.Setup(s => s.GetByIdAsync(1))
+                .ReturnsAsync(ArticulosDeEjemplo()[0]);
+            var controller = new HomeController(_serviceMock.Object, context)
+            {
+                ControllerContext = ContextoAnonimo()
+            };
+
+            await controller.Detalle(1);
+
+            Assert.False((bool)controller.ViewBag.EsFavorito);
+        }
+
+        [Fact]
+        public async Task Detalle_UsuarioLogueadoConFavorito_EsFavoritoTrue()
+        {
+            using var context = CrearContexto();
+            context.ArticuloFavoritos.Add(new ArticuloFavorito { UserId = "user-1", ArticuloId = 1 });
+            await context.SaveChangesAsync();
+
+            _serviceMock.Setup(s => s.GetByIdAsync(1))
+                .ReturnsAsync(ArticulosDeEjemplo()[0]);
+            var controller = new HomeController(_serviceMock.Object, context)
+            {
+                ControllerContext = ContextoAutenticado("user-1")
+            };
+
+            await controller.Detalle(1);
+
+            Assert.True((bool)controller.ViewBag.EsFavorito);
+        }
+
+        [Fact]
+        public async Task Detalle_UsuarioLogueadoSinFavorito_EsFavoritoFalse()
+        {
+            using var context = CrearContexto();
+            _serviceMock.Setup(s => s.GetByIdAsync(1))
+                .ReturnsAsync(ArticulosDeEjemplo()[0]);
+            var controller = new HomeController(_serviceMock.Object, context)
+            {
+                ControllerContext = ContextoAutenticado("user-1")
+            };
+
+            await controller.Detalle(1);
+
+            Assert.False((bool)controller.ViewBag.EsFavorito);
         }
 
         // ── soloActivos ────────────────────────────────────────────────────────
