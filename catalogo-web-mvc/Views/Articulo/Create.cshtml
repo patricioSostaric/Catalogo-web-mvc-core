@@ -31,11 +31,5 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-    <script>
-        document.getElementById('inputImagenUrl')?.addEventListener('input', function(e) {
-            const img = document.getElementById('imgPreview');
-            if(img) img.src = e.target.value || 'https://www.mansor.com.uy/wp-content/uploads/2020/06/imagen-no-disponible2.jpg';
-        });
-    </script>
 }
 

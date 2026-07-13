@@ -20,6 +20,16 @@
                 <dd class="text-secondary">@Html.DisplayFor(model => model.Descripcion)</dd>
             </div>
 
+            <!-- Fila doble para Marca y Categoría -->
+            <div class="col-6 mb-2 pb-2 border-bottom">
+                <dt class="text-muted small">@Html.DisplayNameFor(model => model.Marca)</dt>
+                <dd class="mb-0">@Model.Marca?.Descripcion</dd>
+            </div>
+            <div class="col-6 mb-2 pb-2 border-bottom">
+                <dt class="text-muted small">@Html.DisplayNameFor(model => model.Categoria)</dt>
+                <dd class="mb-0">@Model.Categoria?.Descripcion</dd>
+            </div>
+
             <!-- Fila doble para datos técnicos -->
             <div class="col-6 mb-2">
                 <dt class="text-muted small">@Html.DisplayNameFor(model => model.Precio)</dt>
@@ -28,6 +38,13 @@
             <div class="col-6 mb-2">
                 <dt class="text-muted small">@Html.DisplayNameFor(model => model.Stock)</dt>
                 <dd>@Model.Stock unidades</dd>
+            </div>
+
+            <div class="col-12 mt-2">
+                <dt class="text-muted small">@Html.DisplayNameFor(model => model.Activo)</dt>
+                <dd class="mb-0">
+                    <span class="badge @(Model.Activo ? "bg-success" : "bg-secondary")">@(Model.Activo ? "Sí" : "No")</span>
+                </dd>
             </div>
         </dl>
     </div>
@@ -38,10 +55,9 @@
             @if (!string.IsNullOrEmpty(Model.ImagenUrl))
             {
                 <img src="@Model.ImagenUrl"
-                     class="img-fluid rounded"
+                     class="img-fluid rounded img-fallback"
                      style="max-height: 250px; object-fit: contain;"
-                     alt="@Model.Nombre"
-                     onerror="this.src='https://www.mansor.com.uy/wp-content/uploads/2020/06/imagen-no-disponible2.jpg'" />
+                     alt="@Model.Nombre" />
             }
             else
             {

@@ -8,9 +8,8 @@
 <div class="col">
     <div class="card h-100 card-unificada">
         <img src="@Model.ImagenUrl"
-             class="img-fluid rounded detalle-img"
-             alt="Imagen del artículo"
-             onerror="this.src='https://www.mansor.com.uy/wp-content/uploads/2020/06/imagen-no-disponible2.jpg'" />
+             class="img-fluid rounded detalle-img img-fallback"
+             alt="Imagen del artículo" />
         <div class="card-body">
             <span class="card-title h5 d-block">@Model.Nombre</span>
             <span class="card-text descripcion d-block">@Model.Descripcion</span>

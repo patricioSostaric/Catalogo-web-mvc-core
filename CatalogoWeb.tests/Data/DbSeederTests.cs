@@ -80,10 +80,9 @@ namespace CatalogoWeb.Tests.Data
         }
 
         [Fact]
-        public async Task SeedAsync_UsuarioExisteConPasswordIncorrecta_ResetearPassword()
+        public async Task SeedAsync_UsuarioExisteConPasswordIncorrecta_NoResetearPassword()
         {
             var user = new ApplicationUser { Email = "admin@catalogo.com", UserName = "admin@catalogo.com" };
-            const string token = "reset-token";
 
             _userManagerMock
                 .Setup(u => u.FindByEmailAsync(It.IsAny<string>()))
@@ -95,18 +94,13 @@ namespace CatalogoWeb.Tests.Data
                 .Setup(u => u.CheckPasswordAsync(user, It.IsAny<string>()))
                 .ReturnsAsync(false);
             _userManagerMock
-                .Setup(u => u.GeneratePasswordResetTokenAsync(user))
-                .ReturnsAsync(token);
-            _userManagerMock
-                .Setup(u => u.ResetPasswordAsync(user, token, It.IsAny<string>()))
-                .ReturnsAsync(IdentityResult.Success);
-            _userManagerMock
                 .Setup(u => u.IsInRoleAsync(user, It.IsAny<string>()))
                 .ReturnsAsync(true);
 
             await DbSeeder.SeedAsync(_serviceProviderMock.Object);
 
-            _userManagerMock.Verify(u => u.ResetPasswordAsync(user, token, It.IsAny<string>()), Times.AtLeastOnce);
+            _userManagerMock.Verify(u => u.ResetPasswordAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+            _userManagerMock.Verify(u => u.GeneratePasswordResetTokenAsync(It.IsAny<ApplicationUser>()), Times.Never);
         }
 
         [Fact]

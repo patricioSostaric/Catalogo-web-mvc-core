@@ -87,8 +87,7 @@
     <div class="col-12 col-lg-4 d-flex flex-column align-items-center justify-content-start border-start-lg border-light-subtle ps-lg-4 mt-4 mt-lg-0">
         <span class="text-secondary small fw-medium mb-3">Vista previa del producto</span>
         <div class="card border-0 shadow-sm rounded-4 bg-light p-3 d-flex align-items-center justify-content-center overflow-hidden w-100" style="max-width: 280px; height: 280px;">
-            <img id="imgPreview" src="@Model?.ImagenUrl" alt="@Model?.Nombre" class="img-fluid rounded-3" style="max-height: 100%; max-width: 100%; object-fit: contain;"
-                 onerror="this.src='https://www.mansor.com.uy/wp-content/uploads/2020/06/imagen-no-disponible2.jpg'" />
+            <img id="imgPreview" src="@Model?.ImagenUrl" alt="@Model?.Nombre" class="img-fluid rounded-3 img-fallback" style="max-height: 100%; max-width: 100%; object-fit: contain;" />
         </div>
     </div>
 </div>
