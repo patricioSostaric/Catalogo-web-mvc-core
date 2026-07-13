@@ -43,12 +43,8 @@ namespace catalogo_web_mvc.Data
             if (await userManager.IsLockedOutAsync(user))
                 await userManager.SetLockoutEndDateAsync(user, DateTimeOffset.MinValue);
 
-            // Resetear password si no coincide con el valor seed
-            if (!await userManager.CheckPasswordAsync(user, password))
-            {
-                var token = await userManager.GeneratePasswordResetTokenAsync(user);
-                await userManager.ResetPasswordAsync(user, token, password);
-            }
+            // No se resetea la contraseña de un usuario existente: si el admin la cambió,
+            // debe mantenerse. Reponerla al valor seed reabriría un acceso hardcodeado.
 
             // Asegurar que el rol está asignado
             if (!await userManager.IsInRoleAsync(user, rol))

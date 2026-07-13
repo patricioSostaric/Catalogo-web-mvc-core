@@ -33,10 +33,9 @@
         @if (!string.IsNullOrEmpty(Model.ImagenUrl))
         {
             <img src="@Model.ImagenUrl"
-                 class="img-fluid rounded"
+                 class="img-fluid rounded img-fallback"
                  style="max-width:100%; max-height:300px;"
-                 alt="@Model.Nombre"
-                 onerror="this.src='https://www.mansor.com.uy/wp-content/uploads/2020/06/imagen-no-disponible2.jpg'" />
+                 alt="@Model.Nombre" />
         }
         else
         {

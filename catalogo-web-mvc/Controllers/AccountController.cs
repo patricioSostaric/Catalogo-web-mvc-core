@@ -3,6 +3,7 @@ using catalogo_web_mvc.Models;
 using catalogo_web_mvc.Models.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using System.Security.Claims;
 
 namespace catalogo_web_mvc.Controllers
@@ -29,6 +30,7 @@ namespace catalogo_web_mvc.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [EnableRateLimiting("auth")]
         public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
@@ -63,6 +65,7 @@ namespace catalogo_web_mvc.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [EnableRateLimiting("auth")]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
             if (!ModelState.IsValid) return View(model);
@@ -77,8 +80,15 @@ namespace catalogo_web_mvc.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
+            // No revelamos si el motivo fue un email/usuario duplicado (evita enumeración de cuentas).
+            bool emailEnUso = result.Errors.Any(e => e.Code is "DuplicateUserName" or "DuplicateEmail");
             foreach (var error in result.Errors)
+            {
+                if (error.Code is "DuplicateUserName" or "DuplicateEmail") continue;
                 ModelState.AddModelError(string.Empty, error.Description);
+            }
+            if (emailEnUso)
+                ModelState.AddModelError(string.Empty, "No fue posible completar el registro. Verificá los datos ingresados.");
 
             return View(model);
         }
