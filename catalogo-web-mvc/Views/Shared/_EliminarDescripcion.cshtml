@@ -1,21 +1,58 @@
 @model DescripcionDeleteViewModel
 
-<h1 class="mb-3">Eliminar @Model.NombreEntidad</h1>
-<h3 class="mb-3">¿Estás seguro de que deseas eliminar esta @Model.NombreEntidad.ToLower()?</h3>
-<div>
-    
-    
-    <dl class="row mb-3">
-        <dt class="col-sm-2">Descripción</dt>
-        <dd class="col-sm-10">@Model.Descripcion</dd>
-    </dl>
+<div class="container my-5">
+    <!-- Fila centrada que mantiene la simetría con la pantalla de edición -->
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-6 col-lg-5">
 
-    <form asp-action="Delete">
-        <input type="hidden" name="@Model.IdFieldName" value="@Model.Id" />
-       
+            <!-- HEADER DE LA PÁGINA CON RETORNO SUTIL -->
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <h2 class="fw-bold text-dark h3 m-0">Eliminar @Model.NombreEntidad</h2>
+                <a asp-action="Index" class="text-secondary small text-decoration-none fw-medium">
+                    ← Volver
+                </a>
+            </div>
 
-            <input type="submit" value="Eliminar" class="btn btn-danger" /> 
-             <span class="mb-2">| </span>
-        <a asp-action="Index">@Model.VolverTexto</a>
-    </form>
+            <!-- TARJETA DE CONFIRMACIÓN PREMIUM -->
+            <div class="card border-0 shadow-sm rounded-4 bg-white p-4 text-center">
+
+                <!-- Icono de alerta rojo pastel estilo App Moderna -->
+                <div class="bg-danger bg-opacity-10 p-3 rounded-circle d-inline-block mx-auto mb-3" style="width: fit-content;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="text-danger" viewBox="0 0 16 16">
+                        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6Z" />
+                        <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1ZM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118ZM2.5 3h11V2h-11v1Z" />
+                    </svg>
+                </div>
+
+                <h4 class="fw-bold text-dark mb-2">¿Estás seguro?</h4>
+                <p class="text-muted small px-3 mb-4">
+                    Estás a punto de borrar de forma permanente esta @Model.NombreEntidad.ToLower(). Esta acción no se puede deshacer.
+                </p>
+
+                <!-- Caja destacada con el nombre del elemento seleccionado -->
+                <div class="bg-light bg-opacity-75 rounded-3 p-3 mb-4 text-start border border-light-subtle">
+                    <span class="text-secondary small d-block fw-medium mb-1">Descripción / Nombre:</span>
+                    <span class="fw-bold text-dark fs-5">@Model.Descripcion</span>
+                </div>
+
+                <!-- FORMULARIO Y BOTONERA APILADA ESTILO MERCADO PAGO -->
+                <form asp-action="Delete">
+                    <input type="hidden" name="@Model.IdFieldName" value="@Model.Id" />
+
+                    <div class="d-grid gap-2">
+                        <!-- Botón destructivo en rojo pleno -->
+                        <button type="submit" class="btn btn-danger py-2 rounded-3 fw-medium shadow-sm">
+                            Confirmar y Eliminar
+                        </button>
+                        <!-- Botón secundario gris para cancelar de forma segura -->
+                        <a asp-action="Index" class="btn btn-light py-2 rounded-3 fw-medium text-secondary text-decoration-none">
+                            @Model.VolverTexto
+                        </a>
+                    </div>
+                </form>
+
+            </div>
+
+        </div>
+    </div>
 </div>

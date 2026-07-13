@@ -1,29 +1,60 @@
 @model TablaEntidadViewModel
 
-<table class="table table-striped table-hover">
-    <thead>
-        <tr>
-            @foreach (var columna in Model.Columnas)
-            {
-                <th>@columna</th>
-            }
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var fila in Model.Filas)
-        {
+<div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+        <!-- Cabecera oscura premium que hace juego con la de Artículos -->
+        <thead class="table-dark">
             <tr>
-                @foreach (var valor in fila.Valores)
-                {
-                    <td>@valor</td>
+                @{
+                    int idxCol = 0;
                 }
-                <td>
-                    <a asp-action="Edit"    asp-route-id="@fila.Id" class="btn btn-outline-primary">Editar</a> |
-                    
-                    <a asp-action="Delete"  asp-route-id="@fila.Id" class="btn btn-outline-danger">Eliminar</a>
-                </td>
+                @foreach (var columna in Model.Columnas)
+                {
+                    <!-- Le damos un aire al borde izquierdo de la primera columna -->
+                    <th class="@(idxCol == 0 ? "ps-4" : "")">@columna</th>
+                    idxCol++;
+                }
+                <!-- Columna de acciones centrada y con ancho controlado -->
+                <th class="text-center pe-4" style="width: 180px;">Acción</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @if (Model.Filas != null && Model.Filas.Any())
+            {
+                foreach (var fila in Model.Filas)
+                {
+                    <tr>
+                        @{
+                            int idxVal = 0;
+                        }
+                        @foreach (var valor in fila.Valores)
+                        {
+                            <!-- Resaltamos el texto principal para que se vea más corporativo -->
+                            <td class="@(idxVal == 0 ? "ps-4" : "") fw-bold text-dark">@valor</td>
+                            idxVal++;
+                        }
+
+                        <!-- Botonera unificada compacta sin el palito "|" feo del medio -->
+                        <td class="text-center pe-4">
+                            <div class="btn-group btn-group-sm" role="group">
+                                <a asp-action="Edit" asp-route-id="@fila.Id" class="btn btn-outline-primary fw-medium">Editar</a>
+                                <a asp-action="Delete" asp-route-id="@fila.Id" class="btn btn-outline-danger fw-medium">Eliminar</a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="@(Model.Columnas.Count + 1)" class="p-4">
+                        <div class="alert alert-danger d-flex align-items-center m-0 rounded-3 shadow-sm" role="alert">
+                            <span class="me-2">⚠️</span>
+                            <span>No se encontraron @Model.NombreEntidad.ToLower()s registradas.</span>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

@@ -5,36 +5,71 @@
     ViewData["Title"] = "Grilla de Artículos";
 }
 
-<h1>Grilla de Artículos</h1>
+@* <h1>Grilla de Artículos</h1>
 
 @if (!string.IsNullOrEmpty(ViewBag.Mensaje))
 {
     <div class="alert alert-warning">@ViewBag.Mensaje</div>
 }
+ *@
+<div class="container my-5">
 
-<form asp-action="Index" method="get">
-    <div class="row mb-3">
-        @await Html.PartialAsync("_filtroComun")
-
-        <div class="col-md-4 d-flex align-items-end">
-            <div class="form-check mb-3">
-                <input class="form-check-input" type="checkbox" id="filtroAvanzado" name="filtroAvanzado" value="true"
-                       @(Context.Request.Query["filtroAvanzado"] == "true" || Context.Request.Query["filtroAvanzado"] == "on" ? "checked" : "") />
-                <label class="form-check-label" for="filtroAvanzado">Filtro Avanzado</label>
-            </div>
+    <!-- HEADER DEL DASHBOARD: Título y Botón Principal Arriba -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-3 border-bottom">
+        <div>
+            <h1 class="fw-bold text-dark h2 mb-1">Grilla de Artículos</h1>
+            <p class="text-muted small m-0">Panel de administración y control de stock.</p>
+        </div>
+        <div class="mt-3 mt-md-0">
+            <!-- Movimos el botón "Nuevo" acá arriba: estilo premium, accesible y limpio -->
+            <a asp-action="Create" class="btn btn-success px-4 py-2 rounded-3 fw-medium shadow-sm text-decoration-none">
+                + Nuevo artículo
+            </a>
         </div>
     </div>
 
-    @await Html.PartialAsync("_FiltroAvanzado")
-</form>
+    <!-- MENSAJES DE ALERTA -->
+    @if (!string.IsNullOrEmpty(ViewBag.Mensaje))
+    {
+        <div class="alert alert-warning shadow-sm rounded-3 mb-4">@ViewBag.Mensaje</div>
+    }
+    <!-- SECCIÓN DE FILTROS: Buscador y Checkbox integrados en la misma línea -->
+    <div class="card border-0 shadow-sm rounded-4 bg-white p-3 mb-4">
+        <form asp-action="Index" method="get">
+            <div class="row g-3 align-items-center">
 
+                <!-- Tu vista parcial del buscador (que ocupa col-md-9) -->
+                @await Html.PartialAsync("_filtroComun")
+
+                <!-- Checkbox del Filtro Avanzado: Ahora se acopla perfectamente al lado -->
+                <div class="col-12 col-md-auto">
+                    <div class="form-check mb-0 d-flex align-items-center">
+                        <input class="form-check-input me-2 mt-0" type="checkbox" id="filtroAvanzado" name="filtroAvanzado" value="true"
+                        @(Context.Request.Query["filtroAvanzado"] == "true" || Context.Request.Query["filtroAvanzado"] == "on" ? "checked" : "") />
+                        <label class="form-check-label text-secondary small fw-medium" for="filtroAvanzado">
+                            Filtro Avanzado
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mantiene tu lógica de filtros avanzados desplegables si existen -->
+            @await Html.PartialAsync("_FiltroAvanzado")
+        </form>
+    </div>
+
+
+    <!-- TABLA CONTENIDA EN TARJETA FLOTANTE (Suaviza los bordes y le da sombra) -->
+    <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden mb-4">
 @await Html.PartialAsync("_tablaArticulos", Model)
+    </div>
 
+    <!-- SECCIÓN DE PAGINADO CENTRADA -->
+    <div class="d-flex justify-content-center mt-4">
 @await Html.PartialAsync("_Paginado", Model)
+    </div>
 
-<p>
-    <a asp-action="Create" class="btn btn-secondary">Nuevo artículo</a>
-</p>
+</div>
 
 @section Scripts {
     <script src="~/js/articulo-index.js"></script>

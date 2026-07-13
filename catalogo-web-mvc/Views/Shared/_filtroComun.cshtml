@@ -1,7 +1,10 @@
-﻿
-<div class="col-6">
-    <label for="searchString">Buscar por nombre</label>
+﻿ <div class="col-12 col-md-9"">
+    <div class="input-group">
+    <!-- El texto de "Buscar por nombre" ahora es una extensión elegante del input -->
+    <span class="input-group-text bg-light text-secondary border-end-0">
+        Buscar por nombre
+    </span>
     <input type="text" id="searchString" name="searchString" class="form-control"
            value="@Context.Request.Query["searchString"]" />
 </div>
-  
+   </div>
