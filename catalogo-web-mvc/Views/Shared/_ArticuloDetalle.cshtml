@@ -1,45 +1,68 @@
 @model catalogo_web_mvc.Models.Articulo
 
-<div class="row align-items-start">
-    <div class="col-6 mt-3">
-        <dl class="row">
-            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Codigo)</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.Codigo)</dd>
+<div class="row align-items-center">
+    <!-- Información -->
+    <div class="col-md-7">
+        <dl class="row mb-0">
+            @* Usamos una clase de utilidad para darle un poco más de separación *@
+            <div class="col-12 mb-2 pb-2 border-bottom">
+                <dt class="text-muted small">@Html.DisplayNameFor(model => model.Codigo)</dt>
+                <dd class="fw-bold fs-5 mb-0">@Html.DisplayFor(model => model.Codigo)</dd>
+            </div>
 
-            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Nombre)</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.Nombre)</dd>
+            <div class="col-12 mb-2 pb-2 border-bottom">
+                <dt class="text-muted small">@Html.DisplayNameFor(model => model.Nombre)</dt>
+                <dd class="fs-5 mb-0">@Html.DisplayFor(model => model.Nombre)</dd>
+            </div>
 
-            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Descripcion)</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.Descripcion)</dd>
+            <div class="col-12 mb-2 pb-2 border-bottom">
+                <dt class="text-muted small">@Html.DisplayNameFor(model => model.Descripcion)</dt>
+                <dd class="text-secondary">@Html.DisplayFor(model => model.Descripcion)</dd>
+            </div>
 
-            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Marca)</dt>
-            <dd class="col-sm-9">@Model.Marca?.Descripcion</dd>
+            <!-- Fila doble para Marca y Categoría -->
+            <div class="col-6 mb-2 pb-2 border-bottom">
+                <dt class="text-muted small">@Html.DisplayNameFor(model => model.Marca)</dt>
+                <dd class="mb-0">@Model.Marca?.Descripcion</dd>
+            </div>
+            <div class="col-6 mb-2 pb-2 border-bottom">
+                <dt class="text-muted small">@Html.DisplayNameFor(model => model.Categoria)</dt>
+                <dd class="mb-0">@Model.Categoria?.Descripcion</dd>
+            </div>
 
-            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Categoria)</dt>
-            <dd class="col-sm-9">@Model.Categoria?.Descripcion</dd>
+            <!-- Fila doble para datos técnicos -->
+            <div class="col-6 mb-2">
+                <dt class="text-muted small">@Html.DisplayNameFor(model => model.Precio)</dt>
+                <dd class="fw-bold text-primary">@String.Format("{0:C2}", Model.Precio)</dd>
+            </div>
+            <div class="col-6 mb-2">
+                <dt class="text-muted small">@Html.DisplayNameFor(model => model.Stock)</dt>
+                <dd>@Model.Stock unidades</dd>
+            </div>
 
-            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Precio)</dt>
-            <dd class="col-sm-9">@String.Format("{0:N2}", Model.Precio)</dd>
-
-            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Stock)</dt>
-            <dd class="col-sm-9">@Model.Stock</dd>
-
-            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Activo)</dt>
-            <dd class="col-sm-9">@(Model.Activo ? "Sí" : "No")</dd>
+            <div class="col-12 mt-2">
+                <dt class="text-muted small">@Html.DisplayNameFor(model => model.Activo)</dt>
+                <dd class="mb-0">
+                    <span class="badge @(Model.Activo ? "bg-success" : "bg-secondary")">@(Model.Activo ? "Sí" : "No")</span>
+                </dd>
+            </div>
         </dl>
     </div>
 
-    <div class="col-4 d-flex justify-content-start align-items-start ms-3">
-        @if (!string.IsNullOrEmpty(Model.ImagenUrl))
-        {
-            <img src="@Model.ImagenUrl"
-                 class="img-fluid rounded img-fallback"
-                 style="max-width:100%; max-height:300px;"
-                 alt="@Model.Nombre" />
-        }
-        else
-        {
-            <span class="text-muted">Imagen no disponible</span>
-        }
+    <!-- Imagen -->
+    <div class="col-md-5 text-center">
+        <div class="p-2 border rounded shadow-sm bg-light">
+            @if (!string.IsNullOrEmpty(Model.ImagenUrl))
+            {
+                <img src="@Model.ImagenUrl"
+                     class="img-fluid rounded img-fallback"
+                     style="max-height: 250px; object-fit: contain;"
+                     alt="@Model.Nombre" />
+            }
+            else
+            {
+                <div class="p-5 text-muted">Imagen no disponible</div>
+            }
+        </div>
     </div>
 </div>

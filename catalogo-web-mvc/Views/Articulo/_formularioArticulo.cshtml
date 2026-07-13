@@ -1,0 +1,93 @@
+﻿@model catalogo_web_mvc.Models.Articulo
+
+<div asp-validation-summary="ModelOnly" class="text-danger small mb-4"></div>
+
+@if (ViewData["IsEdit"] != null && (bool)ViewData["IsEdit"])
+{
+    <!-- Campo oculto indispensable para no perder el ID al modificar -->
+    <input type="hidden" asp-for="Id" />
+}
+
+<div class="row g-4">
+    <!-- COLUMNA IZQUIERDA: INPUTS -->
+    <div class="col-12 col-lg-8">
+        <div class="row g-3">
+
+            <!-- Código -->
+            <div class="col-12 col-md-4">
+                <label asp-for="Codigo" class="form-label text-secondary small fw-medium">Código</label>
+                <input asp-for="Codigo" class="form-control border-light-subtle bg-light bg-opacity-50 px-3 py-2 rounded-3" placeholder="Ej: S01" />
+                <span asp-validation-for="Codigo" class="text-danger small mt-1 d-block"></span>
+            </div>
+
+            <!-- Nombre -->
+            <div class="col-12 col-md-8">
+                <label asp-for="Nombre" class="form-label text-secondary small fw-medium">Nombre del Artículo</label>
+                <input asp-for="Nombre" class="form-control border-light-subtle bg-light bg-opacity-50 px-3 py-2 rounded-3" placeholder="Ej: Galaxy S10" />
+                <span asp-validation-for="Nombre" class="text-danger small mt-1 d-block"></span>
+            </div>
+
+            <!-- Precio -->
+            <div class="col-12 col-md-6">
+                <label asp-for="Precio" class="form-label text-secondary small fw-medium">Precio ($)</label>
+                <div class="input-group">
+                    <span class="input-group-text border-light-subtle bg-light text-secondary fw-medium">$</span>
+                    <input asp-for="Precio" class="form-control border-light-subtle bg-light bg-opacity-50 px-3 py-2 rounded-end-3" type="text" />
+                </div>
+                <span asp-validation-for="Precio" class="text-danger small mt-1 d-block"></span>
+            </div>
+
+            <!-- Stock -->
+            <div class="col-12 col-md-6">
+                <label asp-for="Stock" class="form-label text-secondary small fw-medium">Stock Disponible</label>
+                <input asp-for="Stock" class="form-control border-light-subtle bg-light bg-opacity-50 px-3 py-2 rounded-3" type="number" />
+                <span asp-validation-for="Stock" class="text-danger small mt-1 d-block"></span>
+            </div>
+
+            <!-- Marca Dropdown (Corregido con tu MarcaId) -->
+            <div class="col-12 col-md-6">
+                <label class="form-label text-secondary small fw-medium">Marca</label>
+                <select asp-for="MarcaId" class="form-select border-light-subtle bg-light bg-opacity-50 px-3 py-2 rounded-3" asp-items="ViewBag.MarcaId"></select>
+                <span asp-validation-for="MarcaId" class="text-danger small mt-1 d-block"></span>
+            </div>
+
+            <!-- Categoría Dropdown (Corregido con tu CategoriaId) -->
+            <div class="col-12 col-md-6">
+                <label class="form-label text-secondary small fw-medium">Categoría</label>
+                <select asp-for="CategoriaId" class="form-select border-light-subtle bg-light bg-opacity-50 px-3 py-2 rounded-3" asp-items="ViewBag.CategoriaId"></select>
+                <span asp-validation-for="CategoriaId" class="text-danger small mt-1 d-block"></span>
+            </div>
+
+            <!-- URL Imagen -->
+            <div class="col-12">
+                <label asp-for="ImagenUrl" class="form-label text-secondary small fw-medium">Enlace de la Imagen (URL)</label>
+                <input asp-for="ImagenUrl" id="inputImagenUrl" class="form-control border-light-subtle bg-light bg-opacity-50 px-3 py-2 rounded-3" placeholder="https://..." autocomplete="off" />
+                <span asp-validation-for="ImagenUrl" class="text-danger small mt-1 d-block"></span>
+            </div>
+
+            <!-- Descripción -->
+            <div class="col-12">
+                <label asp-for="Descripcion" class="form-label text-secondary small fw-medium">Descripción Corta</label>
+                <textarea asp-for="Descripcion" rows="3" class="form-control border-light-subtle bg-light bg-opacity-50 px-3 py-2 rounded-3" placeholder="Detalles o características..."></textarea>
+                <span asp-validation-for="Descripcion" class="text-danger small mt-1 d-block"></span>
+            </div>
+
+            <!-- Checkbox Activo (Switch) -->
+            <div class="col-12 mt-2">
+                <div class="form-check form-switch card p-3 border-light-subtle bg-light bg-opacity-25 rounded-3 ps-5">
+                    <input class="form-check-input ms-n4" type="checkbox" asp-for="Activo" role="switch" id="switchActivo">
+                    <label class="form-check-label fw-semibold text-dark small" for="switchActivo">Artículo habilitado para la venta</label>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- COLUMNA DERECHA: PREVIEW DE IMAGEN -->
+    <div class="col-12 col-lg-4 d-flex flex-column align-items-center justify-content-start border-start-lg border-light-subtle ps-lg-4 mt-4 mt-lg-0">
+        <span class="text-secondary small fw-medium mb-3">Vista previa del producto</span>
+        <div class="card border-0 shadow-sm rounded-4 bg-light p-3 d-flex align-items-center justify-content-center overflow-hidden w-100" style="max-width: 280px; height: 280px;">
+            <img id="imgPreview" src="@Model?.ImagenUrl" alt="@Model?.Nombre" class="img-fluid rounded-3 img-fallback" style="max-height: 100%; max-width: 100%; object-fit: contain;" />
+        </div>
+    </div>
+</div>
