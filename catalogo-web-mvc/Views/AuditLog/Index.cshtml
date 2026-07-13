@@ -6,81 +6,120 @@
     string[] acciones = new[] { "LOGIN_OK", "LOGIN_FAIL", "LOCKOUT", "REGISTER", "LOGOUT", "CREATE", "UPDATE", "DELETE" };
 }
 
-<h2>Registro de Auditoría</h2>
+<div class="container my-5">
 
+    <!-- HEADER DEL DASHBOARD (Sin botón porque es una pantalla de solo lectura) -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-3 border-bottom">
+        <div>
+            <h1 class="fw-bold text-dark h2 mb-1">Registro de Auditoría</h1>
+            <p class="text-muted small m-0">Historial de seguridad, accesos y modificaciones del sistema.</p>
+        </div>
+    </div>
+    <!-- SECCIÓN DE FILTROS: En tarjeta limpia y con diseño responsive -->
+    <div class="card border-0 shadow-sm rounded-4 bg-white p-3 mb-4">
 <form method="get" class="row align-items-end mb-3 g-2">
-    <div class="col-auto">
-        <label class="form-label">Acción</label>
-        <select name="accion" class="form-select">
-            <option value="">Todas</option>
-            @foreach (string accion in acciones)
-            {
-                if (accion == filtroAccion)
-                {
-                    <option value="@accion" selected="selected">@accion</option>
-                }
-                else
-                {
-                    <option value="@accion">@accion</option>
-                }
-            }
-        </select>
-    </div>
-    <div class="col-auto">
-        <label class="form-label">Email</label>
-        <input name="email" class="form-control" value="@filtroEmail" placeholder="usuario@@ejemplo.com" />
-    </div>
-    <div class="col-auto">
-        <button type="submit" class="btn btn-primary">Filtrar</button>
-        <a asp-action="Index" class="btn btn-secondary ms-1">Limpiar</a>
-    </div>
-</form>
 
-<div class="table-responsive">
-    <table class="table table-sm table-striped table-bordered">
-        <thead class="table-dark">
-            <tr>
-                <th>Fecha (ARG)</th>
-                <th>Acción</th>
-                <th>Email</th>
-                <th>Detalle</th>
-                <th>IP</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var log in Model)
-            {
-                string badgeClass;
-                if (log.Accion == "LOGIN_OK" || log.Accion == "REGISTER")
-                {
-                    badgeClass = "bg-success";
-                }
-                else if (log.Accion == "LOGIN_FAIL" || log.Accion == "LOCKOUT")
-                {
-                    badgeClass = "bg-danger";
-                }
-                else if (log.Accion == "LOGOUT")
-                {
-                    badgeClass = "bg-secondary";
-                }
-                else if (log.Accion == "DELETE")
-                {
-                    badgeClass = "bg-warning text-dark";
-                }
-                else
-                {
-                    badgeClass = "bg-primary";
-                }
+            <!-- Selector de Acción -->
+            <div class="col-12 col-md-4">
+                <label class="form-label text-secondary small fw-medium">Acción</label>
+                <select name="accion" class="form-select border-light-subtle bg-light bg-opacity-50">
+                    <option value="">Todas</option>
+                    @foreach (string accion in acciones)
+                    {
+                        if (accion == filtroAccion)
+                        {
+                            <option value="@accion" selected="selected">@accion</option>
+                        }
+                        else
+                        {
+                            <option value="@accion">@accion</option>
+                        }
+                    }
+                </select>
+            </div>
+            <!-- Entrada de Email -->
+            <div class="col-12 col-md-4">
+                <label class="form-label text-secondary small fw-medium">Email</label>
+                <input name="email" class="form-control border-light-subtle bg-light bg-opacity-50" value="@filtroEmail" placeholder="usuario@@ejemplo.com" />
+            </div>
+
+            <!-- Botones de Acción -->
+            <div class="col-12 col-md-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary px-4 fw-medium flex-grow-1">Filtrar</button>
+                <a asp-action="Index" class="btn btn-outline-secondary px-3 fw-medium">Limpiar</a>
+            </div>
+        </form>
+    </div>
+    </div>
+    
+<!-- GRILLA DE LOGS EN TARJETA FLOTANTE DE BORDES SUAVES -->
+<div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden mb-4">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <!-- Cabecera sofisticada oscura -->
+            <thead class="table-dark">
                 <tr>
-                    <td>@log.Fecha.ToString("dd/MM/yyyy HH:mm:ss")</td>
-                    <td><span class="badge @badgeClass">@log.Accion</span></td>
-                    <td>@log.Email</td>
-                    <td>@log.Detalle</td>
-                    <td>@log.IpAddress</td>
+                    <th class="ps-4">Fecha (ARG)</th>
+                    <th>Acción</th>
+                    <th>Email</th>
+                    <th>Detalle</th>
+                    <th class="pe-4">IP</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var log in Model)
+                {
+                    // Modernizamos los badges a estilos pastel elegantes (-subtle)
+                    string badgeClass;
+                    if (log.Accion == "LOGIN_OK" || log.Accion == "REGISTER")
+                    {
+                        badgeClass = "bg-success-subtle text-success";
+                    }
+                    else if (log.Accion == "LOGIN_FAIL" || log.Accion == "LOCKOUT")
+                    {
+                        badgeClass = "bg-danger-subtle text-danger";
+                    }
+                    else if (log.Accion == "LOGOUT")
+                    {
+                        badgeClass = "bg-secondary-subtle text-secondary";
+                    }
+                    else if (log.Accion == "DELETE")
+                    {
+                        badgeClass = "bg-warning-subtle text-warning-emphasis";
+                    }
+                    else // CREATE y UPDATE
+                    {
+                        badgeClass = "bg-primary-subtle text-primary";
+                    }
+
+                    <tr>
+                        <!-- Fecha con tipografía secundaria limpia -->
+                        <td class="ps-4 text-secondary small">@log.Fecha.ToString("dd/MM/yyyy HH:mm:ss")</td>
+
+                        <!-- Badge redondeado estilo píldora -->
+                        <td>
+                            <span class="badge @badgeClass px-2 py-1 rounded-pill fw-semibold" style="font-size: 0.75rem;">
+                                @log.Accion
+                            </span>
+                        </td>
+
+                        <!-- Email destacado -->
+                        <td class="fw-medium text-dark">@log.Email</td>
+
+                        <!-- Detalle controlado para que textos muy largos no rompan la pantalla -->
+                        <td class="text-muted small text-truncate" style="max-width: 280px;">@log.Detalle</td>
+
+                        <!-- IP con aire hacia el final de la tarjeta -->
+                        <td class="text-secondary small pe-4">@log.IpAddress</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </div>
 
-@await Html.PartialAsync("_Paginado", Model)
+<!-- SECCIÓN DE PAGINADO CENTRADA -->
+<div class="d-flex justify-content-center mt-4">
+    @await Html.PartialAsync("_Paginado", Model)
+</div>
+

@@ -13,7 +13,7 @@ h1, h2, h3 {
 }
 
 /* Tabla de artículos */
-.table th {
+/*.table th {
     background-color: #0d6efd;
     color: #fff;
     text-align: center;
@@ -21,6 +21,19 @@ h1, h2, h3 {
 
 .table td {
     vertical-align: middle;
+}*/
+/* Tabla de artículos — Adaptada para Dashboard */
+.table thead th {
+    /* Dejamos que Bootstrap maneje los colores (como el table-dark) */
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding-top: 12px;
+    padding-bottom: 12px;
+}
+
+.table td {
+    vertical-align: middle;
+    color: #495057;
 }
 
 /* Miniaturas de imágenes */
@@ -36,27 +49,38 @@ h1, h2, h3 {
     justify-content: center;
     list-style: none;
     padding-left: 0;
+    gap:0.35rem;/* Uso gap en vez de margin para separar los botones uniformemente */
+    
 }
-
-    .pagination li {
-        margin: 0 3px;
+    .pagination li a,
+    .pagination li span {
+        padding: 8px 16px; /* Más grandes y fáciles de cliquear (UX) */
+        border: 1px solid #eaeaea; /* Borde más sutil, igual al de las cards */
+        border-radius: 8px; /* Bordes más redondeados que hacen juego con el sitio */
+        color: #0d6efd;
+        font-weight: 500;
+        text-decoration: none;
+        background-color: #fff;
+        transition: all 0.2s ease-in-out; /* Transición suave para el hover */
     }
-
-        .pagination li a,
-        .pagination li span {
-            padding: 6px 12px;
-            border: 1px solid #dee2e6;
-            border-radius: 4px;
-            color: #0d6efd;
-            text-decoration: none;
-            background-color: #fff;
+        /* --- EFECTO HOVER: Para los botones que se pueden cliquear --- */
+        .pagination li a:hover {
+            background-color: #f1f3f5; /* Un gris muy suave al pasar el mouse */
+            border-color: #0d6efd;
+            color: #0a58ca;
         }
+    /* --- BOTÓN ACTIVO: Página actual --- */
+    .pagination li.active span {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+        color: #fff;
+        font-weight: 600;
+        /* Le agregamos una pequeña sombra azul para que destaque premium */
+        box-shadow: 0 4px 10px rgba(13, 110, 253, 0.25);
+    }
+        
 
-        .pagination li.active span {
-            background-color: #0d6efd;
-            color: #fff;
-        }
-
+        
 .card-img-uniform {
     width: 80%;
     height: 150px;
@@ -92,12 +116,12 @@ h1, h2, h3 {
    BORDES REDONDEADOS y EFECTOS MODERNOS */
 .card-unificada {
     width: 100%;
-    max-width: 300px;
+    /*max-width: 300px;*/
     height: 400px; 
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    margin: 1rem auto;
+   /* margin: 1rem auto;*/
     background-color: #fff;
     border: 1px solid #eaeaea; /* Borde más sutil */
     /* MODERNO: Bordes más redondeados (aumentado de 8px a 12px) */

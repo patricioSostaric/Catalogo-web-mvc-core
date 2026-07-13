@@ -1,4 +1,4 @@
-@model X.PagedList.IPagedList<catalogo_web_mvc.Models.Articulo>
+@* @model X.PagedList.IPagedList<catalogo_web_mvc.Models.Articulo>
 @using X.PagedList.Mvc.Core
 
 @{
@@ -39,3 +39,77 @@
 </div>
 
 @await Html.PartialAsync("_Paginado", Model)
+ *@
+@model X.PagedList.IPagedList<catalogo_web_mvc.Models.Articulo>
+@using X.PagedList.Mvc.Core
+
+@{
+    ViewData["Title"] = "Inicio";
+    var favoritos = ViewBag.Favoritos as HashSet<int> ?? new HashSet<int>();
+    bool logueado = User.Identity?.IsAuthenticated == true;
+}
+
+<!-- ==========================================
+     SECCIÓN HERO: Bienvenida y Filtro Unificados
+     ========================================== -->
+<div class="bg-white py-5 mb-5 border-bottom shadow-sm">
+    <div class="container text-center">
+        <h1 class="display-5 fw-bold text-dark mb-2">¡Bienvenido/a!</h1>
+        <p class="lead text-muted mb-4">Te encontrás en la web de artículos.</p>
+
+        <!-- Contenedor del Filtro Centrado -->
+        <div class="row justify-content-center">
+            <div class="col-md-10 col-lg-8">
+                <form asp-action="Index" method="get">
+                    <div class="row g-2 justify-content-center align-items-center">
+                        <!-- Tu vista parcial con el input de búsqueda -->
+                        @await Html.PartialAsync("_filtroComun")
+
+                        <div class="col-auto">
+                            <button type="submit" class="btn btn-primary px-4 fw-medium">
+                                Buscar
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================
+     SECCIÓN PRINCIPAL: Listado de Artículos
+     ========================================== -->
+<div class="container">
+
+    <!-- Título de sección más elegante -->
+    <div class="pb-2 mb-4 border-bottom">
+        <h2 class="h4 text-secondary m-0">Lista de Artículos</h2>
+    </div>
+
+    <!-- Mensajes de Alerta -->
+    @if (ViewBag.Mensaje != null)
+    {
+        <div class="alert alert-danger d-block mb-4 shadow-sm">@ViewBag.Mensaje</div>
+    }
+
+    <!-- Grid de Artículos (Mantiene tus columnas dinámicas de Bootstrap) -->
+    <div class="row row-cols-1 row-cols-md-3 g-4 justify-content-center">
+        @foreach (var articulo in Model)
+        {
+            bool esFavorito = favoritos.Contains(articulo.Id);
+
+            @await Html.PartialAsync("_CardArticulo", articulo, new ViewDataDictionary(ViewData)
+            {
+                ["EsFavorito"] = esFavorito,
+                ["Logueado"] = logueado
+            })
+        }
+    </div>
+
+    <!-- Paginación integrada al fondo con espacio suficiente -->
+    <div class="mt-5 d-flex justify-content-center">
+        @await Html.PartialAsync("_Paginado", Model)
+    </div>
+
+</div>

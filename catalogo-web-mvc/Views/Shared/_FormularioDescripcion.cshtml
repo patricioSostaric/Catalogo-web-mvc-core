@@ -1,29 +1,52 @@
 @model DescripcionFormViewModel
 
-<h1 class="mb-3">@Model.Accion @Model.NombreEntidad</h1>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="@Model.FormAction">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            @if (Model.Id.HasValue)
-            {
-                <input type="hidden" name="@Model.IdFieldName" value="@Model.Id" />
-            }
-            <div class="form-group mb-3">
-                <label asp-for="Descripcion" class="control-label"></label>
-                <input asp-for="Descripcion" class="form-control" />
-                <span asp-validation-for="Descripcion" class="text-danger"></span>
+<div class="container my-5">
+    <!-- Fila centrada para que el formulario no se estire de más -->
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-6 col-lg-5">
+            
+            <!-- HEADER CON RETORNO SUTIL -->
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <h2 class="fw-bold text-dark h3 m-0">@Model.Accion @Model.NombreEntidad</h2>
+                <a asp-action="Index" class="text-secondary small text-decoration-none fw-medium">
+                    ← Volver
+                </a>
             </div>
-            <div class="form-group mb-3">
-                <input type="submit" value="@Model.SubmitText" class="btn btn-primary" />
-                <span class=" mb-3">|</span>
-                
-                    <a asp-action="Index">@Model.VolverTexto</a>
-                
+
+            <!-- TARJETA FORMULARIO PREMIUM -->
+            <div class="card border-0 shadow-sm rounded-4 bg-white p-4">
+                <form asp-action="@Model.FormAction">
+                    
+                    <!-- Resumen de errores -->
+                    <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+
+                    @if (Model.Id.HasValue)
+                    {
+                        <input type="hidden" name="@Model.IdFieldName" value="@Model.Id" />
+                    }
+
+                    <!-- CAMPO DE TEXTO -->
+                    <div class="mb-4">
+                        <label asp-for="Descripcion" class="form-label text-secondary small fw-medium">Descripción</label>
+                        <input asp-for="Descripcion" class="form-control border-light-subtle bg-light bg-opacity-50 px-3 py-2 rounded-3" 
+                               placeholder="Ej: Celulares, Apple, Indumentaria..." autocomplete="off" />
+                        <span asp-validation-for="Descripcion" class="text-danger small mt-1 d-block"></span>
+                    </div>
+
+                    <!-- BOTONES EN BLOQUE -->
+                    <div class="d-grid gap-2 mt-2">
+                        <button type="submit" class="btn btn-primary py-2 rounded-3 fw-medium shadow-sm">
+                            @Model.SubmitText
+                        </button>
+                        <a asp-action="Index" class="btn btn-light py-2 rounded-3 fw-medium text-secondary text-center text-decoration-none">
+                            Cancelar
+                        </a>
+                    </div>
+
+                </form>
             </div>
-        </form>
+
+        </div>
     </div>
 </div>
-
 

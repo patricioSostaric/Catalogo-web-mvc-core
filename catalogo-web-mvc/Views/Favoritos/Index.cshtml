@@ -3,55 +3,87 @@
     ViewData["Title"] = "Mis Favoritos";
 }
 
-<h2 class="CentrarTitulo mb-4">Mis artículos favoritos</h2>
+<div class="container my-5">
 
-@if (!Model.Any() && Model.PageNumber == 1)
-{
-    <div class="d-flex justify-content-center mt-5">
-        <div class="card shadow-sm p-4 text-center d-flex flex-column align-items-center gap-3">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="40" height="40" fill="gold">
-                <polygon points="12 2 15 9 22 9 17 14 19 21 12 17 5 21 7 14 2 9 9 9"/>
-            </svg>
-            <p class="text-muted fs-5 mb-0">No tenés artículos favoritos.</p>
-            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-primary btn-sm">Ver catálogo</a>
+    <!-- TÍTULO DE LA SECCIÓN -->
+    <h2 class="CentrarTitulo mb-5 fw-bold text-dark">Mis artículos favoritos</h2>
+
+    @if (!Model.Any() && Model.PageNumber == 1)
+    {
+        <!-- EMPTY STATE: Rediseñado con look moderno y sofisticado -->
+        <div class="d-flex justify-content-center mt-4">
+            <div class="card border-0 shadow-sm p-5 text-center d-flex flex-column align-items-center gap-3 bg-white rounded-4" style="max-width: 450px;">
+                <div class="bg-warning bg-opacity-10 p-3 rounded-circle mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="44" height="44" fill="#ffc107">
+                        <polygon points="12 2 15 9 22 9 17 14 19 21 12 17 5 21 7 14 2 9 9 9" />
+                    </svg>
+                </div>
+                <h4 class="fw-bold text-dark mb-1">Tu lista está vacía</h4>
+                <p class="text-muted small px-3 m-0">Explorá nuestro catálogo completo y guardá acá los artículos que más te interesen para tenerlos a mano.</p>
+                <a asp-controller="Home" asp-action="Index" class="btn btn-primary px-4 py-2 rounded-3 fw-medium shadow-sm mt-2 text-decoration-none">
+                    Explorar catálogo
+                </a>
+            </div>
         </div>
-    </div>
-}
-else
-{
-    <div class="row row-cols-1 row-cols-md-3 g-4">
-        @foreach (var item in Model)
-        {
-            <div class="col">
-                <div class="card h-100 card-unificada">
-                    <img src="@item.ImagenUrl"
-                         class="img-fluid rounded detalle-img"
-                         alt="Imagen del artículo"
-                         onerror="this.src='https://www.mansor.com.uy/wp-content/uploads/2020/06/imagen-no-disponible2.jpg'" />
-                    <div class="card-body">
-                        <span class="card-title h5 d-block">@item.Nombre</span>
-                        <span class="card-text descripcion d-block">@item.Descripcion</span>
-                        <span class="card-text d-block fw-semibold">Precio: $@item.Precio.ToString("N2")</span>
+    }
+    else
+    {
+        <!-- GRILLA DE FAVORITOS: Perfectamente alineada con la Home -->
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+            @foreach (var item in Model)
+            {
+                <div class="col">
+                    <div class="card card-unificada border-0 shadow-sm">
 
-                        <div class="mt-2 d-flex flex-wrap gap-1">
-                            <a asp-controller="Home" asp-action="Detalle" asp-route-id="@item.ArticuloId"
-                               class="btn btn-outline-primary btn-sm">Ver detalle</a>
-
-                            <button type="button" class="btn btn-secondary btn-sm"
-                                    disabled title="Disponible próximamente">Comprar</button>
-
-                            <form asp-controller="Favoritos" asp-action="Remove"
-                                  asp-route-id="@item.ArticuloId" method="post" class="d-inline">
-                                <button type="submit" class="btn btn-sm btn-warning">
-                                    ⭐ Quitar de favoritos
-                                </button>
-                            </form>
+                        <!-- CONTENEDOR DE IMAGEN (Evita que la tarjeta se deforme) -->
+                        <div class="card-img-container">
+                            <img src="@item.ImagenUrl"
+                                 alt="@item.Nombre"
+                                 onerror="this.src='https://www.mansor.com.uy/wp-content/uploads/2020/06/imagen-no-disponible2.jpg'" />
                         </div>
+
+                        <div class="card-body">
+                            <!-- Textos del Producto -->
+                            <div>
+                                <h5 class="card-title text-truncate">@item.Nombre</h5>
+                                <p class="descripcion">@item.Descripcion</p>
+                            </div>
+
+                            <!-- Bloque de acciones e información al fondo de la tarjeta -->
+                            <div class="mt-auto">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span class="text-secondary small">Precio</span>
+                                    <span class="fs-5 fw-bold text-dark">$ @item.Precio.ToString("N2")</span>
+                                </div>
+
+                                <!-- Grupo de botones principales unificado -->
+                                <div class="card-botones-group">
+                                    <a asp-controller="Home" asp-action="Detalle" asp-route-id="@item.ArticuloId"
+                                       class="btn btn-outline-primary btn-sm fw-medium">Detalle</a>
+
+                                    <button type="button" class="btn btn-secondary btn-sm"
+                                            disabled title="Disponible próximamente">
+                                        Comprar
+                                    </button>
+                                </div>
+
+                                <!-- Botón Quitar de favoritos: Sutil, limpio y destructivo (rojo suave) -->
+                                <form asp-controller="Favoritos" asp-action="Remove" asp-route-id="@item.ArticuloId" method="post" class="w-100 mt-2">
+                                    <button type="submit" class="btn btn-link text-danger w-100 text-center small text-decoration-none p-0 fw-medium opacity-75 hover-opacity-100">
+                                        💔 Quitar de favoritos
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
-            </div>
-        }
-    </div>
+            }
+        </div>
 
-    @await Html.PartialAsync("_Paginado", Model)
-}
+        <!-- SECCIÓN DE PAGINADO CENTRADA -->
+        <div class="d-flex justify-content-center mt-5">
+            @await Html.PartialAsync("_Paginado", Model)
+        </div>
+    }
+</div>
