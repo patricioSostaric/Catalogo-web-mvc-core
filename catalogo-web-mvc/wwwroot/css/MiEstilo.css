@@ -12,16 +12,7 @@ h1, h2, h3 {
     color: #343a40;
 }
 
-/* Tabla de artículos */
-/*.table th {
-    background-color: #0d6efd;
-    color: #fff;
-    text-align: center;
-}
 
-.table td {
-    vertical-align: middle;
-}*/
 /* Tabla de artículos — Adaptada para Dashboard */
 .table thead th {
     /* Dejamos que Bootstrap maneje los colores (como el table-dark) */
@@ -115,53 +106,69 @@ h1, h2, h3 {
 /* La tarjeta ahora tiene un alto fijo controlado, fondo blanco, 
    BORDES REDONDEADOS y EFECTOS MODERNOS */
 .card-unificada {
-    width: 100%;
-    /*max-width: 300px;*/
+    /*width: 100%;
+    
     height: 400px; 
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-   /* margin: 1rem auto;*/
+   
     background-color: #fff;
-    border: 1px solid #eaeaea; /* Borde más sutil */
+    border: 1px solid #eaeaea;*/ /* Borde más sutil */
     /* MODERNO: Bordes más redondeados (aumentado de 8px a 12px) */
-    border-radius: 12px;
+    /*border-radius: 12px;*/
     /* MODERNO: Sombra base muy suave */
-    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    /*box-shadow: 0 4px 8px rgba(0,0,0,0.05);*/
     /* MODERNO: Efecto de transición para el hover */
+    /*transition: all 0.3s ease-in-out;
+    overflow: hidden;*/ /* Asegura que nada se salga de los bordes redondeados */
+    width: 100%;
+    height: 450px;
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    border: 1px solid #eaeaea;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
     transition: all 0.3s ease-in-out;
-    overflow: hidden; /* Asegura que nada se salga de los bordes redondeados */
+    overflow: hidden;
 }
 
     /* --- EFECTO HOVER: Modernización y elevación --- */
     .card-unificada:hover {
-        transform: translateY(-8px); /* <-- Se levanta ligeramente */
-        box-shadow: 0 12px 24px rgba(0,0,0,0.12); /* <-- Sombra profunda y difusa para la elevación */
-        border-color: #0d6efd; /* <-- Un borde sutil del color primario (Bootstrap) */
+        transform: translateY(-8px);  <-- Se levanta ligeramente 
+        box-shadow: 0 12px 24px rgba(0,0,0,0.12);  <-- Sombra profunda y difusa para la elevación 
+        border-color: #0d6efd;  <-- Un borde sutil del color primario (Bootstrap) 
+
+       
     }
 
 /* NUEVO: Contenedor para que la imagen no estire el texto ni se pise, con bordes superiores */
 .card-img-container {
+    
     height: 180px;
+    width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 1.25rem 1.25rem 0 1.25rem; /* Un poco más de aire */
-    overflow: hidden; /* Redondea también la imagen si es necesario */
+    padding: 1rem;
+    background-color: #fcfcfc;
 }
 
     .card-img-container img {
         max-width: 100%;
         max-height: 100%;
-        object-fit: contain; /* Mantiene la proporción real del producto */
+        object-fit: contain; /* Mantiene la proporcion real del producto */
+        
     }
 
 .card-unificada .card-body {
     flex: 1;
-    padding: 1.25rem; /* Un pelín más de espacio interno */
+    padding: 1.25rem; /* Un pelín más de espacio interno   */ 
     display: flex;
     flex-direction: column;
-    justify-content: space-between; /* Empuja los elementos equitativamente */
+    justify-content: space-between; /* empuja los elementos equitativamente  */ 
+
 }
 
 /* Para los textos (Título y Descripción) */
@@ -170,17 +177,20 @@ h1, h2, h3 {
     font-weight: 600; /* Negrita moderna */
     margin-bottom: 0.35rem;
     color: #212529; /* Un negro más suave */
+   
 }
 
 .card-unificada .descripcion {
-    font-size: 0.95rem; /* Un pelín más grande */
+    font-size: 0.95rem;  /*un pelín más grande */
     color: #6c757d;
     display: -webkit-box;
-    -webkit-line-clamp: 2; /* Truncado a 2 líneas para dar espacio abajo */
+    -webkit-line-clamp: 2;   /* Truncado a 2 líneas para dar espacio abajo   */
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
     margin-bottom: 0.75rem;
+
+    
 }
 
 /* Grupo de botones principales (Ver detalle y Comprar) */
@@ -204,4 +214,16 @@ h1, h2, h3 {
     padding: 0;
     margin-top: auto; /* Se empuja al fondo */
     text-decoration: none; /* Quita el subrayado */
+}
+/* Aumentar tamaño y peso para el precio */
+.card-unificada .precio-destacado {
+    font-size: 1.15rem; /* Un poco más grande que el estándar */
+    font-weight: 700; /* Más negrita */
+    color: #000; /* Un color más oscuro para que contraste más */
+    margin: 0.5rem 0;
+}
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 1rem;
 }

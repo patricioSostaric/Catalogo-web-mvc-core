@@ -1,45 +1,4 @@
-@* @model X.PagedList.IPagedList<catalogo_web_mvc.Models.Articulo>
-@using X.PagedList.Mvc.Core
 
-@{
-    ViewData["Title"] = "Inicio";
-    var favoritos = ViewBag.Favoritos as HashSet<int> ?? new HashSet<int>();
-    bool logueado = User.Identity?.IsAuthenticated == true;
-}
-
-<h1 class="CentrarTitulo">¡Bienvenido/a!</h1>
-<p>Te encontrás en la web de artículos.</p>
-<h3>Lista de Artículos</h3>
-
-<form asp-action="Index" method="get">
-    <div class="row align-items-end mb-3">
-        @await Html.PartialAsync("_filtroComun")
-        <div class="col-auto">
-            <button type="submit" class="btn btn-primary">Buscar</button>
-        </div>
-    </div>
-</form>
-
-@if (ViewBag.Mensaje != null)
-{
-    <div class="alert alert-danger d-block mb-3">@ViewBag.Mensaje</div>
-}
-
-<div class="row row-cols-1 row-cols-md-3 g-4">
-    @foreach (var articulo in Model)
-    {
-        bool esFavorito = favoritos.Contains(articulo.Id);
-
-        @await Html.PartialAsync("_CardArticulo", articulo, new ViewDataDictionary(ViewData)
-        {
-            ["EsFavorito"] = esFavorito,
-            ["Logueado"] = logueado
-        })
-    }
-</div>
-
-@await Html.PartialAsync("_Paginado", Model)
- *@
 @model X.PagedList.IPagedList<catalogo_web_mvc.Models.Articulo>
 @using X.PagedList.Mvc.Core
 
