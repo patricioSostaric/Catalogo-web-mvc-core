@@ -7,33 +7,37 @@
 
 <div class="col">
     <div class="card h-100 card-unificada">
-        <img src="@Model.ImagenUrl"
-             class="img-fluid rounded detalle-img img-fallback"
-             alt="Imagen del artículo" />
-        <div class="card-body">
-            <span class="card-title h5 d-block">@Model.Nombre</span>
-            <span class="card-text descripcion d-block">@Model.Descripcion</span>
-            <span class="card-text d-block fw-semibold">Precio: $@Model.Precio.ToString("N2")</span>
+        <div class="card-img-container">
+            <img src="@Model.ImagenUrl"
+                 class="img-fluid rounded detalle-img img-fallback"
+                 alt="Imagen del artículo" />
+                 </div>
+            <div class="card-body">
+                <span class="card-title h5 d-block">@Model.Nombre</span>
+                <span class="card-text descripcion d-block">@Model.Descripcion</span>
+            <span class="precio-destacado d-block fw-semibold">Precio:@Model.Precio.ToString("C0", new System.Globalization.CultureInfo("es-AR"))</span>
+            
+                <div class="mt-2 d-flex flex-wrap gap-1">
+                    <a asp-controller="Home" asp-action="Detalle" asp-route-id="@Model.Id"
+                       class="btn btn-outline-primary btn-sm">Ver detalle</a>
 
-            <div class="mt-2 d-flex flex-wrap gap-1">
-                <a asp-controller="Home" asp-action="Detalle" asp-route-id="@Model.Id"
-                   class="btn btn-outline-primary btn-sm">Ver detalle</a>
-
-                @if (logueado)
-                {
-                    <button type="button" class="btn btn-secondary btn-sm"
-                            disabled title="Disponible próximamente">Comprar</button>
-
-                    <form asp-controller="Favoritos"
-                          asp-action="@(esFavorito ? "Remove" : "Add")"
-                          asp-route-id="@Model.Id" method="post" class="d-inline">
-                        <button type="submit"
-                                class="btn btn-sm @(esFavorito ? "btn-warning" : "btn-outline-warning")">
-                            @(esFavorito ? "⭐ Quitar de favoritos" : "♡ Agregar a favoritos")
+                    @if (logueado)
+                    {
+                        <button type="button" class="btn btn-secondary btn-sm"
+                                disabled title="Disponible próximamente">
+                            Comprar
                         </button>
-                    </form>
-                }
+
+                        <form asp-controller="Favoritos"
+                              asp-action="@(esFavorito ? "Remove" : "Add")"
+                              asp-route-id="@Model.Id" method="post" class="d-inline">
+                            <button type="submit"
+                                    class="btn btn-sm @(esFavorito ? "btn-warning" : "btn-outline-warning")">
+                                @(esFavorito ? "⭐ Quitar de favoritos" : "♡ Agregar a favoritos")
+                            </button>
+                        </form>
+                    }
+                </div>
             </div>
         </div>
     </div>
-</div>
