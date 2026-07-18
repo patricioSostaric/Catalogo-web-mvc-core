@@ -1,0 +1,34 @@
+@model catalogo_web_mvc.Models.ViewModels.LoginViewModel
+
+<form asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post">
+
+    <!-- Resumen de errores de validación de ASP.NET -->
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3 small alert alert-danger p-2"></div>
+
+    <!-- Campo Email -->
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label text-secondary small fw-medium">Email</label>
+        <input asp-for="Email" class="form-control rounded-3" placeholder="ejemplo@correo.com" />
+        <span asp-validation-for="Email" class="text-danger small d-block mt-1"></span>
+    </div>
+
+    <!-- Campo Password -->
+    <div class="mb-3">
+        <label asp-for="Password" class="form-label text-secondary small fw-medium">Contraseña</label>
+        <input asp-for="Password" class="form-control rounded-3" placeholder="••••••••" />
+        <span asp-validation-for="Password" class="text-danger small d-block mt-1"></span>
+    </div>
+
+    <!-- Checkbox Recordarme -->
+    <div class="mb-4 form-check d-flex align-items-center">
+        <input asp-for="RememberMe" class="form-check-input mt-0 me-2" />
+        <label asp-for="RememberMe" class="form-check-label text-secondary small"></label>
+    </div>
+
+    <!-- Botón Ingresar (Estilo bloque moderno) -->
+    <div class="d-grid">
+        <button type="submit" class="btn btn-primary py-2 rounded-3 fw-medium shadow-sm">
+            Ingresar
+        </button>
+    </div>
+</form>
