@@ -5,13 +5,7 @@
     ViewData["Title"] = "Grilla de Artículos";
 }
 
-@* <h1>Grilla de Artículos</h1>
 
-@if (!string.IsNullOrEmpty(ViewBag.Mensaje))
-{
-    <div class="alert alert-warning">@ViewBag.Mensaje</div>
-}
- *@
 <div class="container my-5">
 
     <!-- HEADER DEL DASHBOARD: Título y Botón Principal Arriba -->
@@ -39,8 +33,9 @@
             <div class="row g-3 align-items-center">
 
                 <!-- Tu vista parcial del buscador (que ocupa col-md-9) -->
+                <div class="col-12 col-md-8 col-lg-6">
                 @await Html.PartialAsync("_filtroComun")
-
+                </div>
                 <!-- Checkbox del Filtro Avanzado: Ahora se acopla perfectamente al lado -->
                 <div class="col-12 col-md-auto">
                     <div class="form-check mb-0 d-flex align-items-center">
