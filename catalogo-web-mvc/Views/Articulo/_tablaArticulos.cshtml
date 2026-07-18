@@ -1,17 +1,17 @@
 ﻿@model X.PagedList.IPagedList<catalogo_web_mvc.Models.Articulo>
-
+<div class="table-responsive shadow-sm rounded">
 <table class="table table-hover align-middle mb-0">
     <!-- Cabecera oscura y sofisticada -->
     <thead class="table-dark">
         <tr>
-            <th class="ps-4">@Html.DisplayNameFor(m => m[0].Codigo)</th>
-            <th>@Html.DisplayNameFor(m => m[0].Nombre)</th>
-            <th>@Html.DisplayNameFor(m => m[0].Descripcion)</th>
+            <th class="ps-4 d-none d-md-table-cell">@Html.DisplayNameFor(m => m[0].Codigo)</th>
+            <th class="ps-4 ps-md-0">@Html.DisplayNameFor(m => m[0].Nombre)</th>
+            <th class="d-none d-md-table-cell">@Html.DisplayNameFor(m => m[0].Descripcion)</th>
             <th>@Html.DisplayNameFor(m => m[0].Marca)</th>
-            <th>@Html.DisplayNameFor(m => m[0].Categoria)</th>
+            <th class="d-none d-md-table-cell">@Html.DisplayNameFor(m => m[0].Categoria)</th>
             <th class="text-end">@Html.DisplayNameFor(m => m[0].Precio)</th>
-            <th class="text-end">@Html.DisplayNameFor(m => m[0].Stock)</th>
-            <th class="text-center">@Html.DisplayNameFor(m => m[0].Activo)</th>
+                <th class="text-end d-none d-md-table-cell">@Html.DisplayNameFor(m => m[0].Stock)</th>
+                <th class="text-center d-none d-md-table-cell">@Html.DisplayNameFor(m => m[0].Activo)</th>
             <th class="text-center pe-4">Acción</th>
         </tr>
     </thead>
@@ -22,23 +22,23 @@
             {
                 <tr>
                     <!-- Código con estilo secundario destacado -->
-                    <td class="ps-4 fw-semibold text-secondary">@item.Codigo</td>
+                    <td class="ps-4 fw-semibold text-secondary d-none d-md-table-cell">@item.Codigo</td>
 
                     <!-- Nombre del producto resaltado -->
-                    <td class="fw-bold text-dark">@item.Nombre</td>
+                    <td class="fw-bold text-dark ps-4 ps-md-0">@item.Nombre</td>
 
                     <!-- Descripción truncada para que textos muy largos no rompan la grilla -->
-                    <td class="text-muted text-truncate" style="max-width: 220px;">@item.Descripcion</td>
+                    <td class="text-muted text-truncate d-none d-md-table-cell" style="max-width: 220px;">@item.Descripcion</td>
 
                     <!-- Etiquetas limpias para Marca y Categoría -->
                     <td><span class="badge bg-light text-dark border fw-normal px-2 py-1">@item.Marca?.Descripcion</span></td>
-                    <td><span class="badge bg-light text-dark border fw-normal px-2 py-1">@item.Categoria?.Descripcion</span></td>
+                    <td class="d-none d-md-table-cell"><span class="badge bg-light text-dark border fw-normal px-2 py-1">@item.Categoria?.Descripcion</span></td>
 
                     <td class="text-end fw-bold text-dark">$ @String.Format("{0:N2}", item.Precio)</td>
-                    <td class="text-end text-secondary">@item.Stock</td>
+                    <td class="text-end text-secondary d-none d-md-table-cell">@item.Stock</td>
 
                     <!-- Badges de estado modernos con colores suaves -->
-                    <td class="text-center">
+                    <td class="text-center d-none d-md-table-cell">
                         @if (item.Activo)
                         {
                             <span class="badge bg-success-subtle text-success px-2 py-1 rounded-pill">Sí</span>
@@ -51,10 +51,19 @@
 
                     <!-- Grupo de botones unificado como herramienta de control -->
                     <td class="text-center pe-4">
-                        <div class="btn-group btn-group-sm" role="group">
-                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-primary fw-medium">Editar</a>
-                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-secondary fw-medium">Detalles</a>
-                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger fw-medium">Eliminar</a>
+                        <div class="btn-group btn-group-sm text-nowrap" role="group">
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-primary fw-medium px-2" aria-label="Editar">
+                                <i class="bi bi-pencil d-md-none"></i>
+                                <span class="d-none d-md-inline">Editar</span>
+                            </a>
+                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-secondary fw-medium px-2" aria-label="Detalles">
+                                <i class="bi bi-eye d-md-none"></i>
+                                <span class="d-none d-md-inline">Detalles</span>
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger fw-medium px-2" aria-label="Eliminar">
+                                <i class="bi bi-trash d-md-none"></i>
+                                <span class="d-none d-md-inline">Eliminar</span>
+                            </a>
                         </div>
                     </td>
                 </tr>
@@ -73,3 +82,4 @@
         }
     </tbody>
 </table>
+</div>
