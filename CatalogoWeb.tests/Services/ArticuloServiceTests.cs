@@ -455,6 +455,48 @@ namespace CatalogoWeb.Tests.Services
             Assert.Null(resultado);
         }
 
+        // ── ObtenerDetallePublicoAsync ────────────────────────────────────────
+
+        [Fact]
+        public async Task ObtenerDetallePublicoAsync_RetornaViewModel_SinStockNiActivo_CuandoArticuloActivo()
+        {
+            var articulo = ArticulosDeEjemplo()[0];
+            articulo.Activo = true;
+            _repoMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(articulo);
+
+            var resultado = await _service.ObtenerDetallePublicoAsync(1);
+
+            Assert.NotNull(resultado);
+            Assert.Equal(articulo.Id, resultado!.Id);
+            Assert.Equal(articulo.Codigo, resultado.Codigo);
+            Assert.Equal(articulo.Nombre, resultado.Nombre);
+            Assert.Equal(articulo.Marca!.Descripcion, resultado.Marca);
+            Assert.Equal(articulo.Categoria!.Descripcion, resultado.Categoria);
+            Assert.Equal(articulo.Precio, resultado.Precio);
+        }
+
+        [Fact]
+        public async Task ObtenerDetallePublicoAsync_RetornaNull_CuandoArticuloInactivo()
+        {
+            var articulo = ArticulosDeEjemplo()[0];
+            articulo.Activo = false;
+            _repoMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(articulo);
+
+            var resultado = await _service.ObtenerDetallePublicoAsync(1);
+
+            Assert.Null(resultado);
+        }
+
+        [Fact]
+        public async Task ObtenerDetallePublicoAsync_RetornaNull_CuandoNoExiste()
+        {
+            _repoMock.Setup(r => r.GetByIdAsync(99)).ReturnsAsync((Articulo?)null);
+
+            var resultado = await _service.ObtenerDetallePublicoAsync(99);
+
+            Assert.Null(resultado);
+        }
+
         [Fact]
         public async Task AddAsync_DelegaAlRepositorio()
         {
