@@ -1,5 +1,6 @@
 ﻿using catalogo_web_mvc.Interfaces.Articulos;
 using catalogo_web_mvc.Models;
+using catalogo_web_mvc.Models.ViewModels;
 using catalogo_web_mvc.Data;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -86,6 +87,25 @@ namespace catalogo_web_mvc.Services.Articulos
         }
 
         public Task<Articulo?> GetByIdAsync(int id) => _repo.GetByIdAsync(id);
+
+        public async Task<ArticuloDetalleViewModel?> ObtenerDetallePublicoAsync(int id)
+        {
+            var articulo = await _repo.GetByIdAsync(id);
+            if (articulo == null || !articulo.Activo) return null;
+
+            return new ArticuloDetalleViewModel
+            {
+                Id = articulo.Id,
+                Codigo = articulo.Codigo,
+                Nombre = articulo.Nombre,
+                Descripcion = articulo.Descripcion,
+                Marca = articulo.Marca?.Descripcion,
+                Categoria = articulo.Categoria?.Descripcion,
+                Precio = articulo.Precio,
+                ImagenUrl = articulo.ImagenUrl
+            };
+        }
+
         public Task AddAsync(Articulo articulo) => _repo.AddAsync(articulo);
         public Task UpdateAsync(Articulo articulo) => _repo.UpdateAsync(articulo);
         public Task DeleteAsync(int id) => _repo.DeleteAsync(id);

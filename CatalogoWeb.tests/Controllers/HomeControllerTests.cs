@@ -2,6 +2,7 @@ using catalogo_web_mvc.Controllers;
 using catalogo_web_mvc.Data;
 using catalogo_web_mvc.Interfaces.Articulos;
 using catalogo_web_mvc.Models;
+using catalogo_web_mvc.Models.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -135,12 +136,21 @@ namespace CatalogoWeb.Tests.Controllers
 
         // ── Detalle ────────────────────────────────────────────────────────────
 
+        private static ArticuloDetalleViewModel DetalleDeEjemplo(int id = 1) => new()
+        {
+            Id = id,
+            Codigo = "S01",
+            Nombre = "Galaxy S10",
+            Descripcion = "desc",
+            Precio = 69999
+        };
+
         [Fact]
         public async Task Detalle_ArticuloExistente_RetornaVista()
         {
             using var context = CrearContexto();
-            _serviceMock.Setup(s => s.GetByIdAsync(1))
-                .ReturnsAsync(ArticulosDeEjemplo()[0]);
+            _serviceMock.Setup(s => s.ObtenerDetallePublicoAsync(1))
+                .ReturnsAsync(DetalleDeEjemplo(1));
             var controller = new HomeController(_serviceMock.Object, context)
             {
                 ControllerContext = ContextoAnonimo()
@@ -149,7 +159,7 @@ namespace CatalogoWeb.Tests.Controllers
             var resultado = await controller.Detalle(1);
 
             var viewResult = Assert.IsType<ViewResult>(resultado);
-            var modelo = Assert.IsType<Articulo>(viewResult.Model);
+            var modelo = Assert.IsType<ArticuloDetalleViewModel>(viewResult.Model);
             Assert.Equal(1, modelo.Id);
         }
 
@@ -157,8 +167,8 @@ namespace CatalogoWeb.Tests.Controllers
         public async Task Detalle_ArticuloInexistente_RetornaNotFound()
         {
             using var context = CrearContexto();
-            _serviceMock.Setup(s => s.GetByIdAsync(99))
-                .ReturnsAsync((Articulo?)null);
+            _serviceMock.Setup(s => s.ObtenerDetallePublicoAsync(99))
+                .ReturnsAsync((ArticuloDetalleViewModel?)null);
             var controller = new HomeController(_serviceMock.Object, context);
 
             var resultado = await controller.Detalle(99);
@@ -170,8 +180,8 @@ namespace CatalogoWeb.Tests.Controllers
         public async Task Detalle_UsuarioNoLogueado_EsFavoritoFalse()
         {
             using var context = CrearContexto();
-            _serviceMock.Setup(s => s.GetByIdAsync(1))
-                .ReturnsAsync(ArticulosDeEjemplo()[0]);
+            _serviceMock.Setup(s => s.ObtenerDetallePublicoAsync(1))
+                .ReturnsAsync(DetalleDeEjemplo(1));
             var controller = new HomeController(_serviceMock.Object, context)
             {
                 ControllerContext = ContextoAnonimo()
@@ -189,8 +199,8 @@ namespace CatalogoWeb.Tests.Controllers
             context.ArticuloFavoritos.Add(new ArticuloFavorito { UserId = "user-1", ArticuloId = 1 });
             await context.SaveChangesAsync();
 
-            _serviceMock.Setup(s => s.GetByIdAsync(1))
-                .ReturnsAsync(ArticulosDeEjemplo()[0]);
+            _serviceMock.Setup(s => s.ObtenerDetallePublicoAsync(1))
+                .ReturnsAsync(DetalleDeEjemplo(1));
             var controller = new HomeController(_serviceMock.Object, context)
             {
                 ControllerContext = ContextoAutenticado("user-1")
@@ -205,8 +215,8 @@ namespace CatalogoWeb.Tests.Controllers
         public async Task Detalle_UsuarioLogueadoSinFavorito_EsFavoritoFalse()
         {
             using var context = CrearContexto();
-            _serviceMock.Setup(s => s.GetByIdAsync(1))
-                .ReturnsAsync(ArticulosDeEjemplo()[0]);
+            _serviceMock.Setup(s => s.ObtenerDetallePublicoAsync(1))
+                .ReturnsAsync(DetalleDeEjemplo(1));
             var controller = new HomeController(_serviceMock.Object, context)
             {
                 ControllerContext = ContextoAutenticado("user-1")

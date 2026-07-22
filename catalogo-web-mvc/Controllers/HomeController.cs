@@ -1,6 +1,7 @@
 using catalogo_web_mvc.Data;
 using catalogo_web_mvc.Interfaces.Articulos;
 using catalogo_web_mvc.Models;
+using catalogo_web_mvc.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
@@ -46,8 +47,8 @@ namespace catalogo_web_mvc.Controllers
 
         public async Task<IActionResult> Detalle(int id)
         {
-            var articulo = await _service.GetByIdAsync(id);
-            if (articulo == null || !articulo.Activo ) return NotFound();
+            var viewModel = await _service.ObtenerDetallePublicoAsync(id);
+            if (viewModel == null) return NotFound();
 
             if (User.Identity?.IsAuthenticated == true)
             {
@@ -60,7 +61,7 @@ namespace catalogo_web_mvc.Controllers
                 ViewBag.EsFavorito = false;
             }
 
-            return View(articulo);
+            return View(viewModel);
         }
 
         public IActionResult Privacy()

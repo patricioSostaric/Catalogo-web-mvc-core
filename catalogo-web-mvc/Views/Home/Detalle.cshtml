@@ -1,4 +1,4 @@
-@model catalogo_web_mvc.Models.Articulo
+@model catalogo_web_mvc.Models.ViewModels.ArticuloDetalleViewModel
 
 @{
     ViewData["Title"] = Model.Nombre;
@@ -7,7 +7,7 @@
 <h1>Detalles del artículo</h1>
 <hr />
 
-@await Html.PartialAsync("_ArticuloDetalle", Model)
+@await Html.PartialAsync("_ArticuloDetallePublico", Model)
 
 @{
     bool esFavorito = ViewBag.EsFavorito as bool? ?? false;
