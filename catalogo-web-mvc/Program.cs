@@ -1,15 +1,19 @@
 using catalogo_web_mvc.Data;
 using catalogo_web_mvc.Interfaces.Articulos;
 using catalogo_web_mvc.Interfaces.Audit;
+using catalogo_web_mvc.Interfaces.Email;
 using catalogo_web_mvc.Services.Audit;
 using catalogo_web_mvc.Interfaces.Categorias;
 using catalogo_web_mvc.Interfaces.Marcas;
 using catalogo_web_mvc.Models; // tu clase Usuario extendida de IdentityUser
+using catalogo_web_mvc.Models.Settings;
 using catalogo_web_mvc.Repository.Articulos;
 using catalogo_web_mvc.Repository.Categorias;
 using catalogo_web_mvc.Repository.Marcas;
 using catalogo_web_mvc.Services.Articulos;
 using catalogo_web_mvc.Services.Categorias;
+using catalogo_web_mvc.Services.Email;
+using catalogo_web_mvc.Services.Identity;
 using catalogo_web_mvc.Services.Marcas;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
@@ -60,7 +64,8 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
     options.Lockout.AllowedForNewUsers = true;
 })
 .AddRoles<IdentityRole>()
-.AddEntityFrameworkStores<CatalogoContext>();
+.AddEntityFrameworkStores<CatalogoContext>()
+.AddErrorDescriber<SpanishIdentityErrorDescriber>();
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
@@ -82,6 +87,10 @@ builder.Services.AddRateLimiter(options =>
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IAuditService, AuditService>();
+
+builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("Smtp"));
+builder.Services.AddScoped<ISmtpClient, SmtpClientAdapter>();
+builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
 
 // Repository + Service
 builder.Services.AddScoped<IArticuloRepository, ArticuloRepository>();

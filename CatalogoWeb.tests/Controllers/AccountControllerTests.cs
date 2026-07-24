@@ -1,10 +1,12 @@
 using catalogo_web_mvc.Controllers;
 using catalogo_web_mvc.Interfaces.Audit;
+using catalogo_web_mvc.Interfaces.Email;
 using catalogo_web_mvc.Models;
 using catalogo_web_mvc.Models.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Moq;
 using System.Security.Claims;
 
@@ -15,6 +17,7 @@ namespace CatalogoWeb.Tests.Controllers
         private readonly Mock<UserManager<ApplicationUser>> _userManagerMock;
         private readonly Mock<SignInManager<ApplicationUser>> _signInManagerMock;
         private readonly Mock<IAuditService> _auditMock;
+        private readonly Mock<IEmailSender> _emailSenderMock;
         private readonly AccountController _controller;
 
         public AccountControllerTests()
@@ -30,8 +33,9 @@ namespace CatalogoWeb.Tests.Controllers
                 null, null, null, null);
 
             _auditMock = new Mock<IAuditService>();
+            _emailSenderMock = new Mock<IEmailSender>();
 
-            _controller = new AccountController(_userManagerMock.Object, _signInManagerMock.Object, _auditMock.Object);
+            _controller = new AccountController(_userManagerMock.Object, _signInManagerMock.Object, _auditMock.Object, _emailSenderMock.Object);
             _controller.ControllerContext = new ControllerContext
             {
                 HttpContext = new DefaultHttpContext
@@ -43,6 +47,12 @@ namespace CatalogoWeb.Tests.Controllers
                     }, "TestAuth"))
                 }
             };
+
+            var urlHelperMock = new Mock<IUrlHelper>();
+            urlHelperMock
+                .Setup(u => u.Action(It.IsAny<UrlActionContext>()))
+                .Returns("https://localhost/Account/ResetPassword?email=user%40test.com&token=abc");
+            _controller.Url = urlHelperMock.Object;
         }
 
         // ── Login GET ──────────────────────────────────────────────────────────
@@ -170,6 +180,161 @@ namespace CatalogoWeb.Tests.Controllers
 
             Assert.IsType<ViewResult>(resultado);
             Assert.False(_controller.ModelState.IsValid);
+        }
+
+        // ── Register: mail de bienvenida ──────────────────────────────────────
+
+        [Fact]
+        public async Task Register_POST_Exitoso_EnviaMailDeBienvenida()
+        {
+            _userManagerMock
+                .Setup(u => u.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
+                .ReturnsAsync(IdentityResult.Success);
+            _signInManagerMock
+                .Setup(s => s.SignInAsync(It.IsAny<ApplicationUser>(), It.IsAny<bool>(), It.IsAny<string?>()))
+                .Returns(Task.CompletedTask);
+
+            var modelo = new RegisterViewModel { Email = "nuevo@test.com", Password = "Test123!", ConfirmPassword = "Test123!" };
+
+            await _controller.Register(modelo);
+
+            _emailSenderMock.Verify(e => e.SendEmailAsync("nuevo@test.com", It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task Register_POST_Exitoso_SiFallaEnvioDeMail_IgualRedirige()
+        {
+            _userManagerMock
+                .Setup(u => u.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
+                .ReturnsAsync(IdentityResult.Success);
+            _signInManagerMock
+                .Setup(s => s.SignInAsync(It.IsAny<ApplicationUser>(), It.IsAny<bool>(), It.IsAny<string?>()))
+                .Returns(Task.CompletedTask);
+            _emailSenderMock
+                .Setup(e => e.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .ThrowsAsync(new InvalidOperationException("SMTP caído"));
+
+            var modelo = new RegisterViewModel { Email = "nuevo@test.com", Password = "Test123!", ConfirmPassword = "Test123!" };
+
+            var resultado = await _controller.Register(modelo);
+
+            var redirect = Assert.IsType<RedirectToActionResult>(resultado);
+            Assert.Equal("Index", redirect.ActionName);
+        }
+
+        // ── ForgotPassword ─────────────────────────────────────────────────────
+
+        [Fact]
+        public void ForgotPassword_GET_RetornaVista()
+        {
+            var resultado = _controller.ForgotPassword();
+
+            Assert.IsType<ViewResult>(resultado);
+        }
+
+        [Fact]
+        public async Task ForgotPassword_POST_EmailExistente_GeneraTokenYEnviaMail()
+        {
+            var usuario = new ApplicationUser { Id = "user-1", Email = "existe@test.com", UserName = "existe@test.com" };
+            _userManagerMock
+                .Setup(u => u.FindByEmailAsync("existe@test.com"))
+                .ReturnsAsync(usuario);
+            _userManagerMock
+                .Setup(u => u.GeneratePasswordResetTokenAsync(usuario))
+                .ReturnsAsync("token-123");
+
+            var modelo = new ForgotPasswordViewModel { Email = "existe@test.com" };
+
+            var resultado = await _controller.ForgotPassword(modelo);
+
+            _emailSenderMock.Verify(e => e.SendEmailAsync("existe@test.com", It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+            Assert.IsType<ViewResult>(resultado);
+        }
+
+        [Fact]
+        public async Task ForgotPassword_POST_EmailInexistente_NoReveleInformacionYNoEnviaMail()
+        {
+            _userManagerMock
+                .Setup(u => u.FindByEmailAsync(It.IsAny<string>()))
+                .ReturnsAsync((ApplicationUser?)null);
+
+            var modelo = new ForgotPasswordViewModel { Email = "noexiste@test.com" };
+
+            var resultado = await _controller.ForgotPassword(modelo);
+
+            _emailSenderMock.Verify(e => e.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+            Assert.IsType<ViewResult>(resultado);
+        }
+
+        // ── ResetPassword ──────────────────────────────────────────────────────
+
+        [Fact]
+        public void ResetPassword_GET_SinParametros_RetornaBadRequest()
+        {
+            var resultado = _controller.ResetPassword();
+
+            Assert.IsType<BadRequestObjectResult>(resultado);
+        }
+
+        [Fact]
+        public void ResetPassword_GET_ConParametros_RetornaVistaConModelo()
+        {
+            var resultado = _controller.ResetPassword(email: "user@test.com", token: "token-123");
+
+            var viewResult = Assert.IsType<ViewResult>(resultado);
+            var modelo = Assert.IsType<ResetPasswordViewModel>(viewResult.Model);
+            Assert.Equal("user@test.com", modelo.Email);
+            Assert.Equal("token-123", modelo.Token);
+        }
+
+        [Fact]
+        public async Task ResetPassword_POST_TokenValido_RestableceContrasenia()
+        {
+            var usuario = new ApplicationUser { Id = "user-1", Email = "user@test.com", UserName = "user@test.com" };
+            _userManagerMock
+                .Setup(u => u.FindByEmailAsync("user@test.com"))
+                .ReturnsAsync(usuario);
+            _userManagerMock
+                .Setup(u => u.ResetPasswordAsync(usuario, "token-123", "NuevaPass123!"))
+                .ReturnsAsync(IdentityResult.Success);
+
+            var modelo = new ResetPasswordViewModel
+            {
+                Email = "user@test.com",
+                Token = "token-123",
+                Password = "NuevaPass123!",
+                ConfirmPassword = "NuevaPass123!"
+            };
+
+            var resultado = await _controller.ResetPassword(modelo);
+
+            Assert.IsType<ViewResult>(resultado);
+        }
+
+        [Fact]
+        public async Task ResetPassword_POST_TokenInvalido_RetornaVistaConError()
+        {
+            var usuario = new ApplicationUser { Id = "user-1", Email = "user@test.com", UserName = "user@test.com" };
+            _userManagerMock
+                .Setup(u => u.FindByEmailAsync("user@test.com"))
+                .ReturnsAsync(usuario);
+            _userManagerMock
+                .Setup(u => u.ResetPasswordAsync(usuario, "token-invalido", "NuevaPass123!"))
+                .ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "Token inválido o expirado." }));
+
+            var modelo = new ResetPasswordViewModel
+            {
+                Email = "user@test.com",
+                Token = "token-invalido",
+                Password = "NuevaPass123!",
+                ConfirmPassword = "NuevaPass123!"
+            };
+
+            var resultado = await _controller.ResetPassword(modelo);
+
+            var viewResult = Assert.IsType<ViewResult>(resultado);
+            Assert.False(_controller.ModelState.IsValid);
+            Assert.Equal(modelo, viewResult.Model);
         }
 
         // ── Logout ─────────────────────────────────────────────────────────────

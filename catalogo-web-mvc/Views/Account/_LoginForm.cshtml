@@ -15,8 +15,14 @@
     <!-- Campo Password -->
     <div class="mb-3">
         <label asp-for="Password" class="form-label text-secondary small fw-medium">Contraseña</label>
-        <input asp-for="Password" class="form-control rounded-3" placeholder="••••••••" />
+        <div class="input-group">
+            <input asp-for="Password" class="form-control rounded-start-3" placeholder="••••••••" />
+            @await Html.PartialAsync("_PasswordToggleButton", "Password")
+        </div>
         <span asp-validation-for="Password" class="text-danger small d-block mt-1"></span>
+        <div class="text-end mt-1">
+            <a asp-action="ForgotPassword" class="text-primary small text-decoration-none">¿Olvidaste tu contraseña?</a>
+        </div>
     </div>
 
     <!-- Checkbox Recordarme -->
