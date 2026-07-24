@@ -17,3 +17,23 @@ document.getElementById('inputImagenUrl')?.addEventListener('input', function (e
     var img = document.getElementById('imgPreview');
     if (img) img.src = e.target.value || IMAGEN_FALLBACK_URL;
 });
+
+// Mostrar/ocultar contraseña (ícono de ojo con SVG inline) en los formularios de cuenta,
+// sin script inline (requerido por la CSP) y sin depender de una fuente de íconos externa.
+document.addEventListener('click', function (e) {
+    var boton = e.target.closest('[data-toggle-password]');
+    if (!boton) return;
+
+    var input = document.getElementById(boton.getAttribute('data-toggle-password'));
+    if (!input) return;
+
+    var mostrando = input.type === 'text';
+    input.type = mostrando ? 'password' : 'text';
+
+    var iconoOjo = boton.querySelector('.icono-ojo');
+    var iconoOjoTachado = boton.querySelector('.icono-ojo-tachado');
+    if (iconoOjo) iconoOjo.classList.toggle('d-none', !mostrando);
+    if (iconoOjoTachado) iconoOjoTachado.classList.toggle('d-none', mostrando);
+
+    boton.setAttribute('aria-label', mostrando ? 'Mostrar contraseña' : 'Ocultar contraseña');
+});
