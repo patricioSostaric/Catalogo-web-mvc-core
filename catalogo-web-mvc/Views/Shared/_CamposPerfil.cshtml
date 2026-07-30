@@ -45,30 +45,38 @@
     <div class="col-12">
         <label asp-for="Avatar" class="form-label text-secondary small fw-medium"></label>
 
-        <div class="d-flex align-items-center gap-3">
+        @* align-items-start alinea la miniatura con el borde superior del selector.
+           Con align-items-center la imagen (72px) quedaba descentrada respecto del
+           input (~38px) porque se centraba contra la columna entera. *@
+        <div class="avatar-selector d-flex align-items-start gap-3">
+
             @* data-avatar-fallback: si la imagen no carga (típicamente una URL externa
                que dejó de existir), site.js la reemplaza por la de defecto. No se usa
                onerror inline porque el CSP del sitio no permite scripts inline. *@
             <img src="@avatar" alt="Imagen de perfil actual"
                  class="avatar avatar-lg border" data-avatar-fallback />
 
-            <div class="flex-grow-1">
+            @* min-width-0 evita que el nombre de un archivo largo desborde el flex *@
+            <div class="flex-grow-1 min-w-0">
                 <!-- accept es solo comodidad del navegador: el filtro real (extensión,
                      firma del archivo y tamaño) lo aplica AvatarValidator en el servidor -->
                 <input asp-for="Avatar" type="file" class="form-control rounded-3"
                        accept="image/jpeg,image/png,image/webp" data-avatar-input />
-                <div class="form-text small">JPG, PNG o WEBP. Hasta @(AvatarValidator.MaxBytes / (1024 * 1024)) MB.</div>
+
+                @* Sin .small: .form-text ya reduce el tamaño, y encadenar los dos lo
+                   dejaba ilegible. El aire respecto del input lo da .avatar-selector *@
+                <div class="form-text">JPG, PNG o WEBP. Hasta @(AvatarValidator.MaxBytes / (1024 * 1024)) MB.</div>
                 <span asp-validation-for="Avatar" class="text-danger small d-block mt-1"></span>
+
+                @if (mostrarPreview)
+                {
+                    <div class="form-check mt-2">
+                        <input asp-for="QuitarAvatar" class="form-check-input" />
+                        <label asp-for="QuitarAvatar" class="form-check-label small text-secondary"></label>
+                    </div>
+                }
             </div>
         </div>
-
-        @if (mostrarPreview)
-        {
-            <div class="form-check mt-2">
-                <input asp-for="QuitarAvatar" class="form-check-input" />
-                <label asp-for="QuitarAvatar" class="form-check-label small text-secondary"></label>
-            </div>
-        }
     </div>
 
 </div>

@@ -246,3 +246,42 @@ h1, h2, h3 {
     width: 72px;
     height: 72px;
 }
+
+/* Panel que agrupa la miniatura del avatar con el selector de archivo.
+   El padding propio evita que el texto de ayuda quede pegado al borde. */
+.avatar-selector {
+    padding: 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 0.75rem;
+    background-color: #f8f9fa;
+}
+
+    /* .form-text de Bootstrap trae margin-top .25rem, que dejaba la aclaración de
+       formatos demasiado encima del input. */
+    .avatar-selector .form-text {
+        margin-top: 0.5rem;
+        margin-bottom: 0;
+    }
+
+/* Impide que un nombre de archivo largo desborde el contenedor flex */
+.min-w-0 {
+    min-width: 0;
+}
+
+/* ── Placeholders ──────────────────────────────────────────────────────────── */
+/* Un gris claramente más suave que el texto real (#212529), para que un ejemplo
+   como "Juan" no se confunda con un dato ya cargado.
+   opacity: 1 es necesario porque Firefox le aplica opacidad reducida por defecto,
+   lo que hacía que el placeholder se viera distinto según el navegador.
+   Todos los campos tienen su <label> visible, así que el placeholder es solo
+   una ayuda y no la única forma de saber qué va en cada input. */
+.form-control::placeholder {
+    color: #9aa2ab;
+    opacity: 1;
+}
+
+/* Al enfocar el campo el placeholder se aclara un poco más: refuerza que es un
+   ejemplo y no contenido a corregir. */
+.form-control:focus::placeholder {
+    color: #b6bcc4;
+}
