@@ -12,6 +12,33 @@ document.addEventListener('error', function (e) {
     }
 }, true);
 
+// Fallback del avatar para <img data-avatar-fallback>. Va aparte del anterior porque
+// la imagen de reemplazo es el avatar por defecto y no el cartel de "no disponible".
+var AVATAR_FALLBACK_URL = '/img/avatar-default.svg';
+
+document.addEventListener('error', function (e) {
+    if (e.target && e.target.matches && e.target.matches('img[data-avatar-fallback]')) {
+        // Se quita el atributo para que un fallo del propio fallback no cicle.
+        e.target.removeAttribute('data-avatar-fallback');
+        e.target.src = AVATAR_FALLBACK_URL;
+    }
+}, true);
+
+// Vista previa del avatar recién elegido, antes de enviar el formulario.
+// Se usa FileReader (data: URL) y no createObjectURL porque la CSP permite
+// "img-src data:" pero no "blob:".
+document.addEventListener('change', function (e) {
+    if (!e.target.matches || !e.target.matches('input[type="file"][data-avatar-input]')) return;
+
+    var archivo = e.target.files && e.target.files[0];
+    var preview = document.querySelector('img[data-avatar-fallback]');
+    if (!archivo || !preview) return;
+
+    var lector = new FileReader();
+    lector.onload = function (ev) { preview.src = ev.target.result; };
+    lector.readAsDataURL(archivo);
+});
+
 // Vista previa de imagen en los formularios de Artículo (Create/Edit), sin script inline (requerido por la CSP).
 document.getElementById('inputImagenUrl')?.addEventListener('input', function (e) {
     var img = document.getElementById('imgPreview');

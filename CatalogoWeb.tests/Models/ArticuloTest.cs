@@ -209,20 +209,30 @@ namespace CatalogoWeb.Tests.Models
 
         // ── ImagenUrl ─────────────────────────────────────────────────────────
 
+        // Desde que ImagenUrl valida el formato con [UrlImagenSegura], los tests de
+        // longitud usan una URL https real rellenada hasta el largo buscado; una cadena
+        // de 'x' fallaría por no ser una URL y no probaría el límite de caracteres.
+        private static string UrlHttpsDeLargo(int largo)
+        {
+            const string prefijo = "https://ejemplo.com/";
+            return prefijo + new string('x', largo - prefijo.Length);
+        }
+
         [Fact]
         public void Articulo_ImagenUrlExacto500Caracteres_EsValido()
         {
             var articulo = ArticuloValido();
-            articulo.ImagenUrl = new string('x', 500);
-            var errores = Validar(articulo);
-            Assert.Empty(errores);
+            articulo.ImagenUrl = UrlHttpsDeLargo(500);
+
+            Assert.Equal(500, articulo.ImagenUrl.Length);
+            Assert.Empty(Validar(articulo));
         }
 
         [Fact]
         public void Articulo_ImagenUrlMasDe500Caracteres_FallaValidacion()
         {
             var articulo = ArticuloValido();
-            articulo.ImagenUrl = new string('x', 501);
+            articulo.ImagenUrl = UrlHttpsDeLargo(501);
             var errores = Validar(articulo);
             Assert.Contains(errores, e => e.MemberNames.Contains(nameof(Articulo.ImagenUrl)));
         }

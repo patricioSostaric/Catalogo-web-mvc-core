@@ -1,6 +1,7 @@
 using catalogo_web_mvc.Data;
 using catalogo_web_mvc.Interfaces.Articulos;
 using catalogo_web_mvc.Interfaces.Audit;
+using catalogo_web_mvc.Interfaces.Avatar;
 using catalogo_web_mvc.Interfaces.Email;
 using catalogo_web_mvc.Services.Audit;
 using catalogo_web_mvc.Interfaces.Categorias;
@@ -11,14 +12,17 @@ using catalogo_web_mvc.Repository.Articulos;
 using catalogo_web_mvc.Repository.Categorias;
 using catalogo_web_mvc.Repository.Marcas;
 using catalogo_web_mvc.Services.Articulos;
+using catalogo_web_mvc.Services.Avatar;
 using catalogo_web_mvc.Services.Categorias;
 using catalogo_web_mvc.Services.Email;
 using catalogo_web_mvc.Services.Identity;
 using catalogo_web_mvc.Services.Marcas;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using System.Globalization;
 using System.Threading.RateLimiting;
 
@@ -65,7 +69,9 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 })
 .AddRoles<IdentityRole>()
 .AddEntityFrameworkStores<CatalogoContext>()
-.AddErrorDescriber<SpanishIdentityErrorDescriber>();
+.AddErrorDescriber<SpanishIdentityErrorDescriber>()
+// Suma el avatar como claim para que el navbar no consulte la base en cada request.
+.AddClaimsPrincipalFactory<ApplicationUserClaimsPrincipalFactory>();
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
@@ -87,6 +93,14 @@ builder.Services.AddRateLimiter(options =>
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IAuditService, AuditService>();
+builder.Services.AddScoped<IAvatarService, AvatarService>();
+
+// Techo de tamaño para los multipart. El límite real de la imagen lo aplica
+// AvatarValidator (2 MB); este corta el request antes de bufferearlo entero.
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = AvatarValidator.MaxBytes;
+});
 
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("Smtp"));
 builder.Services.AddScoped<ISmtpClient, SmtpClientAdapter>();
@@ -142,6 +156,26 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
+
+// MapStaticAssets solo sirve los archivos que existían al compilar. Los avatares se
+// suben en runtime, así que necesitan su propio middleware apuntado a esa carpeta.
+// ServeUnknownFileTypes queda en false (default) a propósito: si un archivo llegara a
+// tener una extensión desconocida, se responde 404 en lugar de servirlo a ciegas.
+var carpetaUploads = Path.Combine(app.Environment.WebRootPath, "uploads");
+Directory.CreateDirectory(carpetaUploads);
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(carpetaUploads),
+    RequestPath = "/uploads",
+    OnPrepareResponse = ctx =>
+    {
+        // Refuerzo sobre el contenido subido por usuarios: nunca se reinterpreta el
+        // tipo y nunca se muestra inline como documento.
+        ctx.Context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
+        ctx.Context.Response.Headers.Append("Content-Disposition", "inline");
+    }
+});
 
 app.MapControllerRoute(
     name: "default",

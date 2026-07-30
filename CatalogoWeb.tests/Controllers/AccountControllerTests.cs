@@ -1,5 +1,6 @@
 using catalogo_web_mvc.Controllers;
 using catalogo_web_mvc.Interfaces.Audit;
+using catalogo_web_mvc.Interfaces.Avatar;
 using catalogo_web_mvc.Interfaces.Email;
 using catalogo_web_mvc.Models;
 using catalogo_web_mvc.Models.ViewModels;
@@ -18,6 +19,7 @@ namespace CatalogoWeb.Tests.Controllers
         private readonly Mock<SignInManager<ApplicationUser>> _signInManagerMock;
         private readonly Mock<IAuditService> _auditMock;
         private readonly Mock<IEmailSender> _emailSenderMock;
+        private readonly Mock<IAvatarService> _avatarServiceMock;
         private readonly AccountController _controller;
 
         public AccountControllerTests()
@@ -34,8 +36,9 @@ namespace CatalogoWeb.Tests.Controllers
 
             _auditMock = new Mock<IAuditService>();
             _emailSenderMock = new Mock<IEmailSender>();
+            _avatarServiceMock = new Mock<IAvatarService>();
 
-            _controller = new AccountController(_userManagerMock.Object, _signInManagerMock.Object, _auditMock.Object, _emailSenderMock.Object);
+            _controller = new AccountController(_userManagerMock.Object, _signInManagerMock.Object, _auditMock.Object, _emailSenderMock.Object, _avatarServiceMock.Object);
             _controller.ControllerContext = new ControllerContext
             {
                 HttpContext = new DefaultHttpContext

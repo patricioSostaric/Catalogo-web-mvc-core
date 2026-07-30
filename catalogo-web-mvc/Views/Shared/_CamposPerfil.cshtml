@@ -1,0 +1,74 @@
+@using catalogo_web_mvc.Services.Avatar
+@model catalogo_web_mvc.Models.ViewModels.PerfilCamposViewModel
+@{
+    // Prefijo del nombre de los inputs. Las dos pantallas anidan estos campos bajo
+    // "Datos", así que los name/id quedan como "Datos.Nombre".
+    var avatar = AvatarUrlValidator.ResolverParaMostrar(Model.AvatarActual);
+    var mostrarPreview = !string.IsNullOrWhiteSpace(Model.AvatarActual);
+}
+
+<div class="row g-3">
+
+    <!-- Nombre y apellido en la misma fila: son cortos y relacionados -->
+    <div class="col-12 col-sm-6">
+        <label asp-for="Nombre" class="form-label text-secondary small fw-medium"></label>
+        <input asp-for="Nombre" class="form-control rounded-3" placeholder="Juan" autocomplete="given-name" />
+        <span asp-validation-for="Nombre" class="text-danger small d-block mt-1"></span>
+    </div>
+
+    <div class="col-12 col-sm-6">
+        <label asp-for="Apellido" class="form-label text-secondary small fw-medium"></label>
+        <input asp-for="Apellido" class="form-control rounded-3" placeholder="Pérez" autocomplete="family-name" />
+        <span asp-validation-for="Apellido" class="text-danger small d-block mt-1"></span>
+    </div>
+
+    <!-- Fecha de nacimiento: se guarda la fecha, la edad se calcula al mostrarla -->
+    <div class="col-12 col-sm-6">
+        <label asp-for="FechaNacimiento" class="form-label text-secondary small fw-medium"></label>
+        <input asp-for="FechaNacimiento" type="date" class="form-control rounded-3" autocomplete="bday" />
+        <span asp-validation-for="FechaNacimiento" class="text-danger small d-block mt-1"></span>
+    </div>
+
+    <div class="col-12 col-sm-6">
+        <label asp-for="CodigoPostal" class="form-label text-secondary small fw-medium"></label>
+        <input asp-for="CodigoPostal" class="form-control rounded-3" placeholder="1900 o B1900ABC" autocomplete="postal-code" />
+        <span asp-validation-for="CodigoPostal" class="text-danger small d-block mt-1"></span>
+    </div>
+
+    <div class="col-12">
+        <label asp-for="Localidad" class="form-label text-secondary small fw-medium"></label>
+        <input asp-for="Localidad" class="form-control rounded-3" placeholder="La Plata" autocomplete="address-level2" />
+        <span asp-validation-for="Localidad" class="text-danger small d-block mt-1"></span>
+    </div>
+
+    <!-- Imagen de perfil -->
+    <div class="col-12">
+        <label asp-for="Avatar" class="form-label text-secondary small fw-medium"></label>
+
+        <div class="d-flex align-items-center gap-3">
+            @* data-avatar-fallback: si la imagen no carga (típicamente una URL externa
+               que dejó de existir), site.js la reemplaza por la de defecto. No se usa
+               onerror inline porque el CSP del sitio no permite scripts inline. *@
+            <img src="@avatar" alt="Imagen de perfil actual"
+                 class="avatar avatar-lg border" data-avatar-fallback />
+
+            <div class="flex-grow-1">
+                <!-- accept es solo comodidad del navegador: el filtro real (extensión,
+                     firma del archivo y tamaño) lo aplica AvatarValidator en el servidor -->
+                <input asp-for="Avatar" type="file" class="form-control rounded-3"
+                       accept="image/jpeg,image/png,image/webp" data-avatar-input />
+                <div class="form-text small">JPG, PNG o WEBP. Hasta @(AvatarValidator.MaxBytes / (1024 * 1024)) MB.</div>
+                <span asp-validation-for="Avatar" class="text-danger small d-block mt-1"></span>
+            </div>
+        </div>
+
+        @if (mostrarPreview)
+        {
+            <div class="form-check mt-2">
+                <input asp-for="QuitarAvatar" class="form-check-input" />
+                <label asp-for="QuitarAvatar" class="form-check-label small text-secondary"></label>
+            </div>
+        }
+    </div>
+
+</div>

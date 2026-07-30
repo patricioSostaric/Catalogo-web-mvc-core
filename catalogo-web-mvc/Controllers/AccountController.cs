@@ -1,8 +1,11 @@
 using catalogo_web_mvc.Interfaces.Audit;
+using catalogo_web_mvc.Interfaces.Avatar;
 using catalogo_web_mvc.Interfaces.Email;
 using catalogo_web_mvc.Models;
 using catalogo_web_mvc.Models.ViewModels;
+using catalogo_web_mvc.Services.Avatar;
 using catalogo_web_mvc.Services.Email;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -16,13 +19,15 @@ namespace catalogo_web_mvc.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IAuditService _audit;
         private readonly IEmailSender _emailSender;
+        private readonly IAvatarService _avatarService;
 
-        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IAuditService audit, IEmailSender emailSender)
+        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IAuditService audit, IEmailSender emailSender, IAvatarService avatarService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _audit = audit;
             _emailSender = emailSender;
+            _avatarService = avatarService;
         }
 
         [HttpGet]
@@ -74,7 +79,31 @@ namespace catalogo_web_mvc.Controllers
         {
             if (!ModelState.IsValid) return View(model);
 
-            var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
+            // La imagen se valida y guarda antes de crear el usuario: si el archivo es
+            // inválido no tiene sentido dejar la cuenta creada a medias.
+            string? avatarUrl = null;
+            if (model.Datos.Avatar is not null)
+            {
+                var guardado = await _avatarService.GuardarAsync(model.Datos.Avatar);
+                if (!guardado.EsValido)
+                {
+                    ModelState.AddModelError("Datos.Avatar", guardado.Error!);
+                    return View(model);
+                }
+                avatarUrl = guardado.RutaRelativa;
+            }
+
+            var user = new ApplicationUser
+            {
+                UserName = model.Email,
+                Email = model.Email,
+                Nombre = model.Datos.Nombre,
+                Apellido = model.Datos.Apellido,
+                FechaNacimiento = model.Datos.FechaNacimiento,
+                Localidad = model.Datos.Localidad,
+                CodigoPostal = model.Datos.CodigoPostal,
+                AvatarUrl = avatarUrl
+            };
             var result = await _userManager.CreateAsync(user, model.Password);
 
             if (result.Succeeded)
@@ -96,6 +125,10 @@ namespace catalogo_web_mvc.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
+            // El usuario no se creó: se borra la imagen ya guardada para no dejar
+            // archivos huérfanos en disco por cada intento fallido de registro.
+            _avatarService.Eliminar(avatarUrl);
+
             // No revelamos si el motivo fue un email/usuario duplicado (evita enumeración de cuentas).
             bool emailEnUso = result.Errors.Any(e => e.Code is "DuplicateUserName" or "DuplicateEmail");
             foreach (var error in result.Errors)
@@ -108,6 +141,111 @@ namespace catalogo_web_mvc.Controllers
 
             return View(model);
         }
+
+        // ── Perfil ─────────────────────────────────────────────────────────────
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> Perfil()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user is null) return Challenge();
+
+            return View(MapearAPerfil(user));
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        [RequestSizeLimit(AvatarValidator.MaxBytes)]
+        public async Task<IActionResult> Perfil(PerfilViewModel model)
+        {
+            // Siempre se trabaja sobre el usuario de la sesión. El id nunca se toma del
+            // formulario: si viniera del cliente, cualquiera podría editar otro perfil
+            // cambiando el campo (IDOR, OWASP A01).
+            var user = await _userManager.GetUserAsync(User);
+            if (user is null) return Challenge();
+
+            if (!ModelState.IsValid)
+            {
+                model.Email = user.Email ?? string.Empty;
+                model.Edad = user.Edad;
+                model.Datos.AvatarActual = user.AvatarUrl;
+                return View(model);
+            }
+
+            var avatarAnterior = user.AvatarUrl;
+            string? avatarNuevo = null;
+
+            if (model.Datos.Avatar is not null)
+            {
+                var guardado = await _avatarService.GuardarAsync(model.Datos.Avatar);
+                if (!guardado.EsValido)
+                {
+                    ModelState.AddModelError("Datos.Avatar", guardado.Error!);
+                    model.Email = user.Email ?? string.Empty;
+                    model.Edad = user.Edad;
+                    model.Datos.AvatarActual = avatarAnterior;
+                    return View(model);
+                }
+                avatarNuevo = guardado.RutaRelativa;
+                user.AvatarUrl = avatarNuevo;
+            }
+            else if (model.Datos.QuitarAvatar)
+            {
+                user.AvatarUrl = null;
+            }
+
+            user.Nombre = model.Datos.Nombre;
+            user.Apellido = model.Datos.Apellido;
+            user.FechaNacimiento = model.Datos.FechaNacimiento;
+            user.Localidad = model.Datos.Localidad;
+            user.CodigoPostal = model.Datos.CodigoPostal;
+
+            var result = await _userManager.UpdateAsync(user);
+
+            if (!result.Succeeded)
+            {
+                // Si no se pudo persistir, se descarta la imagen nueva y se conserva la anterior.
+                _avatarService.Eliminar(avatarNuevo);
+
+                foreach (var error in result.Errors)
+                    ModelState.AddModelError(string.Empty, error.Description);
+
+                model.Email = user.Email ?? string.Empty;
+                model.Edad = user.Edad;
+                model.Datos.AvatarActual = avatarAnterior;
+                return View(model);
+            }
+
+            // Recién con el update confirmado se borra el archivo viejo.
+            if (user.AvatarUrl != avatarAnterior)
+                _avatarService.Eliminar(avatarAnterior);
+
+            // Los claims (avatar y nombre para mostrar) viven en la cookie, así que hay
+            // que regenerarla para que el navbar refleje el cambio sin re-loguearse.
+            await _signInManager.RefreshSignInAsync(user);
+
+            await _audit.RegistrarAsync("PERFIL_ACTUALIZADO", user.Email, user.Id);
+
+            TempData["PerfilActualizado"] = "Tus datos se guardaron correctamente.";
+            return RedirectToAction(nameof(Perfil));
+        }
+
+        private static PerfilViewModel MapearAPerfil(ApplicationUser user) => new()
+        {
+            Email = user.Email ?? string.Empty,
+            Edad = user.Edad,
+            Datos = new PerfilCamposViewModel
+            {
+                Nombre = user.Nombre,
+                Apellido = user.Apellido,
+                FechaNacimiento = user.FechaNacimiento,
+                Localidad = user.Localidad,
+                CodigoPostal = user.CodigoPostal,
+                AvatarActual = user.AvatarUrl
+            }
+        };
 
         [HttpGet]
         public IActionResult ForgotPassword()

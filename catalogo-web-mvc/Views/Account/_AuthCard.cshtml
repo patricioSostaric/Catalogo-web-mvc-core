@@ -4,12 +4,15 @@
     var formPartial = ViewData["FormPartial"] as string;
     var footerAction = ViewData["FooterAction"] as string;
     var footerTexto = ViewData["FooterTexto"] as string;
+
+    // El registro necesita más ancho que el login porque suma los campos de perfil.
+    var anchoColumnas = ViewData["Ancho"] as string ?? "col-12 col-sm-10 col-md-6 col-lg-4";
 }
 
 <div class="container py-4">
     <!-- Centra horizontal y verticalmente en la pantalla -->
     <div class="row justify-content-center align-items-center" style="min-height: 65vh;">
-        <div class="col-12 col-sm-10 col-md-6 col-lg-4">
+        <div class="@anchoColumnas">
 
             <!-- Tarjeta contenedora compartida por Login y Register -->
             <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
