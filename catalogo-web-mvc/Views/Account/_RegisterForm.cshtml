@@ -1,6 +1,8 @@
 @model catalogo_web_mvc.Models.ViewModels.RegisterViewModel
 
-<form asp-action="Register" method="post">
+@* enctype multipart es obligatorio para que el archivo llegue al servidor;
+   sin esto el input file se envía solo como nombre y el IFormFile queda null *@
+<form asp-action="Register" method="post" enctype="multipart/form-data">
 
     <!-- Resumen de errores de validación -->
     <div asp-validation-summary="ModelOnly" class="text-danger mb-3 small alert alert-danger p-2"></div>
@@ -31,6 +33,19 @@
         </div>
         <span asp-validation-for="ConfirmPassword" class="text-danger small d-block mt-1"></span>
     </div>
+
+    <!-- Datos de perfil e imagen: mismo partial que usa la pantalla de perfil -->
+    <hr class="my-4" />
+    <p class="text-secondary small fw-medium mb-3">Tus datos</p>
+
+    @* El prefijo hace que los inputs se llamen "Datos.Nombre" y bindeen a la
+       propiedad anidada del RegisterViewModel *@
+    @await Html.PartialAsync("_CamposPerfil", Model.Datos, new ViewDataDictionary(ViewData)
+    {
+        TemplateInfo = { HtmlFieldPrefix = nameof(Model.Datos) }
+    })
+
+    <div class="mb-4"></div>
 
     <!-- Botón Registrarse (Estilo bloque) -->
     <div class="d-grid">

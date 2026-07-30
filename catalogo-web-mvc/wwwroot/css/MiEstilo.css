@@ -227,3 +227,22 @@ h1, h2, h3 {
     -webkit-overflow-scrolling: touch;
     margin-bottom: 1rem;
 }
+
+/* ── Avatar de perfil ──────────────────────────────────────────────────────── */
+/* Equivalente al asp:Image del MasterPage de WebForms, con dos diferencias:
+   object-fit evita que las imágenes no cuadradas se deformen al recortarse al
+   círculo, y flex-shrink impide que el navbar la achique cuando falta espacio. */
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    background-color: #e9ecef;
+}
+
+/* Tamaño grande para el preview de la pantalla de perfil */
+.avatar-lg {
+    width: 72px;
+    height: 72px;
+}

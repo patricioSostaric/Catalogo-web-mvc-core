@@ -18,5 +18,11 @@ namespace catalogo_web_mvc.Models.ViewModels
         [Compare("Password", ErrorMessage = "Las contraseñas no coinciden")]
         [Display(Name = "Confirmar contraseña")]
         public string ConfirmPassword { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Datos de perfil e imagen. Comparte clase con la pantalla de edición para no
+        /// duplicar validaciones ni el partial del formulario.
+        /// </summary>
+        public PerfilCamposViewModel Datos { get; set; } = new();
     }
 }

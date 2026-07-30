@@ -1,0 +1,55 @@
+@model catalogo_web_mvc.Models.ViewModels.PerfilViewModel
+@{
+    ViewData["Title"] = "Mi perfil";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-9 col-lg-7">
+
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+                <div class="card-body">
+
+                    <div class="mb-4">
+                        <h2 class="fw-bold text-dark h3 mb-1">Mi perfil</h2>
+                        <p class="text-muted small m-0">
+                            @Model.Email
+                            @if (Model.Edad is not null)
+                            {
+                                <span class="ms-2">· @Model.Edad años</span>
+                            }
+                        </p>
+                    </div>
+
+                    @if (TempData["PerfilActualizado"] is string aviso)
+                    {
+                        <div class="alert alert-success py-2 small" role="status">@aviso</div>
+                    }
+
+                    @* enctype multipart: sin esto el archivo no llega al servidor *@
+                    <form asp-action="Perfil" method="post" enctype="multipart/form-data">
+
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3 small alert alert-danger p-2"></div>
+
+                        @await Html.PartialAsync("_CamposPerfil", Model.Datos, new ViewDataDictionary(ViewData)
+                        {
+                            TemplateInfo = { HtmlFieldPrefix = nameof(Model.Datos) }
+                        })
+
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary py-2 rounded-3 fw-medium shadow-sm">
+                                Guardar cambios
+                            </button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

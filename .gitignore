@@ -21,3 +21,9 @@ Properties/PublishProfiles/
 # Archivos absolutos generados por Visual Studio
 *.FileListAbsolute.txt
 .claude/
+
+# Avatares subidos por los usuarios: son datos de runtime, no del repo.
+# Se ignora el contenido pero se conserva la carpeta (.gitkeep) para que
+# exista en el deploy sin necesidad de crearla a mano.
+catalogo-web-mvc/wwwroot/uploads/avatars/*
+!catalogo-web-mvc/wwwroot/uploads/avatars/.gitkeep

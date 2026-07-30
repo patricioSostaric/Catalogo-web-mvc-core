@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using catalogo_web_mvc.Models.Validation;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.RegularExpressions;
@@ -32,6 +33,9 @@ namespace catalogo_web_mvc.Models
         
         [DisplayName("Imagen URL")]
         [StringLength(500, ErrorMessage = "La URL de la imagen no puede superar los 500 caracteres.")]
+        // Este valor se renderiza en el src de un <img> del catálogo, así que se exige
+        // https (o una ruta local bajo /img/) y se bloquean esquemas como javascript: y data:.
+        [UrlImagenSegura(PrefijoLocalPermitido = "/img/")]
         public string? ImagenUrl { get; set; }
         
         

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" role="img" aria-label="Imagen de perfil por defecto">
+  <!-- Avatar por defecto del catálogo. Vectorial a propósito: el mismo archivo
+       sirve para los 40px del navbar y para el preview grande del perfil. -->
+  <defs>
+    <clipPath id="recorteCircular">
+      <circle cx="64" cy="64" r="64" />
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#recorteCircular)">
+    <circle cx="64" cy="64" r="64" fill="#e9ecef" />
+
+    <!-- Cabeza -->
+    <circle cx="64" cy="50" r="23" fill="#adb5bd" />
+
+    <!-- Hombros: se recortan contra el círculo exterior -->
+    <path d="M64 80c-24 0-44 16-48 40h96c-4-24-24-40-48-40z" fill="#adb5bd" />
+  </g>
+</svg>
