@@ -76,7 +76,12 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.Cookie.HttpOnly = true;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    // En producción la cookie viaja solo por HTTPS. En desarrollo se usa SameAsRequest
+    // porque el contenedor sirve HTTP plano: con Always el navegador descarta la cookie
+    // y el login falla sin mostrar error.
+    options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+        ? CookieSecurePolicy.SameAsRequest
+        : CookieSecurePolicy.Always;
     options.Cookie.SameSite = SameSiteMode.Strict;
 });
 
@@ -183,7 +188,14 @@ app.MapControllerRoute(
     .WithStaticAssets();
 
 using (var scope = app.Services.CreateScope())
+{
+    // En Docker la base arranca vacía: hay que aplicar las migraciones antes de
+    // sembrar, o el seed corre contra tablas que todavía no existen.
+    await scope.ServiceProvider.GetRequiredService<CatalogoContext>()
+        .Database.MigrateAsync();
+
     await DbSeeder.SeedAsync(scope.ServiceProvider);
+}
 
 app.Run();
 

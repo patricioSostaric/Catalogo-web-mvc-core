@@ -4,6 +4,7 @@
 ![C#](https://img.shields.io/badge/C%23-13-239120?logo=csharp&logoColor=white)
 ![EF Core](https://img.shields.io/badge/EF%20Core-10.0-512BD4)
 ![SQL Server](https://img.shields.io/badge/SQL%20Server-CC2927?logo=microsoftsqlserver&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)
 ![Tests](https://img.shields.io/badge/tests-404%20passing-success)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
@@ -200,6 +201,9 @@ Se aplicó una auditoría sobre **OWASP Top 10** y se corrigieron los hallazgos:
 - [.NET SDK 10.0](https://dotnet.microsoft.com/download)
 - SQL Server (LocalDB, Express o instancia completa)
 
+> ¿Preferís no instalar nada? Ver [Ejecución con Docker](#-ejecución-con-docker):
+> un solo comando, sin .NET ni SQL Server en la máquina.
+
 ### Pasos
 
 **1 · Clonar**
@@ -245,6 +249,40 @@ Al primer arranque, `DbSeeder` crea los roles y los usuarios de prueba de la tab
 ```bash
 dotnet test
 ```
+
+---
+
+## 🐳 Ejecución con Docker
+
+La alternativa al paso a paso anterior: **no requiere tener instalados .NET ni SQL Server**,
+solo [Docker Desktop](https://www.docker.com/products/docker-desktop).
+
+```bash
+docker compose up --build
+```
+
+Eso levanta dos contenedores: la aplicación y una instancia de SQL Server 2022. Al arrancar
+se aplican las migraciones y se siembran los usuarios de prueba de la tabla del comienzo.
+La app queda en **http://localhost:8080**.
+
+La primera ejecución descarga alrededor de 2 GB de imágenes base; las siguientes son inmediatas.
+
+| Comando | Efecto |
+| --- | --- |
+| `docker compose up --build` | Levanta el entorno completo |
+| `docker compose down` | Detiene los contenedores y **conserva** la base y los avatares |
+| `docker compose down -v` | Detiene y **borra** los volúmenes: entorno desde cero |
+| `docker compose logs -f web` | Sigue los logs de la aplicación |
+
+**Sobre las credenciales del compose:** la contraseña del usuario `sa` está escrita en
+`docker-compose.yml` de forma deliberada. Es un entorno de desarrollo local descartable,
+sin exposición a red pública, y tenerla a la vista es lo que permite levantar el proyecto
+con un solo comando. Para un despliegue real esos valores irían en variables de entorno
+del entorno de ejecución, nunca versionados.
+
+**Diferencia con la ejecución local:** en `Development` la cookie de sesión usa
+`SameAsRequest` en lugar de `Always`, porque el contenedor sirve HTTP plano. En producción
+se mantiene `Always`, exigiendo HTTPS.
 
 ---
 
