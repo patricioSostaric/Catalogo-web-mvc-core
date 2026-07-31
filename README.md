@@ -4,7 +4,7 @@
 ![C#](https://img.shields.io/badge/C%23-13-239120?logo=csharp&logoColor=white)
 ![EF Core](https://img.shields.io/badge/EF%20Core-10.0-512BD4)
 ![SQL Server](https://img.shields.io/badge/SQL%20Server-CC2927?logo=microsoftsqlserver&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-273%20passing-success)
+![Tests](https://img.shields.io/badge/tests-404%20passing-success)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
 Aplicación web de catálogo de artículos con área pública y panel de administración,
@@ -121,7 +121,7 @@ catalogo-web-mvc/
 ├── Views/                Razor, con partials reutilizables
 └── Program.cs            Registro de DI y pipeline de middleware
 
-CatalogoWeb.tests/        273 tests unitarios
+CatalogoWeb.tests/        404 tests unitarios
 ```
 
 ---
@@ -151,11 +151,11 @@ CatalogoWeb.tests/        273 tests unitarios
 
 ## 🧪 Testing
 
-**273 tests unitarios, la totalidad en verde.**
+**404 tests unitarios, la totalidad en verde.**
 
 ```bash
 dotnet test
-# Correctas! - Con error: 0, Superado: 273, Omitido: 0, Total: 273
+# Correctas! - Con error: 0, Superado: 404, Omitido: 0, Total: 404
 ```
 
 Cobertura por capa:
