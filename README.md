@@ -274,15 +274,46 @@ La primera ejecución descarga alrededor de 2 GB de imágenes base; las siguient
 | `docker compose down -v` | Detiene y **borra** los volúmenes: entorno desde cero |
 | `docker compose logs -f web` | Sigue los logs de la aplicación |
 
+> ⚠️ **`docker-compose.yml` es exclusivamente para desarrollo local.** Fija
+> `ASPNETCORE_ENVIRONMENT=Development` y trae la contraseña de `sa` escrita en el archivo.
+> Para desplegar hay que sumarle `docker-compose.prod.yml` (ver abajo).
+
 **Sobre las credenciales del compose:** la contraseña del usuario `sa` está escrita en
 `docker-compose.yml` de forma deliberada. Es un entorno de desarrollo local descartable,
 sin exposición a red pública, y tenerla a la vista es lo que permite levantar el proyecto
-con un solo comando. Para un despliegue real esos valores irían en variables de entorno
-del entorno de ejecución, nunca versionados.
+con un solo comando.
 
 **Diferencia con la ejecución local:** en `Development` la cookie de sesión usa
 `SameAsRequest` en lugar de `Always`, porque el contenedor sirve HTTP plano. En producción
 se mantiene `Always`, exigiendo HTTPS.
+
+### Despliegue
+
+`docker-compose.prod.yml` se superpone al base y cambia lo que no puede quedar como en
+desarrollo:
+
+```bash
+cp .env.example .env    # completar con valores reales
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+```
+
+| Qué cambia | Por qué |
+| --- | --- |
+| `ASPNETCORE_ENVIRONMENT=Production` | Reactiva la cookie `Secure` y HSTS |
+| Credenciales por `.env` | Ningún secreto versionado; si falta una variable, el arranque falla |
+| El puerto 1433 deja de publicarse | SQL Server queda accesible solo desde la red interna |
+| `restart: unless-stopped` | La app se recupera sola ante un reinicio |
+
+**Sobre el proxy inverso:** las plataformas de hosting terminan el TLS por su cuenta y le
+pasan a la aplicación un request HTTP plano. Sin intervención, Kestrel concluye que la
+conexión no es segura, la cookie con `Secure` nunca se emite y el login falla sin ningún
+error visible. Por eso el pipeline arranca con `UseForwardedHeaders`, que lee
+`X-Forwarded-Proto` y `X-Forwarded-For` para reconstruir el esquema y la IP originales.
+
+Las listas `KnownNetworks` y `KnownProxies` se vacían porque la IP del proxy no se conoce
+de antemano en un contenedor. Eso implica confiar en esas cabeceras: **la aplicación debe
+quedar accesible únicamente a través del proxy**. Si además se expusiera de forma directa,
+cualquiera podría falsear el origen del request.
 
 ---
 
