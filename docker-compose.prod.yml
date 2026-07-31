@@ -1,0 +1,24 @@
+# Configuración de producción. Se usa junto al compose base:
+#
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+#
+# Requiere un archivo .env con las variables (ver .env.example). A diferencia del
+# compose base, acá no hay ningún valor por defecto: si falta una variable el
+# arranque falla, que es preferible a levantar producción con una clave de ejemplo.
+services:
+  db:
+    environment:
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:?definir MSSQL_SA_PASSWORD en .env}
+    # El puerto de SQL Server no se publica: solo la app lo alcanza, por la red interna.
+    ports: !override []
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -C -Q 'SELECT 1'"]
+
+  web:
+    environment:
+      # Con Production la cookie de sesión exige HTTPS y se activa HSTS.
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__CatalogoDB: "Server=db,1433;Database=CatalogoDB;User Id=sa;Password=${MSSQL_SA_PASSWORD:?definir MSSQL_SA_PASSWORD en .env};TrustServerCertificate=True;"
+      Smtp__User: ${SMTP_USER:?definir SMTP_USER en .env}
+      Smtp__Password: ${SMTP_PASSWORD:?definir SMTP_PASSWORD en .env}
+    restart: unless-stopped

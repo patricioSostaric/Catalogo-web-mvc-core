@@ -27,3 +27,8 @@ Properties/PublishProfiles/
 # exista en el deploy sin necesidad de crearla a mano.
 catalogo-web-mvc/wwwroot/uploads/avatars/*
 !catalogo-web-mvc/wwwroot/uploads/avatars/.gitkeep
+
+# Variables de entorno con credenciales (ver .env.example)
+.env
+.env.*
+!.env.example

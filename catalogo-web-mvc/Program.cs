@@ -17,6 +17,7 @@ using catalogo_web_mvc.Services.Categorias;
 using catalogo_web_mvc.Services.Email;
 using catalogo_web_mvc.Services.Identity;
 using catalogo_web_mvc.Services.Marcas;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
@@ -96,6 +97,19 @@ builder.Services.AddRateLimiter(options =>
     });
 });
 
+// Detrás de un proxy (Azure App Service, Fly, Render) el TLS lo termina la plataforma
+// y la app recibe HTTP plano. Sin estas cabeceras Kestrel cree que el request no es
+// seguro: la cookie con SecurePolicy.Always nunca se emite y el login falla en silencio.
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    // La IP del proxy no se conoce de antemano en un contenedor, así que se vacían las
+    // listas de confianza. Esto asume que la plataforma es el único camino de entrada:
+    // si la app quedara accesible de forma directa, cualquiera podría falsear el origen.
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IAuditService, AuditService>();
 builder.Services.AddScoped<IAvatarService, AvatarService>();
@@ -122,6 +136,10 @@ var argentinaZone = TimeZoneInfo.FindSystemTimeZoneById("Argentina Standard Time
 builder.Services.AddSingleton(argentinaZone);
 
 var app = builder.Build();
+
+// Va primero: el resto del pipeline (HSTS, redirección a HTTPS, cookies) necesita
+// saber si el request original era HTTPS antes de tomar cualquier decisión.
+app.UseForwardedHeaders();
 
 // Middleware de localización: esto es lo que hace que el binder entienda la coma
 app.UseRequestLocalization(localizationOptions);
