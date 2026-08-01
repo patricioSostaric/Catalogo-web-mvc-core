@@ -139,9 +139,36 @@ namespace CatalogoWeb.Tests.Models
         }
 
         [Fact]
-        public void Articulo_ConImagenUrlLocalBajoImg_EsValido()
+        public void Articulo_ConImagenUrlLocalBajoImagenArticulos_EsValido()
         {
-            Assert.Empty(ValidarArticulo("/img/producto.png"));
+            Assert.Empty(ValidarArticulo("/imagen/articulos/producto.png"));
+        }
+
+        [Theory]
+        [InlineData("/imagen/articulos/s01.jpg")]
+        [InlineData("/imagen/articulos/h01.jpeg")]
+        [InlineData("/imagen/articulos/s77.webp")]
+        public void Articulo_ConLasRutasRealesDelSeed_EsValido(string url)
+        {
+            // Las rutas del seed entran por HasData, que no pasa por las validaciones.
+            // Sin este caso, una ruta sembrada podia quedar invalida para el formulario
+            // de edicion sin que nada lo detectara.
+            Assert.Empty(ValidarArticulo(url));
+        }
+
+        [Fact]
+        public void Articulo_ConLaCarpetaDeImagenesPeroSinSubcarpeta_EsInvalido()
+        {
+            // El prefijo del articulo incluye la subcarpeta: el validador rechaza barras
+            // en el resto de la ruta, asi que /imagen/x.png no corresponde al catalogo.
+            Assert.NotEmpty(ValidarArticulo("/imagen/producto.png"));
+        }
+
+        [Fact]
+        public void Articulo_ConRutaDeAvatar_EsInvalido()
+        {
+            // Cada tipo de imagen tiene su prefijo: la del avatar no sirve para articulos.
+            Assert.NotEmpty(ValidarArticulo("/img/avatar-default.svg"));
         }
 
         [Theory]
