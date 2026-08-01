@@ -54,6 +54,14 @@ namespace CatalogoWeb.Tests.Controllers
         }
 
         [Fact]
+        public void GestionPedidosController_TieneAuthorizeRolAdmin()
+        {
+            var atributo = ObtenerAtributo<GestionPedidosController>();
+            Assert.NotNull(atributo);
+            Assert.Equal("Admin", atributo.Roles);
+        }
+
+        [Fact]
         public void UsuariosController_TieneAuthorizeRolSuperAdmin()
         {
             var atributo = ObtenerAtributo<UsuariosController>();

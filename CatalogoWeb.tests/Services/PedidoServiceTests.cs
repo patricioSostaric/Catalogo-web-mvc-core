@@ -152,6 +152,137 @@ namespace CatalogoWeb.Tests.Services
             Assert.Equal(UserId, capturado.UserId);
         }
 
+        // ── Cancelación ───────────────────────────────────────────────────────
+
+        [Fact]
+        public async Task CancelarAsync_PedidoInexistenteOAjeno_Falla()
+        {
+            // GetByIdAsync filtra por usuario: un pedido ajeno devuelve null igual que uno
+            // que no existe, asi que la respuesta no revela cual de los dos casos es.
+            _pedidoRepositoryMock.Setup(r => r.GetByIdAsync(7, UserId)).ReturnsAsync((Pedido?)null);
+
+            var resultado = await _service.CancelarAsync(UserId, 7);
+
+            Assert.False(resultado.Exito);
+            _pedidoRepositoryMock.Verify(r => r.CancelarAsync(It.IsAny<int>(), It.IsAny<DateTime>()), Times.Never);
+        }
+
+        [Theory]
+        [InlineData(EstadoPedido.Enviado)]
+        [InlineData(EstadoPedido.Entregado)]
+        [InlineData(EstadoPedido.Cancelado)]
+        public async Task CancelarAsync_FueraDeConfirmado_Falla(EstadoPedido estado)
+        {
+            _pedidoRepositoryMock.Setup(r => r.GetByIdAsync(7, UserId))
+                .ReturnsAsync(new Pedido { Id = 7, UserId = UserId, Estado = estado });
+
+            var resultado = await _service.CancelarAsync(UserId, 7);
+
+            Assert.False(resultado.Exito);
+            _pedidoRepositoryMock.Verify(r => r.CancelarAsync(It.IsAny<int>(), It.IsAny<DateTime>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task CancelarAsync_PedidoConfirmado_LoCancela()
+        {
+            _pedidoRepositoryMock.Setup(r => r.GetByIdAsync(7, UserId))
+                .ReturnsAsync(new Pedido { Id = 7, UserId = UserId, Estado = EstadoPedido.Confirmado });
+            _pedidoRepositoryMock.Setup(r => r.CancelarAsync(7, It.IsAny<DateTime>())).ReturnsAsync(true);
+
+            var resultado = await _service.CancelarAsync(UserId, 7);
+
+            Assert.True(resultado.Exito);
+            Assert.Equal(EstadoPedido.Cancelado, resultado.EstadoNuevo);
+        }
+
+        [Fact]
+        public async Task CancelarAsync_SiOtroLoCambioEnElMedio_Falla()
+        {
+            // El repositorio devuelve false cuando el UPDATE condicional no afecta filas:
+            // entre la lectura y la escritura, alguien lo cancelo o lo despacho.
+            _pedidoRepositoryMock.Setup(r => r.GetByIdAsync(7, UserId))
+                .ReturnsAsync(new Pedido { Id = 7, UserId = UserId, Estado = EstadoPedido.Confirmado });
+            _pedidoRepositoryMock.Setup(r => r.CancelarAsync(7, It.IsAny<DateTime>())).ReturnsAsync(false);
+
+            var resultado = await _service.CancelarAsync(UserId, 7);
+
+            Assert.False(resultado.Exito);
+            Assert.Contains("cambió de estado", resultado.Error);
+        }
+
+        // ── Avance de estado ──────────────────────────────────────────────────
+
+        [Fact]
+        public async Task AvanzarAsync_PedidoInexistente_Falla()
+        {
+            _pedidoRepositoryMock.Setup(r => r.GetByIdAsync(7)).ReturnsAsync((Pedido?)null);
+
+            var resultado = await _service.AvanzarAsync(7);
+
+            Assert.False(resultado.Exito);
+        }
+
+        [Theory]
+        [InlineData(EstadoPedido.Confirmado, EstadoPedido.Enviado)]
+        [InlineData(EstadoPedido.Enviado, EstadoPedido.Entregado)]
+        public async Task AvanzarAsync_MueveAlSiguienteEstado(EstadoPedido actual, EstadoPedido esperado)
+        {
+            _pedidoRepositoryMock.Setup(r => r.GetByIdAsync(7))
+                .ReturnsAsync(new Pedido { Id = 7, Estado = actual });
+            _pedidoRepositoryMock.Setup(r => r.CambiarEstadoAsync(7, actual, esperado, It.IsAny<DateTime>()))
+                .ReturnsAsync(true);
+
+            var resultado = await _service.AvanzarAsync(7);
+
+            Assert.True(resultado.Exito);
+            Assert.Equal(esperado, resultado.EstadoNuevo);
+        }
+
+        [Theory]
+        [InlineData(EstadoPedido.Entregado)]
+        [InlineData(EstadoPedido.Cancelado)]
+        public async Task AvanzarAsync_DesdeUnTerminal_Falla(EstadoPedido estado)
+        {
+            _pedidoRepositoryMock.Setup(r => r.GetByIdAsync(7))
+                .ReturnsAsync(new Pedido { Id = 7, Estado = estado });
+
+            var resultado = await _service.AvanzarAsync(7);
+
+            Assert.False(resultado.Exito);
+            _pedidoRepositoryMock.Verify(r => r.CambiarEstadoAsync(
+                It.IsAny<int>(), It.IsAny<EstadoPedido>(), It.IsAny<EstadoPedido>(), It.IsAny<DateTime>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task AvanzarAsync_SiOtroLoMovioEnElMedio_Falla()
+        {
+            _pedidoRepositoryMock.Setup(r => r.GetByIdAsync(7))
+                .ReturnsAsync(new Pedido { Id = 7, Estado = EstadoPedido.Confirmado });
+            _pedidoRepositoryMock.Setup(r => r.CambiarEstadoAsync(
+                7, EstadoPedido.Confirmado, EstadoPedido.Enviado, It.IsAny<DateTime>())).ReturnsAsync(false);
+
+            var resultado = await _service.AvanzarAsync(7);
+
+            Assert.False(resultado.Exito);
+        }
+
+        [Fact]
+        public async Task AvanzarAsync_PasaElEstadoActualComoEsperado()
+        {
+            // Es lo que hace segura la operacion: el UPDATE solo aplica si el pedido sigue
+            // en el estado que se leyo.
+            _pedidoRepositoryMock.Setup(r => r.GetByIdAsync(7))
+                .ReturnsAsync(new Pedido { Id = 7, Estado = EstadoPedido.Enviado });
+            _pedidoRepositoryMock.Setup(r => r.CambiarEstadoAsync(
+                It.IsAny<int>(), It.IsAny<EstadoPedido>(), It.IsAny<EstadoPedido>(), It.IsAny<DateTime>()))
+                .ReturnsAsync(true);
+
+            await _service.AvanzarAsync(7);
+
+            _pedidoRepositoryMock.Verify(r => r.CambiarEstadoAsync(
+                7, EstadoPedido.Enviado, EstadoPedido.Entregado, It.IsAny<DateTime>()), Times.Once);
+        }
+
         [Fact]
         public async Task ConfirmarAsync_SinStockAlDescontar_FallaYAvisa()
         {
