@@ -51,6 +51,12 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-controller="Favoritos" asp-action="Index">⭐ Favoritos</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Carrito" asp-action="Index">🛒 Carrito</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Pedidos" asp-action="Index">📦 Mis pedidos</a>
+                        </li>
                         }
                     </ul>
                     <ul class="navbar-nav ms-auto">
@@ -89,9 +95,12 @@
             </div>
         </div>
     </footer>
+    @await Html.PartialAsync("_ModalAgregadoAlCarrito")
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/modales.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

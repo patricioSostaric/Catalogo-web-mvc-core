@@ -13,6 +13,9 @@ namespace catalogo_web_mvc.Data
         public DbSet<Marca> Marcas { get; set; }
         public DbSet<ArticuloFavorito> ArticuloFavoritos { get; set; }
         public DbSet<AuditLog> AuditLogs { get; set; }
+        public DbSet<ItemCarrito> ItemsCarrito { get; set; }
+        public DbSet<Pedido> Pedidos { get; set; }
+        public DbSet<PedidoDetalle> PedidoDetalles { get; set; }
 
 
 
@@ -61,6 +64,50 @@ namespace catalogo_web_mvc.Data
             modelBuilder.Entity<ArticuloFavorito>()
                 .HasIndex(f => new { f.UserId, f.ArticuloId })
                 .IsUnique();
+
+            modelBuilder.Entity<ItemCarrito>()
+                .HasOne(i => i.Usuario)
+                .WithMany()
+                .HasForeignKey(i => i.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ItemCarrito>()
+                .HasOne(i => i.Articulo)
+                .WithMany()
+                .HasForeignKey(i => i.ArticuloId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Un articulo aparece una sola vez por carrito: agregarlo de nuevo suma
+            // cantidad en lugar de crear otra linea.
+            modelBuilder.Entity<ItemCarrito>()
+                .HasIndex(i => new { i.UserId, i.ArticuloId })
+                .IsUnique();
+
+            modelBuilder.Entity<Pedido>()
+                .HasOne(p => p.Usuario)
+                .WithMany()
+                .HasForeignKey(p => p.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Respaldo en la base de la idempotencia: aunque dos requests simultaneos
+            // pasen la verificacion previa, el indice impide el pedido duplicado.
+            modelBuilder.Entity<Pedido>()
+                .HasIndex(p => p.ClaveIdempotencia)
+                .IsUnique();
+
+            modelBuilder.Entity<PedidoDetalle>()
+                .HasOne(d => d.Pedido)
+                .WithMany(p => p.Detalles)
+                .HasForeignKey(d => d.PedidoId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Los articulos no se borran (hay baja logica), asi que el detalle mantiene la
+            // referencia sin arrastrar el pedido si alguien forzara un delete.
+            modelBuilder.Entity<PedidoDetalle>()
+                .HasOne(d => d.Articulo)
+                .WithMany()
+                .HasForeignKey(d => d.ArticuloId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             // Seed de Marcas
             modelBuilder.Entity<Marca>().HasData(

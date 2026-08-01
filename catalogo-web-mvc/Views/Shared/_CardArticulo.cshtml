@@ -23,10 +23,24 @@
 
                     @if (logueado)
                     {
-                        <button type="button" class="btn btn-secondary btn-sm"
-                                disabled title="Disponible próximamente">
-                            Comprar
-                        </button>
+                        @if (Model.Stock > 0)
+                        {
+                            <form asp-controller="Carrito" asp-action="Agregar"
+                                  asp-route-id="@Model.Id"
+                                  asp-route-volverA="@(Context.Request.Path + Context.Request.QueryString)"
+                                  method="post" class="d-inline">
+                                <button type="submit" class="btn btn-primary btn-sm">
+                                    🛒 Agregar al carrito
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <button type="button" class="btn btn-secondary btn-sm"
+                                    disabled title="Sin stock disponible">
+                                Sin stock
+                            </button>
+                        }
 
                         <form asp-controller="Favoritos"
                               asp-action="@(esFavorito ? "Remove" : "Add")"
