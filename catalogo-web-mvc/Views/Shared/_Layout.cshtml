@@ -68,6 +68,15 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
+            @* El aviso solo aparece en el entorno publicado: en desarrollo la base es
+               local y descartable, asi que la advertencia sobraria. *@
+            <environment exclude="Development">
+                <div class="small">
+                    <strong>Demo con fines de portfolio.</strong>
+                    Los datos pueden reiniciarse sin aviso y los correos que envía la
+                    aplicación son reales: no cargues información sensible.
+                </div>
+            </environment>
             &copy; 2026 - catalogo_web_mvc - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
