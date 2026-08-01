@@ -5,15 +5,23 @@ namespace catalogo_web_mvc.Data
 {
     public static class DbSeeder
     {
-        public static async Task SeedAsync(IServiceProvider services)
+        /// <summary>Contraseña del administrador cuando no se configura otra.</summary>
+        /// <remarks>
+        /// Solo sirve para que el proyecto arranque en local con un comando. En un entorno
+        /// publicado hay que pasar <c>Seed:AdminPassword</c>: este valor esta en el codigo
+        /// fuente de un repositorio publico, asi que no protege nada por si mismo.
+        /// </remarks>
+        private const string AdminPasswordPorDefecto = "Admin@1234";
+
+        public static async Task SeedAsync(IServiceProvider services, string? adminPassword = null)
         {
             var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
             var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
 
-            await SeedUsersAsync(userManager, roleManager);
+            await SeedUsersAsync(userManager, roleManager, adminPassword);
         }
 
-        private static async Task SeedUsersAsync(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+        private static async Task SeedUsersAsync(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, string? adminPassword)
         {
             string[] roles = ["Admin", "Usuario"];
             foreach (var role in roles)
@@ -22,7 +30,13 @@ namespace catalogo_web_mvc.Data
                     await roleManager.CreateAsync(new IdentityRole(role));
             }
 
-            await CrearUsuario(userManager, "admin@catalogo.com", "Admin@1234", "Admin");
+            var passwordAdmin = string.IsNullOrWhiteSpace(adminPassword)
+                ? AdminPasswordPorDefecto
+                : adminPassword;
+
+            await CrearUsuario(userManager, "admin@catalogo.com", passwordAdmin, "Admin");
+            // El usuario comun queda con contraseña conocida a proposito: es la cuenta que
+            // el README ofrece para probar la demo.
             await CrearUsuario(userManager, "usuario@catalogo.com", "Usuario@1234", "Usuario");
         }
 

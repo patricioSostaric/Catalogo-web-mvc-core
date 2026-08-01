@@ -21,4 +21,6 @@ services:
       ConnectionStrings__CatalogoDB: "Server=db,1433;Database=CatalogoDB;User Id=sa;Password=${MSSQL_SA_PASSWORD:?definir MSSQL_SA_PASSWORD en .env};TrustServerCertificate=True;"
       Smtp__User: ${SMTP_USER:?definir SMTP_USER en .env}
       Smtp__Password: ${SMTP_PASSWORD:?definir SMTP_PASSWORD en .env}
+      # Sin esto el admin queda con la contraseña que figura en el codigo fuente.
+      Seed__AdminPassword: ${SEED_ADMIN_PASSWORD:?definir SEED_ADMIN_PASSWORD en .env}
     restart: unless-stopped

@@ -153,5 +153,67 @@ namespace CatalogoWeb.Tests.Data
             _userManagerMock.Verify(u => u.ResetPasswordAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
             _userManagerMock.Verify(u => u.SetLockoutEndDateAsync(It.IsAny<ApplicationUser>(), It.IsAny<DateTimeOffset?>()), Times.Never);
         }
+
+        [Fact]
+        public async Task SeedAsync_ConPasswordConfigurada_LaUsaParaElAdmin()
+        {
+            _userManagerMock
+                .Setup(u => u.FindByEmailAsync(It.IsAny<string>()))
+                .ReturnsAsync((ApplicationUser?)null);
+            _userManagerMock
+                .Setup(u => u.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
+                .ReturnsAsync(IdentityResult.Success);
+            _userManagerMock
+                .Setup(u => u.AddToRoleAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
+                .ReturnsAsync(IdentityResult.Success);
+
+            await DbSeeder.SeedAsync(_serviceProviderMock.Object, "OtraClave#2024");
+
+            _userManagerMock.Verify(u => u.CreateAsync(
+                It.Is<ApplicationUser>(x => x.Email == "admin@catalogo.com"), "OtraClave#2024"), Times.Once);
+            _userManagerMock.Verify(u => u.CreateAsync(
+                It.Is<ApplicationUser>(x => x.Email == "admin@catalogo.com"), "Admin@1234"), Times.Never);
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData("   ")]
+        public async Task SeedAsync_SinPasswordConfigurada_CaeAlValorPorDefecto(string? password)
+        {
+            _userManagerMock
+                .Setup(u => u.FindByEmailAsync(It.IsAny<string>()))
+                .ReturnsAsync((ApplicationUser?)null);
+            _userManagerMock
+                .Setup(u => u.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
+                .ReturnsAsync(IdentityResult.Success);
+            _userManagerMock
+                .Setup(u => u.AddToRoleAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
+                .ReturnsAsync(IdentityResult.Success);
+
+            await DbSeeder.SeedAsync(_serviceProviderMock.Object, password);
+
+            _userManagerMock.Verify(u => u.CreateAsync(
+                It.Is<ApplicationUser>(x => x.Email == "admin@catalogo.com"), "Admin@1234"), Times.Once);
+        }
+
+        [Fact]
+        public async Task SeedAsync_PasswordConfigurada_NoAfectaAlUsuarioComun()
+        {
+            _userManagerMock
+                .Setup(u => u.FindByEmailAsync(It.IsAny<string>()))
+                .ReturnsAsync((ApplicationUser?)null);
+            _userManagerMock
+                .Setup(u => u.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
+                .ReturnsAsync(IdentityResult.Success);
+            _userManagerMock
+                .Setup(u => u.AddToRoleAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
+                .ReturnsAsync(IdentityResult.Success);
+
+            await DbSeeder.SeedAsync(_serviceProviderMock.Object, "OtraClave#2024");
+
+            _userManagerMock.Verify(u => u.CreateAsync(
+                It.Is<ApplicationUser>(x => x.Email == "usuario@catalogo.com"), "Usuario@1234"), Times.Once);
+        }
     }
 }
