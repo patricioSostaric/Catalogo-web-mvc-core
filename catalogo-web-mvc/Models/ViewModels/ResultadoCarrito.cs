@@ -41,4 +41,19 @@ namespace catalogo_web_mvc.Models.ViewModels
 
         public static ResultadoConfirmacion Falla(string error) => new() { Exito = false, Error = error };
     }
+
+    /// <summary>Resultado de mover un pedido de estado.</summary>
+    public class ResultadoCambioEstado
+    {
+        public bool Exito { get; init; }
+        public string? Error { get; init; }
+        public int PedidoId { get; init; }
+        public EstadoPedido? EstadoNuevo { get; init; }
+
+        public static ResultadoCambioEstado Ok(int pedidoId, EstadoPedido estadoNuevo)
+            => new() { Exito = true, PedidoId = pedidoId, EstadoNuevo = estadoNuevo };
+
+        public static ResultadoCambioEstado Falla(string error)
+            => new() { Exito = false, Error = error };
+    }
 }

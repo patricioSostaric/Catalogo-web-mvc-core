@@ -46,7 +46,7 @@ namespace catalogo_web_mvc.Services.Pedidos
             var pedido = new Pedido
             {
                 UserId = userId,
-                Fecha = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, _zonaHoraria),
+                Fecha = Ahora(),
                 ClaveIdempotencia = claveIdempotencia,
                 Detalles = items.Select(i => new PedidoDetalle
                 {
@@ -72,5 +72,55 @@ namespace catalogo_web_mvc.Services.Pedidos
 
         public Task<List<Pedido>> GetByUsuarioAsync(string userId)
             => _pedidoRepository.GetByUsuarioAsync(userId);
+
+        public Task<List<Pedido>> GetTodosAsync(EstadoPedido? estado = null)
+            => _pedidoRepository.GetTodosAsync(estado);
+
+        public async Task<ResultadoCambioEstado> CancelarAsync(string userId, int pedidoId)
+        {
+            var pedido = await _pedidoRepository.GetByIdAsync(pedidoId, userId);
+
+            // GetByIdAsync filtra por usuario, asi que un pedido ajeno se ve igual que uno
+            // inexistente: no se confirma si existe ni de quien es.
+            if (pedido == null)
+                return ResultadoCambioEstado.Falla("El pedido no existe.");
+
+            if (!pedido.Estado.SePuedeCancelar())
+                return ResultadoCambioEstado.Falla(
+                    $"No se puede cancelar un pedido {pedido.Estado.ToString().ToLower()}.");
+
+            var cancelado = await _pedidoRepository.CancelarAsync(pedidoId, Ahora());
+
+            // Puede fallar aunque la comprobacion anterior haya pasado: entre una y otra,
+            // otro request pudo cancelarlo o el administrador pudo despacharlo.
+            if (!cancelado)
+                return ResultadoCambioEstado.Falla("El pedido cambió de estado mientras lo cancelabas.");
+
+            return ResultadoCambioEstado.Ok(pedidoId, EstadoPedido.Cancelado);
+        }
+
+        public async Task<ResultadoCambioEstado> AvanzarAsync(int pedidoId)
+        {
+            var pedido = await _pedidoRepository.GetByIdAsync(pedidoId);
+
+            if (pedido == null)
+                return ResultadoCambioEstado.Falla("El pedido no existe.");
+
+            var siguiente = pedido.Estado.SiguienteEstado();
+
+            if (siguiente == null)
+                return ResultadoCambioEstado.Falla(
+                    $"Un pedido {pedido.Estado.ToString().ToLower()} no avanza a otro estado.");
+
+            var movido = await _pedidoRepository.CambiarEstadoAsync(
+                pedidoId, pedido.Estado, siguiente.Value, Ahora());
+
+            if (!movido)
+                return ResultadoCambioEstado.Falla("El pedido cambió de estado mientras lo actualizabas.");
+
+            return ResultadoCambioEstado.Ok(pedidoId, siguiente.Value);
+        }
+
+        private DateTime Ahora() => TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, _zonaHoraria);
     }
 }

@@ -1,5 +1,8 @@
 using catalogo_web_mvc.Controllers;
+using catalogo_web_mvc.Interfaces.Audit;
 using catalogo_web_mvc.Interfaces.Pedidos;
+using catalogo_web_mvc.Models.ViewModels;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using catalogo_web_mvc.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -11,6 +14,7 @@ namespace CatalogoWeb.Tests.Controllers
     public class PedidosControllerTests
     {
         private readonly Mock<IPedidoService> _pedidoServiceMock = new();
+        private readonly Mock<IAuditService> _auditMock = new();
 
         private static ControllerContext ContextoAutenticado(string userId = "user-1")
         {
@@ -23,7 +27,14 @@ namespace CatalogoWeb.Tests.Controllers
         }
 
         private PedidosController Controller(string userId = "user-1")
-            => new(_pedidoServiceMock.Object) { ControllerContext = ContextoAutenticado(userId) };
+        {
+            var controller = new PedidosController(_pedidoServiceMock.Object, _auditMock.Object)
+            {
+                ControllerContext = ContextoAutenticado(userId)
+            };
+            controller.TempData = new TempDataDictionary(controller.HttpContext, Mock.Of<ITempDataProvider>());
+            return controller;
+        }
 
         [Fact]
         public async Task Index_DevuelveLosPedidosDelUsuario()
@@ -62,6 +73,41 @@ namespace CatalogoWeb.Tests.Controllers
 
             var vista = Assert.IsType<ViewResult>(resultado);
             Assert.Empty(Assert.IsType<List<Pedido>>(vista.Model));
+        }
+
+        [Fact]
+        public async Task Cancelar_ConExito_RegistraEnLaAuditoria()
+        {
+            _pedidoServiceMock.Setup(s => s.CancelarAsync("user-1", 7))
+                .ReturnsAsync(ResultadoCambioEstado.Ok(7, catalogo_web_mvc.Models.EstadoPedido.Cancelado));
+
+            await Controller().Cancelar(7);
+
+            _auditMock.Verify(a => a.RegistrarAsync(
+                "PEDIDO_CANCELADO", It.IsAny<string>(), "user-1", "Pedido #7"), Times.Once);
+        }
+
+        [Fact]
+        public async Task Cancelar_SiFalla_NoRegistraEnLaAuditoria()
+        {
+            _pedidoServiceMock.Setup(s => s.CancelarAsync("user-1", 7))
+                .ReturnsAsync(ResultadoCambioEstado.Falla("No se puede cancelar."));
+
+            await Controller().Cancelar(7);
+
+            _auditMock.Verify(a => a.RegistrarAsync(
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task Cancelar_CancelaSoloPedidosDelUsuarioLogueado()
+        {
+            _pedidoServiceMock.Setup(s => s.CancelarAsync(It.IsAny<string>(), It.IsAny<int>()))
+                .ReturnsAsync(ResultadoCambioEstado.Falla("x"));
+
+            await Controller("user-42").Cancelar(7);
+
+            _pedidoServiceMock.Verify(s => s.CancelarAsync("user-42", 7), Times.Once);
         }
     }
 }

@@ -1,0 +1,101 @@
+@using catalogo_web_mvc.Models
+@model X.PagedList.IPagedList<catalogo_web_mvc.Models.Pedido>
+@{
+    ViewData["Title"] = "Gestión de pedidos";
+    var filtro = ViewBag.FiltroEstado as EstadoPedido?;
+}
+
+<h1 class="h3 mb-3">🚚 Gestión de pedidos</h1>
+
+@if (TempData["GestionOk"] != null)
+{
+    <div class="alert alert-success">@TempData["GestionOk"]</div>
+}
+@if (TempData["GestionError"] != null)
+{
+    <div class="alert alert-warning">@TempData["GestionError"]</div>
+}
+
+<div class="mb-3">
+    <a asp-action="Index" class="btn btn-sm @(filtro == null ? "btn-secondary" : "btn-outline-secondary")">
+        Todos
+    </a>
+    @foreach (var estado in Enum.GetValues<EstadoPedido>())
+    {
+        <a asp-action="Index" asp-route-estado="@estado"
+           class="btn btn-sm @(filtro == estado ? "btn-secondary" : "btn-outline-secondary")">
+            @estado
+        </a>
+    }
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-light border">No hay pedidos con ese estado.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th scope="col">Pedido</th>
+                    <th scope="col">Fecha</th>
+                    <th scope="col" class="text-center">Artículos</th>
+                    <th scope="col" class="text-end">Total</th>
+                    <th scope="col">Estado</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var pedido in Model)
+                {
+                    <tr>
+                        <td>#@pedido.Id</td>
+                        <td>@pedido.Fecha.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td class="text-center">@pedido.Detalles.Sum(d => d.Cantidad)</td>
+                        <td class="text-end">$ @pedido.Total.ToString("N2")</td>
+                        <td>
+                            <span class="badge @pedido.Estado.ClaseBadge()">@pedido.Estado</span>
+                            @if (pedido.FechaUltimoEstado.HasValue)
+                            {
+                                <div class="small text-muted">
+                                    desde @pedido.FechaUltimoEstado.Value.ToString("dd/MM/yyyy HH:mm")
+                                </div>
+                            }
+                        </td>
+                        <td class="text-end">
+                            @{
+                                var siguiente = pedido.Estado.SiguienteEstado();
+                            }
+                            @if (siguiente.HasValue)
+                            {
+                                <form asp-action="Avanzar" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@pedido.Id" />
+                                    <input type="hidden" name="estado" value="@filtro" />
+                                    <input type="hidden" name="page" value="@Model.PageNumber" />
+                                    <button type="submit" class="btn btn-sm btn-outline-primary">
+                                        Marcar como @siguiente
+                                    </button>
+                                </form>
+                            }
+                            else
+                            {
+                                <span class="small text-muted">Sin acciones</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @await Html.PartialAsync("_Paginado", Model)
+}
+
+<p class="small text-muted mt-3 mb-0">
+    Los pedidos avanzan de <strong>Confirmado</strong> a <strong>Enviado</strong> y de ahí a
+    <strong>Entregado</strong>. La cancelación la hace el usuario desde su historial, y solo
+    mientras el pedido sigue confirmado: al cancelarse, el stock vuelve al catálogo.
+</p>

@@ -32,6 +32,11 @@ namespace catalogo_web_mvc.Models
         [StringLength(36)]
         public string ClaveIdempotencia { get; set; } = string.Empty;
 
+        public EstadoPedido Estado { get; set; } = EstadoPedido.Confirmado;
+
+        /// <summary>Fecha del ultimo cambio de estado. Null mientras sigue como se creo.</summary>
+        public DateTime? FechaUltimoEstado { get; set; }
+
         public List<PedidoDetalle> Detalles { get; set; } = [];
     }
 }
