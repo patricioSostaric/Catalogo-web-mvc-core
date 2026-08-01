@@ -34,8 +34,13 @@ namespace catalogo_web_mvc.Models
         [DisplayName("Imagen URL")]
         [StringLength(500, ErrorMessage = "La URL de la imagen no puede superar los 500 caracteres.")]
         // Este valor se renderiza en el src de un <img> del catálogo, así que se exige
-        // https (o una ruta local bajo /img/) y se bloquean esquemas como javascript: y data:.
-        [UrlImagenSegura(PrefijoLocalPermitido = "/img/")]
+        // https (o una ruta local bajo /imagen/articulos/) y se bloquean esquemas como
+        // javascript: y data:.
+        //
+        // El prefijo incluye la subcarpeta a propósito: el validador rechaza barras en el
+        // resto de la ruta para frenar el path traversal, así que un prefijo más corto
+        // como "/imagen/" invalidaría las rutas reales del catálogo.
+        [UrlImagenSegura(PrefijoLocalPermitido = "/imagen/articulos/")]
         public string? ImagenUrl { get; set; }
         
         
