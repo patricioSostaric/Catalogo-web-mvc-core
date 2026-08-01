@@ -108,15 +108,31 @@ namespace CatalogoWeb.Tests.Services
         [Fact]
         public async Task AgregarAsync_SumaSuperaElMaximoPorArticulo_Falla()
         {
+            // Stock alto a proposito: lo que corta aca es el tope por articulo, no el stock.
             var articulo = Articulo(stock: 500);
             _articuloServiceMock.Setup(s => s.GetByIdAsync(1)).ReturnsAsync(articulo);
             _repositoryMock.Setup(r => r.GetItemAsync(UserId, 1))
-                .ReturnsAsync(new ItemCarrito { UserId = UserId, ArticuloId = 1, Cantidad = 99, Articulo = articulo });
+                .ReturnsAsync(new ItemCarrito { UserId = UserId, ArticuloId = 1, Cantidad = 9, Articulo = articulo });
 
             var resultado = await _service.AgregarAsync(UserId, 1, 5);
 
             Assert.False(resultado.Exito);
+            Assert.Contains("10", resultado.Error);
             _repositoryMock.Verify(r => r.UpdateAsync(It.IsAny<ItemCarrito>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task AgregarAsync_JustoEnElMaximo_Funciona()
+        {
+            var articulo = Articulo(stock: 500);
+            _articuloServiceMock.Setup(s => s.GetByIdAsync(1)).ReturnsAsync(articulo);
+            _repositoryMock.Setup(r => r.GetItemAsync(UserId, 1))
+                .ReturnsAsync(new ItemCarrito { UserId = UserId, ArticuloId = 1, Cantidad = 8, Articulo = articulo });
+
+            var resultado = await _service.AgregarAsync(UserId, 1, 2);
+
+            Assert.True(resultado.Exito);
+            _repositoryMock.Verify(r => r.UpdateAsync(It.Is<ItemCarrito>(i => i.Cantidad == 10)), Times.Once);
         }
 
         [Fact]

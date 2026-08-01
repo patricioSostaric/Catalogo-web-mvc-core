@@ -7,7 +7,7 @@ namespace catalogo_web_mvc.Services.Carrito
 {
     public class CarritoService : ICarritoService
     {
-        private const int CantidadMaximaPorArticulo = 100;
+        private const int CantidadMaximaPorArticulo = 10;
 
         private readonly ICarritoRepository _repository;
         private readonly IArticuloService _articuloService;

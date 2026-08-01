@@ -14,7 +14,7 @@ namespace catalogo_web_mvc.Models
         public int ArticuloId { get; set; }
         public Articulo Articulo { get; set; } = null!;
 
-        [Range(1, 100, ErrorMessage = "La cantidad debe estar entre {1} y {2}.")]
+        [Range(1, 10, ErrorMessage = "La cantidad debe estar entre {1} y {2}.")]
         public int Cantidad { get; set; } = 1;
     }
 }
