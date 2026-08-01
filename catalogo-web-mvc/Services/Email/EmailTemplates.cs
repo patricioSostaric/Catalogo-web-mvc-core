@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 
 namespace catalogo_web_mvc.Services.Email
 {
@@ -8,7 +8,7 @@ namespace catalogo_web_mvc.Services.Email
         {
             var safeEmail = WebUtility.HtmlEncode(userEmail);
 
-            var subject = "¡Bienvenido/a a Catálogo Web!";
+            var subject = "¡Bienvenido/a a Store Sostaric!";
             var body = $@"
                 <h2>¡Bienvenido/a, {safeEmail}!</h2>
                 <p>Tu cuenta fue creada correctamente. Ya podés iniciar sesión y explorar el catálogo.</p>

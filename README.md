@@ -1,4 +1,4 @@
-# Catálogo Web — ASP.NET MVC Core (.NET 10)
+# Store Sostaric — ASP.NET MVC Core (.NET 10)
 
 ![.NET](https://img.shields.io/badge/.NET-10.0-512BD4?logo=dotnet&logoColor=white)
 ![C#](https://img.shields.io/badge/C%23-13-239120?logo=csharp&logoColor=white)
@@ -8,8 +8,8 @@
 ![Tests](https://img.shields.io/badge/tests-507%20passing-success)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
-Aplicación web de catálogo de artículos con área pública y panel de administración,
-construida en ASP.NET MVC Core sobre .NET 10.
+Tienda de artículos electrónicos con catálogo público, carrito, pedidos y panel de
+administración, construida en ASP.NET MVC Core sobre .NET 10.
 
 > **Este proyecto es la migración de una aplicación previa en ASP.NET WebForms.**
 > El repositorio original sigue publicado como punto de partida:
