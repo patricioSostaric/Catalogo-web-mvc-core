@@ -5,7 +5,7 @@
 ![EF Core](https://img.shields.io/badge/EF%20Core-10.0-512BD4)
 ![SQL Server](https://img.shields.io/badge/SQL%20Server-CC2927?logo=microsoftsqlserver&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-409%20passing-success)
+![Tests](https://img.shields.io/badge/tests-432%20passing-success)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
 Aplicación web de catálogo de artículos con área pública y panel de administración,
@@ -76,6 +76,7 @@ doy acceso — así la demo se mantiene en pie para el resto de las visitas:
 - Login con bloqueo tras intentos fallidos
 - Restablecimiento de contraseña por mail
 - Favoritos: marcar y desmarcar artículos, con listado propio paginado
+- Carrito de compras con cantidades por artículo y confirmación de pedido simulada
 
 ### Administrador
 - ABM completo de artículos, marcas y categorías
@@ -117,8 +118,8 @@ justificación.
 
 ```
 catalogo-web-mvc/
-├── Controllers/          Home, Articulo, Marcas, Categorias, Favoritos, AuditLog, Account
-├── Interfaces/           Contratos por módulo: Articulos, Marcas, Categorias, Audit, Email
+├── Controllers/          Home, Articulo, Marcas, Categorias, Favoritos, Carrito, AuditLog, Account
+├── Interfaces/           Contratos por módulo: Articulos, Marcas, Categorias, Carrito, Pedidos, Audit, Email
 ├── Services/             Lógica de negocio + Email, Audit, Identity
 ├── Repository/           Acceso a datos por entidad
 ├── Data/                 CatalogoContext y DbSeeder
@@ -129,7 +130,7 @@ catalogo-web-mvc/
 ├── Views/                Razor, con partials reutilizables
 └── Program.cs            Registro de DI y pipeline de middleware
 
-CatalogoWeb.tests/        409 tests unitarios
+CatalogoWeb.tests/        432 tests unitarios
 ```
 
 ---
@@ -159,11 +160,11 @@ CatalogoWeb.tests/        409 tests unitarios
 
 ## 🧪 Testing
 
-**409 tests unitarios, la totalidad en verde.**
+**432 tests unitarios, la totalidad en verde.**
 
 ```bash
 dotnet test
-# Correctas! - Con error: 0, Superado: 409, Omitido: 0, Total: 409
+# Correctas! - Con error: 0, Superado: 432, Omitido: 0, Total: 432
 ```
 
 Cobertura por capa:
@@ -171,7 +172,7 @@ Cobertura por capa:
 | Área | Archivos de test |
 | --- | --- |
 | Controllers | Account, Articulo, AuditLog, Categorias, Favoritos, Home, Marcas, AuthorizationAttribute |
-| Services | Articulo, Categoria, Marca, EmailTemplates, SmtpEmailSender, SpanishIdentityErrorDescriber |
+| Services | Articulo, Carrito, Categoria, Marca, Pedido, EmailTemplates, SmtpEmailSender, SpanishIdentityErrorDescriber |
 | Repository | Articulo, Categoria, Marca |
 | Data | DbSeeder |
 

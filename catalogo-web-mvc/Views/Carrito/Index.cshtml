@@ -1,0 +1,138 @@
+@model catalogo_web_mvc.Models.ViewModels.CarritoViewModel
+@{
+    ViewData["Title"] = "Mi carrito";
+}
+
+<h1 class="h3 mb-3">🛒 Mi carrito</h1>
+
+@if (TempData["CarritoError"] != null)
+{
+    <div class="alert alert-warning">@TempData["CarritoError"]</div>
+}
+@if (TempData["CarritoOk"] != null)
+{
+    <div class="alert alert-success">@TempData["CarritoOk"]</div>
+}
+
+@if (Model.EstaVacio)
+{
+    <div class="alert alert-light border">
+        Todavía no agregaste artículos.
+        <a asp-controller="Home" asp-action="Index">Ir al catálogo</a>
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th scope="col">Artículo</th>
+                    <th scope="col" class="text-end">Precio</th>
+                    <th scope="col" style="width: 11rem;">Cantidad</th>
+                    <th scope="col" class="text-end">Subtotal</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Items)
+                {
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                @if (!string.IsNullOrEmpty(item.ImagenUrl))
+                                {
+                                    <img src="@item.ImagenUrl" alt="@item.Nombre"
+                                         style="width: 48px; height: 48px; object-fit: cover;" class="rounded" />
+                                }
+                                <div>
+                                    <div>@item.Nombre</div>
+                                    @if (item.SuperaStock)
+                                    {
+                                        <small class="text-danger">
+                                            Solo quedan @item.StockDisponible unidades
+                                        </small>
+                                    }
+                                </div>
+                            </div>
+                        </td>
+                        <td class="text-end">$ @item.Precio.ToString("N2")</td>
+                        <td>
+                            <form asp-action="CambiarCantidad" method="post" class="d-flex gap-1">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@item.ArticuloId" />
+                                <input type="number" name="cantidad" value="@item.Cantidad"
+                                       min="1" max="100" class="form-control form-control-sm" />
+                                <button type="submit" class="btn btn-sm btn-outline-secondary"
+                                        title="Actualizar cantidad">✓</button>
+                            </form>
+                        </td>
+                        <td class="text-end">$ @item.Subtotal.ToString("N2")</td>
+                        <td class="text-end">
+                            <form asp-action="Quitar" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@item.ArticuloId" />
+                                <button type="submit" class="btn btn-sm btn-outline-danger"
+                                        title="Quitar del carrito">✕</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th colspan="3" class="text-end">Total</th>
+                    <th class="text-end">$ @Model.Total.ToString("N2")</th>
+                    <th></th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <div class="d-flex justify-content-between">
+        <form asp-action="Vaciar" method="post">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-outline-secondary">Vaciar carrito</button>
+        </form>
+
+        <form asp-action="Confirmar" method="post">
+            @Html.AntiForgeryToken()
+            @* La clave nace al renderizar el carrito. Si el usuario envia dos veces este
+               formulario, ambos envios llevan la misma y solo se crea un pedido. *@
+            <input type="hidden" name="claveIdempotencia" value="@Model.ClaveIdempotencia" />
+            <button type="submit" class="btn btn-success">
+                Confirmar compra — $ @Model.Total.ToString("N2")
+            </button>
+        </form>
+    </div>
+}
+
+@if (TempData["PedidoId"] != null)
+{
+    <div class="modal fade" id="modalPagoExitoso" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Pago exitoso</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <div style="font-size: 2.5rem; line-height: 1;">✅</div>
+                    <p class="mb-1 mt-2">Pedido <strong>#@TempData["PedidoId"]</strong></p>
+                    <p class="mb-1">@TempData["PedidoArticulos"] artículo(s)</p>
+                    <p class="mb-2"><strong>$ @TempData["PedidoTotal"]</strong></p>
+                    <p class="small text-muted mb-0">
+                        Simulación: no se procesó ningún pago real ni se cobró nada.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary w-100" data-bs-dismiss="modal">Listo</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @section Scripts {
+        <script src="~/js/carrito.js" asp-append-version="true"></script>
+    }
+}
