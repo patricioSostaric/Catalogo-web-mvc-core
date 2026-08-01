@@ -5,7 +5,7 @@
 ![EF Core](https://img.shields.io/badge/EF%20Core-10.0-512BD4)
 ![SQL Server](https://img.shields.io/badge/SQL%20Server-CC2927?logo=microsoftsqlserver&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-442%20passing-success)
+![Tests](https://img.shields.io/badge/tests-453%20passing-success)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
 Aplicación web de catálogo de artículos con área pública y panel de administración,
@@ -33,9 +33,9 @@ construida en ASP.NET MVC Core sobre .NET 10.
 
 Con esa cuenta se puede navegar el catálogo, marcar favoritos y editar el perfil.
 
-**¿Querés ver el panel de administración?** El ABM de artículos, marcas y categorías, el
-control de stock y el registro de auditoría quedan detrás del rol `Admin`. Escribime y te
-doy acceso — así la demo se mantiene en pie para el resto de las visitas:
+**¿Querés ver el panel de administración?** El ABM de artículos, marcas y categorías y el
+control de stock quedan detrás del rol `Admin`. Escribime y te doy acceso — así la demo se
+mantiene en pie para el resto de las visitas:
 
 - **LinkedIn:** [patricio-sostaric](https://www.linkedin.com/in/patricio-sostaric-187701248/)
 - **Mail:** patriciosostaric923@gmail.com
@@ -83,7 +83,13 @@ doy acceso — así la demo se mantiene en pie para el resto de las visitas:
 - ABM completo de artículos, marcas y categorías
 - Baja lógica de artículos mediante la propiedad `Activo` (no se borran filas)
 - Control de stock — los artículos sin stock no se publican
-- Registro de auditoría de operaciones, con listado paginado
+
+### Superadministrador
+- Todo lo del administrador, más el registro de auditoría de operaciones
+
+La auditoría queda separada a propósito: guarda direcciones IP y correos de quienes usan
+la aplicación. Son datos de terceros, y el rol `Admin` está pensado para poder compartirse
+con quien quiera recorrer el panel de administración.
 
 ---
 
@@ -131,7 +137,7 @@ catalogo-web-mvc/
 ├── Views/                Razor, con partials reutilizables
 └── Program.cs            Registro de DI y pipeline de middleware
 
-CatalogoWeb.tests/        442 tests unitarios
+CatalogoWeb.tests/        453 tests unitarios
 ```
 
 ---
@@ -148,7 +154,7 @@ CatalogoWeb.tests/        442 tests unitarios
 
 **Autenticación y autorización**
 - ASP.NET Core Identity (`Microsoft.AspNetCore.Identity.EntityFrameworkCore`)
-- Roles `Admin` y `Usuario`, con autorización por atributos
+- Roles `SuperAdmin`, `Admin` y `Usuario`, con autorización por atributos
 
 **Testing**
 - xUnit 2.9 · Moq 4.20 · `EntityFrameworkCore.InMemory` · coverlet
@@ -161,18 +167,18 @@ CatalogoWeb.tests/        442 tests unitarios
 
 ## 🧪 Testing
 
-**442 tests unitarios, la totalidad en verde.**
+**453 tests unitarios, la totalidad en verde.**
 
 ```bash
 dotnet test
-# Correctas! - Con error: 0, Superado: 442, Omitido: 0, Total: 442
+# Correctas! - Con error: 0, Superado: 453, Omitido: 0, Total: 453
 ```
 
 Cobertura por capa:
 
 | Área | Archivos de test |
 | --- | --- |
-| Controllers | Account, Articulo, AuditLog, Categorias, Favoritos, Home, Marcas, Pedidos, AuthorizationAttribute |
+| Controllers | Account, Articulo, AuditLog, Categorias, Favoritos, Home, Marcas, Pedidos, AuthorizationAttribute (incluye qué rol protege cada controlador) |
 | Services | Articulo, Carrito, Categoria, Marca, Pedido, EmailTemplates, SmtpEmailSender, SpanishIdentityErrorDescriber |
 | Repository | Articulo, Categoria, Marca |
 | Data | DbSeeder |
@@ -189,6 +195,7 @@ Se aplicó una auditoría sobre **OWASP Top 10** y se corrigieron los hallazgos:
 
 | Medida | Qué mitiga |
 | --- | --- |
+| Auditoría restringida al rol `SuperAdmin` | Exposición de IP y correos de terceros a una cuenta compartida |
 | Cookies `HttpOnly`, `Secure`, `SameSite=Strict` | Robo de sesión vía XSS y ataques CSRF |
 | Rate limiting (10 req/min en autenticación) | Fuerza bruta sobre el login |
 | Lockout tras 5 intentos fallidos | Fuerza bruta sobre credenciales |
@@ -324,6 +331,14 @@ Seed__AdminPassword=<una contraseña propia>
 
 El usuario común mantiene su contraseña conocida a propósito — es la cuenta que esta misma
 página ofrece para probar la demo.
+
+**El superadministrador también.** Es la única cuenta que accede a la auditoría, así que
+conviene un correo real: es la vía de recuperación si se pierde el acceso.
+
+```bash
+Seed__SuperAdminEmail=<un correo propio>
+Seed__SuperAdminPassword=<una contraseña propia>
+```
 
 **Sobre el proxy inverso:** las plataformas de hosting terminan el TLS por su cuenta y le
 pasan a la aplicación un request HTTP plano. Sin intervención, Kestrel concluye que la

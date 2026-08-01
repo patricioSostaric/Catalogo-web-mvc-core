@@ -35,6 +35,40 @@ namespace CatalogoWeb.Tests.Controllers
             Assert.Equal("Admin", atributo.Roles);
         }
 
+        [Fact]
+        public void AuditLogController_TieneAuthorizeRolSuperAdmin()
+        {
+            var atributo = ObtenerAtributo<AuditLogController>();
+            Assert.NotNull(atributo);
+            Assert.Equal("SuperAdmin", atributo.Roles);
+        }
+
+        [Fact]
+        public void AuditLogController_NoQuedaAlAlcanceDelRolAdmin()
+        {
+            // La auditoria expone IP y mails de terceros. El rol Admin puede estar en una
+            // cuenta compartida para mostrar el ABM, asi que no debe alcanzar para verla.
+            var roles = ObtenerAtributo<AuditLogController>()!.Roles!;
+
+            Assert.DoesNotContain("Admin", roles.Split(',').Select(r => r.Trim()));
+        }
+
+        [Fact]
+        public void CarritoController_ExigeSesionIniciada()
+        {
+            var atributo = ObtenerAtributo<CarritoController>();
+            Assert.NotNull(atributo);
+            Assert.True(string.IsNullOrEmpty(atributo.Roles));
+        }
+
+        [Fact]
+        public void PedidosController_ExigeSesionIniciada()
+        {
+            var atributo = ObtenerAtributo<PedidosController>();
+            Assert.NotNull(atributo);
+            Assert.True(string.IsNullOrEmpty(atributo.Roles));
+        }
+
         // ── Controladores públicos ─────────────────────────────────────────────
 
         [Fact]

@@ -49,8 +49,10 @@ namespace CatalogoWeb.Tests.Data
 
             await DbSeeder.SeedAsync(_serviceProviderMock.Object);
 
-            _userManagerMock.Verify(u => u.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()), Times.Exactly(2));
-            _userManagerMock.Verify(u => u.AddToRoleAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()), Times.Exactly(2));
+            // Tres cuentas: superadmin, admin y usuario comun.
+            _userManagerMock.Verify(u => u.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()), Times.Exactly(3));
+            // Cuatro asignaciones: el superadmin lleva SuperAdmin y Admin, los otros una cada uno.
+            _userManagerMock.Verify(u => u.AddToRoleAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()), Times.Exactly(4));
         }
 
         [Fact]
@@ -152,6 +154,86 @@ namespace CatalogoWeb.Tests.Data
             _userManagerMock.Verify(u => u.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()), Times.Never);
             _userManagerMock.Verify(u => u.ResetPasswordAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
             _userManagerMock.Verify(u => u.SetLockoutEndDateAsync(It.IsAny<ApplicationUser>(), It.IsAny<DateTimeOffset?>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task SeedAsync_CreaElRolSuperAdmin()
+        {
+            _roleManagerMock.Setup(r => r.RoleExistsAsync(It.IsAny<string>())).ReturnsAsync(false);
+            _roleManagerMock.Setup(r => r.CreateAsync(It.IsAny<IdentityRole>())).ReturnsAsync(IdentityResult.Success);
+            _userManagerMock.Setup(u => u.FindByEmailAsync(It.IsAny<string>())).ReturnsAsync((ApplicationUser?)null);
+            _userManagerMock.Setup(u => u.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
+                .ReturnsAsync(IdentityResult.Success);
+            _userManagerMock.Setup(u => u.AddToRoleAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
+                .ReturnsAsync(IdentityResult.Success);
+
+            await DbSeeder.SeedAsync(_serviceProviderMock.Object);
+
+            _roleManagerMock.Verify(r => r.CreateAsync(It.Is<IdentityRole>(x => x.Name == "SuperAdmin")), Times.Once);
+        }
+
+        [Fact]
+        public async Task SeedAsync_ElSuperAdminLlevaLosDosRoles()
+        {
+            _userManagerMock.Setup(u => u.FindByEmailAsync(It.IsAny<string>())).ReturnsAsync((ApplicationUser?)null);
+            _userManagerMock.Setup(u => u.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
+                .ReturnsAsync(IdentityResult.Success);
+            _userManagerMock.Setup(u => u.AddToRoleAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
+                .ReturnsAsync(IdentityResult.Success);
+
+            await DbSeeder.SeedAsync(_serviceProviderMock.Object, superAdminEmail: "jefe@ejemplo.com");
+
+            // SuperAdmin habilita la auditoria; Admin le mantiene el ABM.
+            _userManagerMock.Verify(u => u.AddToRoleAsync(
+                It.Is<ApplicationUser>(x => x.Email == "jefe@ejemplo.com"), "SuperAdmin"), Times.Once);
+            _userManagerMock.Verify(u => u.AddToRoleAsync(
+                It.Is<ApplicationUser>(x => x.Email == "jefe@ejemplo.com"), "Admin"), Times.Once);
+        }
+
+        [Fact]
+        public async Task SeedAsync_ElAdminComunNoRecibeElRolSuperAdmin()
+        {
+            _userManagerMock.Setup(u => u.FindByEmailAsync(It.IsAny<string>())).ReturnsAsync((ApplicationUser?)null);
+            _userManagerMock.Setup(u => u.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
+                .ReturnsAsync(IdentityResult.Success);
+            _userManagerMock.Setup(u => u.AddToRoleAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
+                .ReturnsAsync(IdentityResult.Success);
+
+            await DbSeeder.SeedAsync(_serviceProviderMock.Object);
+
+            _userManagerMock.Verify(u => u.AddToRoleAsync(
+                It.Is<ApplicationUser>(x => x.Email == "admin@catalogo.com"), "SuperAdmin"), Times.Never);
+        }
+
+        [Fact]
+        public async Task SeedAsync_ConEmailYPasswordDeSuperAdmin_LosUsa()
+        {
+            _userManagerMock.Setup(u => u.FindByEmailAsync(It.IsAny<string>())).ReturnsAsync((ApplicationUser?)null);
+            _userManagerMock.Setup(u => u.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
+                .ReturnsAsync(IdentityResult.Success);
+            _userManagerMock.Setup(u => u.AddToRoleAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
+                .ReturnsAsync(IdentityResult.Success);
+
+            await DbSeeder.SeedAsync(_serviceProviderMock.Object,
+                superAdminEmail: "jefe@ejemplo.com", superAdminPassword: "ClaveFuerte#99");
+
+            _userManagerMock.Verify(u => u.CreateAsync(
+                It.Is<ApplicationUser>(x => x.Email == "jefe@ejemplo.com"), "ClaveFuerte#99"), Times.Once);
+        }
+
+        [Fact]
+        public async Task SeedAsync_SinConfigurarSuperAdmin_CaeAlValorPorDefecto()
+        {
+            _userManagerMock.Setup(u => u.FindByEmailAsync(It.IsAny<string>())).ReturnsAsync((ApplicationUser?)null);
+            _userManagerMock.Setup(u => u.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
+                .ReturnsAsync(IdentityResult.Success);
+            _userManagerMock.Setup(u => u.AddToRoleAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
+                .ReturnsAsync(IdentityResult.Success);
+
+            await DbSeeder.SeedAsync(_serviceProviderMock.Object);
+
+            _userManagerMock.Verify(u => u.CreateAsync(
+                It.Is<ApplicationUser>(x => x.Email == "superadmin@catalogo.com"), "Super@1234"), Times.Once);
         }
 
         [Fact]

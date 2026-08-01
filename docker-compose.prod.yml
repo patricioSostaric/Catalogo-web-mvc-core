@@ -23,4 +23,7 @@ services:
       Smtp__Password: ${SMTP_PASSWORD:?definir SMTP_PASSWORD en .env}
       # Sin esto el admin queda con la contraseña que figura en el codigo fuente.
       Seed__AdminPassword: ${SEED_ADMIN_PASSWORD:?definir SEED_ADMIN_PASSWORD en .env}
+      # Sin esto el superadmin queda con el correo y la clave que figuran en el codigo.
+      Seed__SuperAdminEmail: ${SEED_SUPERADMIN_EMAIL:?definir SEED_SUPERADMIN_EMAIL en .env}
+      Seed__SuperAdminPassword: ${SEED_SUPERADMIN_PASSWORD:?definir SEED_SUPERADMIN_PASSWORD en .env}
     restart: unless-stopped

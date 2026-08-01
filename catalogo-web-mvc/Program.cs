@@ -90,6 +90,11 @@ builder.Services.ConfigureApplicationCookie(options =>
         ? CookieSecurePolicy.SameAsRequest
         : CookieSecurePolicy.Always;
     options.Cookie.SameSite = SameSiteMode.Strict;
+
+    // Sin estas rutas Identity apunta a /Identity/Account/..., que no existe en este
+    // proyecto: un usuario sin permisos recibia un 404 en lugar de una explicacion.
+    options.LoginPath = "/Account/Login";
+    options.AccessDeniedPath = "/Account/AccessDenied";
 });
 
 builder.Services.AddRateLimiter(options =>
@@ -224,7 +229,11 @@ using (var scope = app.Services.CreateScope())
 
     // En produccion la contraseña del admin llega por configuracion. Si no se define,
     // el seeder cae al valor por defecto, que es publico y solo sirve para desarrollo.
-    await DbSeeder.SeedAsync(scope.ServiceProvider, builder.Configuration["Seed:AdminPassword"]);
+    await DbSeeder.SeedAsync(
+        scope.ServiceProvider,
+        builder.Configuration["Seed:AdminPassword"],
+        builder.Configuration["Seed:SuperAdminEmail"],
+        builder.Configuration["Seed:SuperAdminPassword"]);
 }
 
 app.Run();
