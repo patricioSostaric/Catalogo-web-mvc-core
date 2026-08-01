@@ -22,7 +22,7 @@ namespace CatalogoWeb.Tests.Services
                 EnableSsl = true,
                 User = "no-reply@catalogo.com",
                 Password = "app-password",
-                FromName = "Catálogo Web"
+                FromName = "Store Sostaric"
             });
 
             _sender = new SmtpEmailSender(_smtpClientMock.Object, settings);
