@@ -5,7 +5,7 @@
 ![EF Core](https://img.shields.io/badge/EF%20Core-10.0-512BD4)
 ![SQL Server](https://img.shields.io/badge/SQL%20Server-CC2927?logo=microsoftsqlserver&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-404%20passing-success)
+![Tests](https://img.shields.io/badge/tests-409%20passing-success)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
 Aplicación web de catálogo de artículos con área pública y panel de administración,
@@ -19,19 +19,26 @@ construida en ASP.NET MVC Core sobre .NET 10.
 
 ## 🔗 Demo
 
-<!-- TODO: reemplazar por la URL real cuando esté desplegada -->
-**Demo en producción:** _(pendiente de despliegue)_
+**Demo en producción:** **https://catalogo-web-wekfqt.azurewebsites.net**
 
-**Usuarios de prueba**
+> Corre en el tier gratuito de Azure, que no mantiene la aplicación despierta. Si estuvo
+> inactiva, **el primer acceso puede tardar entre 20 y 30 segundos**; a partir de ahí
+> responde con normalidad.
+
+**Usuario de prueba**
 
 | Rol | Email | Contraseña |
 | --- | --- | --- |
-| Administrador | `admin@catalogo.com` | `Admin@1234` |
 | Usuario | `usuario@catalogo.com` | `Usuario@1234` |
 
-> Se crean automáticamente al primer arranque mediante `DbSeeder`.
-> Si un administrador cambia la contraseña, el seeder **no** la repone — reponerla
-> reabriría un acceso hardcodeado.
+Con esa cuenta se puede navegar el catálogo, marcar favoritos y editar el perfil.
+
+**¿Querés ver el panel de administración?** El ABM de artículos, marcas y categorías, el
+control de stock y el registro de auditoría quedan detrás del rol `Admin`. Escribime y te
+doy acceso — así la demo se mantiene en pie para el resto de las visitas:
+
+- **LinkedIn:** [patricio-sostaric](https://www.linkedin.com/in/patricio-sostaric-187701248/)
+- **Mail:** patriciosostaric923@gmail.com
 
 ---
 
@@ -122,7 +129,7 @@ catalogo-web-mvc/
 ├── Views/                Razor, con partials reutilizables
 └── Program.cs            Registro de DI y pipeline de middleware
 
-CatalogoWeb.tests/        404 tests unitarios
+CatalogoWeb.tests/        409 tests unitarios
 ```
 
 ---
@@ -152,11 +159,11 @@ CatalogoWeb.tests/        404 tests unitarios
 
 ## 🧪 Testing
 
-**404 tests unitarios, la totalidad en verde.**
+**409 tests unitarios, la totalidad en verde.**
 
 ```bash
 dotnet test
-# Correctas! - Con error: 0, Superado: 404, Omitido: 0, Total: 404
+# Correctas! - Con error: 0, Superado: 409, Omitido: 0, Total: 409
 ```
 
 Cobertura por capa:
@@ -303,6 +310,18 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 | Credenciales por `.env` | Ningún secreto versionado; si falta una variable, el arranque falla |
 | El puerto 1433 deja de publicarse | SQL Server queda accesible solo desde la red interna |
 | `restart: unless-stopped` | La app se recupera sola ante un reinicio |
+
+**La contraseña del administrador es configurable.** `DbSeeder` la toma de
+`Seed:AdminPassword` y, si no está definida, cae a un valor por defecto que vive en el
+código fuente. Eso alcanza para desarrollo, pero en un entorno publicado ese valor no
+protege nada: cualquiera puede leerlo en este repositorio. Al desplegar hay que definirla:
+
+```bash
+Seed__AdminPassword=<una contraseña propia>
+```
+
+El usuario común mantiene su contraseña conocida a propósito — es la cuenta que esta misma
+página ofrece para probar la demo.
 
 **Sobre el proxy inverso:** las plataformas de hosting terminan el TLS por su cuenta y le
 pasan a la aplicación un request HTTP plano. Sin intervención, Kestrel concluye que la

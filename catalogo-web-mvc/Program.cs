@@ -212,7 +212,9 @@ using (var scope = app.Services.CreateScope())
     await scope.ServiceProvider.GetRequiredService<CatalogoContext>()
         .Database.MigrateAsync();
 
-    await DbSeeder.SeedAsync(scope.ServiceProvider);
+    // En produccion la contraseña del admin llega por configuracion. Si no se define,
+    // el seeder cae al valor por defecto, que es publico y solo sirve para desarrollo.
+    await DbSeeder.SeedAsync(scope.ServiceProvider, builder.Configuration["Seed:AdminPassword"]);
 }
 
 app.Run();
