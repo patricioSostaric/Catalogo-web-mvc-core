@@ -32,7 +32,9 @@ namespace catalogo_web_mvc.Controllers
             if (!resultado.Exito)
                 TempData["CarritoError"] = resultado.Error;
             else
-                TempData["CarritoOk"] = "Artículo agregado al carrito.";
+                // Lo lee el partial _ModalAgregadoAlCarrito desde el layout, asi el aviso
+                // aparece en la misma pagina desde la que se agrego.
+                TempData["ArticuloAgregado"] = resultado.NombreArticulo;
 
             // Se vuelve a donde estaba el usuario, pero solo si la ruta es local: un
             // returnUrl sin validar es un redirect abierto.

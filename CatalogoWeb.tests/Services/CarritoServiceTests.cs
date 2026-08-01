@@ -120,6 +120,18 @@ namespace CatalogoWeb.Tests.Services
         }
 
         [Fact]
+        public async Task AgregarAsync_DevuelveElNombreParaLaConfirmacion()
+        {
+            _articuloServiceMock.Setup(s => s.GetByIdAsync(1)).ReturnsAsync(Articulo());
+            _repositoryMock.Setup(r => r.GetItemAsync(UserId, 1)).ReturnsAsync((ItemCarrito?)null);
+
+            var resultado = await _service.AgregarAsync(UserId, 1, 1);
+
+            Assert.True(resultado.Exito);
+            Assert.Equal("Artículo de prueba", resultado.NombreArticulo);
+        }
+
+        [Fact]
         public async Task CambiarCantidadAsync_ACero_QuitaElArticulo()
         {
             var resultado = await _service.CambiarCantidadAsync(UserId, 1, 0);

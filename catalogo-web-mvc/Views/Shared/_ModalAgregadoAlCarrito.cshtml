@@ -1,0 +1,34 @@
+@* Confirmacion de "agregado al carrito". Vive en el layout y no en una vista concreta
+   porque se puede agregar desde el catalogo, desde el detalle o desde favoritos: el
+   modal tiene que aparecer donde sea que el usuario haya apretado el boton. *@
+@{
+    var nombreAgregado = TempData["ArticuloAgregado"] as string;
+}
+
+@if (!string.IsNullOrEmpty(nombreAgregado))
+{
+    <div class="modal fade" id="modalAgregadoAlCarrito" tabindex="-1" aria-hidden="true" data-modal-auto>
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Agregado al carrito</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <div style="font-size: 2.5rem; line-height: 1;">🛒</div>
+                    <p class="mt-2 mb-0">
+                        Agregaste <strong>@nombreAgregado</strong> a tu carrito.
+                    </p>
+                </div>
+                <div class="modal-footer d-flex gap-2">
+                    <button type="button" class="btn btn-outline-secondary flex-fill" data-bs-dismiss="modal">
+                        Seguir comprando
+                    </button>
+                    <a asp-controller="Carrito" asp-action="Index" class="btn btn-success flex-fill">
+                        Ir a pagar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+}

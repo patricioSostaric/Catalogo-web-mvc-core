@@ -77,7 +77,7 @@ namespace catalogo_web_mvc.Services.Carrito
                 await _repository.UpdateAsync(existente);
             }
 
-            return ResultadoCarrito.Ok();
+            return ResultadoCarrito.Ok(articulo.Nombre);
         }
 
         public async Task<ResultadoCarrito> CambiarCantidadAsync(string userId, int articuloId, int cantidad)

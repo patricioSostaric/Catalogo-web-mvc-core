@@ -109,7 +109,7 @@ else
 
 @if (TempData["PedidoId"] != null)
 {
-    <div class="modal fade" id="modalPagoExitoso" tabindex="-1" aria-hidden="true">
+    <div class="modal fade" id="modalPagoExitoso" tabindex="-1" aria-hidden="true" data-modal-auto>
         <div class="modal-dialog modal-sm modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -131,8 +131,4 @@ else
             </div>
         </div>
     </div>
-
-    @section Scripts {
-        <script src="~/js/carrito.js" asp-append-version="true"></script>
-    }
 }

@@ -6,7 +6,12 @@ namespace catalogo_web_mvc.Models.ViewModels
         public bool Exito { get; init; }
         public string? Error { get; init; }
 
-        public static ResultadoCarrito Ok() => new() { Exito = true };
+        /// <summary>Nombre del articulo afectado, para poder nombrarlo en la confirmacion.</summary>
+        public string? NombreArticulo { get; init; }
+
+        public static ResultadoCarrito Ok(string? nombreArticulo = null)
+            => new() { Exito = true, NombreArticulo = nombreArticulo };
+
         public static ResultadoCarrito Falla(string error) => new() { Exito = false, Error = error };
     }
 
