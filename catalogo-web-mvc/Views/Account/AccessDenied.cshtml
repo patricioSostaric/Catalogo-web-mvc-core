@@ -1,0 +1,33 @@
+@{
+    ViewData["Title"] = "Acceso denegado";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center align-items-center" style="min-height: 65vh;">
+        <div class="col-12 col-sm-10 col-md-6 col-lg-5">
+
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+                <div class="card-body text-center">
+
+                    <div style="font-size: 3rem; line-height: 1;">🔒</div>
+
+                    <h2 class="fw-bold text-dark h3 mt-3 mb-2">Acceso denegado</h2>
+
+                    <p class="text-muted m-0">
+                        Tu sesión está iniciada, pero esta sección requiere permisos que tu
+                        cuenta no tiene.
+                    </p>
+
+                    <div class="mt-4 border-top pt-3">
+                        <a asp-controller="Home" asp-action="Index"
+                           class="text-primary fw-medium text-decoration-none small">
+                            Volver al catálogo
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

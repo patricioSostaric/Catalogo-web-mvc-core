@@ -1,4 +1,4 @@
-using catalogo_web_mvc.Data;
+﻿using catalogo_web_mvc.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using X.PagedList;
@@ -6,7 +6,10 @@ using X.PagedList.Extensions;
 
 namespace catalogo_web_mvc.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    // Solo SuperAdmin: la auditoria guarda IP y mails de quienes usan la aplicacion.
+    // Son datos de terceros, y el rol Admin puede estar en manos de una cuenta compartida
+    // para mostrar el ABM.
+    [Authorize(Roles = "SuperAdmin")]
     public class AuditLogController : Controller
     {
         private readonly CatalogoContext _context;

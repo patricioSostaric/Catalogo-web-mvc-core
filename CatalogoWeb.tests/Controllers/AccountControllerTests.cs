@@ -355,5 +355,22 @@ namespace CatalogoWeb.Tests.Controllers
             Assert.Equal("Index", redirect.ActionName);
             Assert.Equal("Home", redirect.ControllerName);
         }
+
+        [Fact]
+        public async Task AccessDenied_DevuelveLaVista()
+        {
+            var resultado = await _controller.AccessDenied();
+
+            Assert.IsType<ViewResult>(resultado);
+        }
+
+        [Fact]
+        public async Task AccessDenied_RegistraElIntentoEnLaAuditoria()
+        {
+            await _controller.AccessDenied("/AuditLog");
+
+            _auditMock.Verify(a => a.RegistrarAsync(
+                "ACCESO_DENEGADO", "test@test.com", "test-user-id", "/AuditLog"), Times.Once);
+        }
     }
 }

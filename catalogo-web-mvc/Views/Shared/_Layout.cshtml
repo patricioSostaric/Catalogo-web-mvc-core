@@ -39,6 +39,11 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="marcas" asp-action="index">marcas</a>
                         </li>
+                        }
+                        @* La auditoria queda fuera del bloque de Admin: expone IP y mails
+                           de terceros, asi que solo la ve el SuperAdmin. *@
+                        @if (User.IsInRole("SuperAdmin"))
+                        {
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-controller="AuditLog" asp-action="Index">🔍 Auditoría</a>
                         </li>

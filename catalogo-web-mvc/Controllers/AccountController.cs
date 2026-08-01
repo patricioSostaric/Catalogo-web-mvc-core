@@ -322,6 +322,24 @@ namespace catalogo_web_mvc.Controllers
             return View(model);
         }
 
+        /// <summary>
+        /// Destino al que Identity redirige cuando la sesión es válida pero el rol no
+        /// alcanza. Sin esta acción el usuario recibía un 404, porque la ruta por defecto
+        /// no existía en este controlador.
+        /// </summary>
+        [Authorize]
+        public async Task<IActionResult> AccessDenied(string? returnUrl = null)
+        {
+            var email = User.FindFirstValue(ClaimTypes.Email) ?? User.Identity?.Name;
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            // Un intento de entrar a algo fuera del alcance del rol es justamente lo que
+            // la auditoría tiene que registrar.
+            await _audit.RegistrarAsync("ACCESO_DENEGADO", email, userId, returnUrl);
+
+            return View();
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
