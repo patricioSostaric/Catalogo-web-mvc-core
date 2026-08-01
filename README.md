@@ -5,7 +5,7 @@
 ![EF Core](https://img.shields.io/badge/EF%20Core-10.0-512BD4)
 ![SQL Server](https://img.shields.io/badge/SQL%20Server-CC2927?logo=microsoftsqlserver&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-453%20passing-success)
+![Tests](https://img.shields.io/badge/tests-471%20passing-success)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
 Aplicación web de catálogo de artículos con área pública y panel de administración,
@@ -86,6 +86,8 @@ mantiene en pie para el resto de las visitas:
 
 ### Superadministrador
 - Todo lo del administrador, más el registro de auditoría de operaciones
+- Listado de usuarios con sus roles y estado de bloqueo
+- Desbloqueo de cuentas bloqueadas por intentos fallidos
 
 La auditoría queda separada a propósito: guarda direcciones IP y correos de quienes usan
 la aplicación. Son datos de terceros, y el rol `Admin` está pensado para poder compartirse
@@ -125,7 +127,7 @@ justificación.
 
 ```
 catalogo-web-mvc/
-├── Controllers/          Home, Articulo, Marcas, Categorias, Favoritos, Carrito, Pedidos, AuditLog, Account
+├── Controllers/          Home, Articulo, Marcas, Categorias, Favoritos, Carrito, Pedidos, AuditLog, Usuarios, Account
 ├── Interfaces/           Contratos por módulo: Articulos, Marcas, Categorias, Carrito, Pedidos, Audit, Email
 ├── Services/             Lógica de negocio + Email, Audit, Identity
 ├── Repository/           Acceso a datos por entidad
@@ -137,7 +139,7 @@ catalogo-web-mvc/
 ├── Views/                Razor, con partials reutilizables
 └── Program.cs            Registro de DI y pipeline de middleware
 
-CatalogoWeb.tests/        453 tests unitarios
+CatalogoWeb.tests/        471 tests unitarios
 ```
 
 ---
@@ -167,19 +169,19 @@ CatalogoWeb.tests/        453 tests unitarios
 
 ## 🧪 Testing
 
-**453 tests unitarios, la totalidad en verde.**
+**471 tests unitarios, la totalidad en verde.**
 
 ```bash
 dotnet test
-# Correctas! - Con error: 0, Superado: 453, Omitido: 0, Total: 453
+# Correctas! - Con error: 0, Superado: 471, Omitido: 0, Total: 471
 ```
 
 Cobertura por capa:
 
 | Área | Archivos de test |
 | --- | --- |
-| Controllers | Account, Articulo, AuditLog, Categorias, Favoritos, Home, Marcas, Pedidos, AuthorizationAttribute (incluye qué rol protege cada controlador) |
-| Services | Articulo, Carrito, Categoria, Marca, Pedido, EmailTemplates, SmtpEmailSender, SpanishIdentityErrorDescriber |
+| Controllers | Account, Articulo, AuditLog, Categorias, Favoritos, Home, Marcas, Pedidos, Usuarios, AuthorizationAttribute (incluye qué rol protege cada controlador) |
+| Services | Articulo, Carrito, Categoria, Marca, Pedido, UsuarioAdmin, EmailTemplates, SmtpEmailSender, SpanishIdentityErrorDescriber |
 | Repository | Articulo, Categoria, Marca |
 | Data | DbSeeder |
 

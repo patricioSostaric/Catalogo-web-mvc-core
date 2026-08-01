@@ -54,6 +54,23 @@ namespace CatalogoWeb.Tests.Controllers
         }
 
         [Fact]
+        public void UsuariosController_TieneAuthorizeRolSuperAdmin()
+        {
+            var atributo = ObtenerAtributo<UsuariosController>();
+            Assert.NotNull(atributo);
+            Assert.Equal("SuperAdmin", atributo.Roles);
+        }
+
+        [Fact]
+        public void UsuariosController_NoQuedaAlAlcanceDelRolAdmin()
+        {
+            // Administrar cuentas ajenas no puede depender de un rol pensado para compartirse.
+            var roles = ObtenerAtributo<UsuariosController>()!.Roles!;
+
+            Assert.DoesNotContain("Admin", roles.Split(',').Select(r => r.Trim()));
+        }
+
+        [Fact]
         public void CarritoController_ExigeSesionIniciada()
         {
             var atributo = ObtenerAtributo<CarritoController>();

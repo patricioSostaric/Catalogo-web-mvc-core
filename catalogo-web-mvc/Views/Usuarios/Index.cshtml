@@ -1,0 +1,104 @@
+@model X.PagedList.IPagedList<catalogo_web_mvc.Models.ViewModels.UsuarioAdminViewModel>
+@{
+    ViewData["Title"] = "Usuarios";
+}
+
+<h1 class="h3 mb-3">👥 Usuarios</h1>
+
+@if (TempData["UsuariosOk"] != null)
+{
+    <div class="alert alert-success">@TempData["UsuariosOk"]</div>
+}
+@if (TempData["UsuariosError"] != null)
+{
+    <div class="alert alert-warning">@TempData["UsuariosError"]</div>
+}
+
+<form asp-action="Index" method="get" class="row g-2 mb-3">
+    <div class="col-12 col-md-5">
+        <input type="text" name="email" value="@ViewBag.FiltroEmail" class="form-control"
+               placeholder="Filtrar por correo" />
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-outline-secondary">Buscar</button>
+    </div>
+    @if (!string.IsNullOrEmpty(ViewBag.FiltroEmail as string))
+    {
+        <div class="col-auto">
+            <a asp-action="Index" class="btn btn-link">Limpiar</a>
+        </div>
+    }
+</form>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-light border">No se encontraron usuarios.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th scope="col">Correo</th>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Roles</th>
+                    <th scope="col" class="text-center">Intentos fallidos</th>
+                    <th scope="col">Estado</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var usuario in Model)
+                {
+                    <tr>
+                        <td>@usuario.Email</td>
+                        <td>@usuario.NombreCompleto</td>
+                        <td>
+                            @foreach (var rol in usuario.Roles)
+                            {
+                                <span class="badge bg-secondary me-1">@rol</span>
+                            }
+                        </td>
+                        <td class="text-center">@usuario.IntentosFallidos</td>
+                        <td>
+                            @if (usuario.EstaBloqueado)
+                            {
+                                <span class="badge bg-danger">Bloqueado</span>
+                                <div class="small text-muted">
+                                    hasta @usuario.BloqueadoHasta!.Value.LocalDateTime.ToString("dd/MM/yyyy HH:mm")
+                                </div>
+                            }
+                            else
+                            {
+                                <span class="badge bg-success">Activo</span>
+                            }
+                        </td>
+                        <td class="text-end">
+                            @if (usuario.EstaBloqueado)
+                            {
+                                <form asp-action="Desbloquear" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@usuario.Id" />
+                                    <input type="hidden" name="email" value="@ViewBag.FiltroEmail" />
+                                    <input type="hidden" name="page" value="@Model.PageNumber" />
+                                    <button type="submit" class="btn btn-sm btn-outline-primary">
+                                        Desbloquear
+                                    </button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @await Html.PartialAsync("_Paginado", Model)
+}
+
+<p class="small text-muted mt-3 mb-0">
+    Las cuentas se bloquean solas tras 5 intentos fallidos y se liberan a los 5 minutos.
+    Desbloquear acá levanta el bloqueo de inmediato y pone el contador en cero. La acción
+    queda registrada en la auditoría.
+</p>

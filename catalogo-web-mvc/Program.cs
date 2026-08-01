@@ -8,6 +8,7 @@ using catalogo_web_mvc.Interfaces.Carrito;
 using catalogo_web_mvc.Interfaces.Categorias;
 using catalogo_web_mvc.Interfaces.Marcas;
 using catalogo_web_mvc.Interfaces.Pedidos;
+using catalogo_web_mvc.Interfaces.Usuarios;
 using catalogo_web_mvc.Models; // tu clase Usuario extendida de IdentityUser
 using catalogo_web_mvc.Models.Settings;
 using catalogo_web_mvc.Repository.Articulos;
@@ -23,6 +24,7 @@ using catalogo_web_mvc.Services.Email;
 using catalogo_web_mvc.Services.Identity;
 using catalogo_web_mvc.Services.Marcas;
 using catalogo_web_mvc.Services.Pedidos;
+using catalogo_web_mvc.Services.Usuarios;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
@@ -147,6 +149,7 @@ builder.Services.AddScoped<ICarritoRepository, CarritoRepository>();
 builder.Services.AddScoped<ICarritoService, CarritoService>();
 builder.Services.AddScoped<IPedidoRepository, PedidoRepository>();
 builder.Services.AddScoped<IPedidoService, PedidoService>();
+builder.Services.AddScoped<IUsuarioAdminService, UsuarioAdminService>();
 var argentinaZone = TimeZoneInfo.FindSystemTimeZoneById("Argentina Standard Time");
 builder.Services.AddSingleton(argentinaZone);
 
