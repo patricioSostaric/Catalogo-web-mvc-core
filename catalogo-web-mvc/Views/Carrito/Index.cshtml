@@ -125,8 +125,13 @@ else
                         Simulación: no se procesó ningún pago real ni se cobró nada.
                     </p>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary w-100" data-bs-dismiss="modal">Listo</button>
+                <div class="modal-footer d-flex gap-2">
+                    <button type="button" class="btn btn-outline-secondary flex-fill" data-bs-dismiss="modal">
+                        Listo
+                    </button>
+                    <a asp-controller="Pedidos" asp-action="Index" class="btn btn-primary flex-fill">
+                        Ver mis pedidos
+                    </a>
                 </div>
             </div>
         </div>

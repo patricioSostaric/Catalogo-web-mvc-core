@@ -1,0 +1,77 @@
+@model List<catalogo_web_mvc.Models.Pedido>
+@{
+    ViewData["Title"] = "Mis pedidos";
+}
+
+<h1 class="h3 mb-3">📦 Mis pedidos</h1>
+
+@if (Model.Count == 0)
+{
+    <div class="alert alert-light border">
+        Todavía no hiciste ningún pedido.
+        <a asp-controller="Home" asp-action="Index">Ir al catálogo</a>
+    </div>
+}
+else
+{
+    <div class="accordion" id="acordeonPedidos">
+        @foreach (var pedido in Model)
+        {
+            var idColapsable = $"pedido-{pedido.Id}";
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button"
+                            data-bs-toggle="collapse" data-bs-target="#@idColapsable"
+                            aria-expanded="false" aria-controls="@idColapsable">
+                        <div class="d-flex justify-content-between w-100 me-3 flex-wrap gap-2">
+                            <span>
+                                <strong>Pedido #@pedido.Id</strong>
+                                <span class="text-muted ms-2">@pedido.Fecha.ToString("dd/MM/yyyy HH:mm")</span>
+                            </span>
+                            <span>
+                                <span class="text-muted me-3">
+                                    @pedido.Detalles.Sum(d => d.Cantidad) artículo(s)
+                                </span>
+                                <strong>$ @pedido.Total.ToString("N2")</strong>
+                            </span>
+                        </div>
+                    </button>
+                </h2>
+                <div id="@idColapsable" class="accordion-collapse collapse" data-bs-parent="#acordeonPedidos">
+                    <div class="accordion-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm mb-0">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Artículo</th>
+                                        <th scope="col" class="text-end">Cantidad</th>
+                                        <th scope="col" class="text-end">Precio unitario</th>
+                                        <th scope="col" class="text-end">Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var detalle in pedido.Detalles)
+                                    {
+                                        <tr>
+                                            @* Se muestra el nombre guardado en el detalle, no el actual del
+                                               articulo: el pedido debe reflejar lo que se compro. *@
+                                            <td>@detalle.NombreArticulo</td>
+                                            <td class="text-end">@detalle.Cantidad</td>
+                                            <td class="text-end">$ @detalle.PrecioUnitario.ToString("N2")</td>
+                                            <td class="text-end">$ @detalle.Subtotal.ToString("N2")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <p class="small text-muted mt-3 mb-0">
+        Los precios son los vigentes al momento de cada compra: no cambian aunque el
+        artículo se actualice después.
+    </p>
+}
