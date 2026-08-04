@@ -23,7 +23,8 @@ namespace catalogo_web_mvc.Services.Audit
 
         public async Task RegistrarAsync(string accion, string? email = null, string? userId = null, string? detalle = null)
         {
-            var ip = _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
+            // Se anonimiza antes de guardar: la IP completa no llega ni a la base ni al log.
+            var ip = IpAnonimizador.Anonimizar(_httpContextAccessor.HttpContext?.Connection.RemoteIpAddress);
 
             var log = new AuditLog
             {

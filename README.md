@@ -5,7 +5,7 @@
 ![EF Core](https://img.shields.io/badge/EF%20Core-10.0-512BD4)
 ![SQL Server](https://img.shields.io/badge/SQL%20Server-CC2927?logo=microsoftsqlserver&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-507%20passing-success)
+![Tests](https://img.shields.io/badge/tests-521%20passing-success)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
 Tienda de artículos electrónicos con catálogo público, carrito, pedidos y panel de
@@ -91,9 +91,16 @@ mantiene en pie para el resto de las visitas:
 - Listado de usuarios con sus roles y estado de bloqueo
 - Desbloqueo de cuentas bloqueadas por intentos fallidos
 
-La auditoría queda separada a propósito: guarda direcciones IP y correos de quienes usan
-la aplicación. Son datos de terceros, y el rol `Admin` está pensado para poder compartirse
-con quien quiera recorrer el panel de administración.
+La auditoría queda separada a propósito: guarda correos de quienes usan la aplicación.
+Son datos de terceros, y el rol `Admin` está pensado para poder compartirse con quien
+quiera recorrer el panel de administración.
+
+**Las direcciones IP se anonimizan antes de guardarse.** Se conserva la red de origen y
+se descarta el último octeto: `186.13.114.8` se almacena como `186.13.114.0`. Eso alcanza
+para distinguir veinte intentos fallidos de un mismo origen de veinte personas distintas,
+que es para lo que sirve el dato en un registro de seguridad, sin almacenar información
+que identifique a una persona. Es el principio de minimización de datos del GDPR. La IP
+completa no llega ni a la base ni a los registros de la aplicación.
 
 ---
 
@@ -141,7 +148,7 @@ catalogo-web-mvc/
 ├── Views/                Razor, con partials reutilizables
 └── Program.cs            Registro de DI y pipeline de middleware
 
-CatalogoWeb.tests/        507 tests unitarios
+CatalogoWeb.tests/        521 tests unitarios
 ```
 
 ---
@@ -171,11 +178,11 @@ CatalogoWeb.tests/        507 tests unitarios
 
 ## 🧪 Testing
 
-**507 tests unitarios, la totalidad en verde.**
+**521 tests unitarios, la totalidad en verde.**
 
 ```bash
 dotnet test
-# Correctas! - Con error: 0, Superado: 507, Omitido: 0, Total: 507
+# Correctas! - Con error: 0, Superado: 521, Omitido: 0, Total: 521
 ```
 
 Cobertura por capa:
@@ -200,7 +207,8 @@ Se aplicó una auditoría sobre **OWASP Top 10** y se corrigieron los hallazgos:
 
 | Medida | Qué mitiga |
 | --- | --- |
-| Auditoría restringida al rol `SuperAdmin` | Exposición de IP y correos de terceros a una cuenta compartida |
+| Auditoría restringida al rol `SuperAdmin` | Exposición de correos de terceros a una cuenta compartida |
+| Anonimización de IP antes de persistir | Almacenamiento de datos personales sin necesidad |
 | Cookies `HttpOnly`, `Secure`, `SameSite=Strict` | Robo de sesión vía XSS y ataques CSRF |
 | Rate limiting (10 req/min en autenticación) | Fuerza bruta sobre el login |
 | Lockout tras 5 intentos fallidos | Fuerza bruta sobre credenciales |
