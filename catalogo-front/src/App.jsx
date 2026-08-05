@@ -1,5 +1,5 @@
-
 import { useState, useEffect } from 'react'
+import TarjetaArticulo from './components/TarjetaArticulo'
 
 function App() {
   const [articulos, setArticulos] = useState([])
@@ -13,14 +13,11 @@ function App() {
   return (
     <>
       <h1>Catálogo</h1>
-      <ul>
+      <div className="grilla">
         {articulos.map(a => (
-          <li key={a.id}>
-            <img src={a.imagenUrl} alt={a.nombre} width="80" />
-            {a.nombre} — {a.marca}
-          </li>
+          <TarjetaArticulo key={a.id} articulo={a} />
         ))}
-      </ul>
+      </div>
     </>
   )
 }
