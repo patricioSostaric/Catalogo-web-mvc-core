@@ -63,7 +63,7 @@
                     <th>Acción</th>
                     <th>Email</th>
                     <th>Detalle</th>
-                    <th class="pe-4">IP</th>
+                    <th class="pe-4">Red de origen</th>
                 </tr>
             </thead>
             <tbody>
@@ -109,7 +109,7 @@
                         <!-- Detalle controlado para que textos muy largos no rompan la pantalla -->
                         <td class="text-muted small text-truncate" style="max-width: 280px;">@log.Detalle</td>
 
-                        <!-- IP con aire hacia el final de la tarjeta -->
+                        <!-- Red de origen: la IP se guarda enmascarada, sin el ultimo octeto -->
                         <td class="text-secondary small pe-4">@log.IpAddress</td>
                     </tr>
                 }
