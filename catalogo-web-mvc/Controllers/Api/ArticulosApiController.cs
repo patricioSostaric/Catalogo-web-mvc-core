@@ -16,12 +16,12 @@ namespace catalogo_web_mvc.Controllers.Api
         }
 
         [HttpGet]
-        public async Task<ActionResult<ArticulosPaginadosDto>> Get(int page = 1, int pageSize = 6)
+        public async Task<ActionResult<ArticulosPaginadosDto>> Get(string? buscar = null, int page = 1, int pageSize = 6)
         {
             page = Math.Max(page, 1);
             pageSize = Math.Clamp(pageSize, 1, 50);
-            var articulos = await _service.BuscarAsync(null, false, null, null, null, page, pageSize, soloActivos: true);
-
+          
+            var articulos = await _service.BuscarAsync(buscar, false, null, null, null, page, pageSize, soloActivos: true);
             var respuesta = new ArticulosPaginadosDto
             {
                 Pagina = articulos.PageNumber,

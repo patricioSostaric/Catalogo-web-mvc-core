@@ -133,6 +133,36 @@ namespace CatalogoWeb.Tests.Controllers
         }
 
         [Fact]
+        public async Task Get_ConTerminoDeBusqueda_SeLoPasaAlServicio()
+        {
+            ConfigurarServicio(ArticulosDeEjemplo());
+            var controller = new ArticulosApiController(_serviceMock.Object);
+
+            await controller.Get(buscar: "galaxy");
+
+            // El filtrado lo resuelve el servicio, el mismo que usa la vista Razor:
+            // el controlador solo tiene que dejar pasar el termino.
+            _serviceMock.Verify(s => s.BuscarAsync("galaxy", It.IsAny<bool>(),
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task Get_SinTerminoDeBusqueda_NoFiltra()
+        {
+            ConfigurarServicio(ArticulosDeEjemplo());
+            var controller = new ArticulosApiController(_serviceMock.Object);
+
+            await controller.Get();
+
+            // Sin termino el catalogo se devuelve completo: el parametro es opcional
+            // y su ausencia no debe traducirse en una cadena vacia ni en un filtro.
+            _serviceMock.Verify(s => s.BuscarAsync(null, It.IsAny<bool>(),
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>()), Times.Once);
+        }
+
+        [Fact]
         public async Task Get_PageSizeExcesivo_SeAcotaAlMaximo()
         {
             ConfigurarServicio(ArticulosDeEjemplo());
