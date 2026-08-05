@@ -223,6 +223,9 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
+// Habilita el ruteo por atributos, que es el que usan los controladores de API.
+app.MapControllers();
+
 using (var scope = app.Services.CreateScope())
 {
     // En Docker la base arranca vacía: hay que aplicar las migraciones antes de
