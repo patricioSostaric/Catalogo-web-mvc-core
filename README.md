@@ -4,6 +4,7 @@
 ![C#](https://img.shields.io/badge/C%23-13-239120?logo=csharp&logoColor=white)
 ![EF Core](https://img.shields.io/badge/EF%20Core-10.0-512BD4)
 ![SQL Server](https://img.shields.io/badge/SQL%20Server-CC2927?logo=microsoftsqlserver&logoColor=white)
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
 ![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)
 ![Tests](https://img.shields.io/badge/tests-531%20passing-success)
 ![License](https://img.shields.io/badge/license-MIT-blue)
@@ -14,6 +15,10 @@ administración, construida en ASP.NET MVC Core sobre .NET 10.
 > **Este proyecto es la migración de una aplicación previa en ASP.NET WebForms.**
 > El repositorio original sigue publicado como punto de partida:
 > [catalogo-web-webforms](https://github.com/patricioSostaric/catalogo-web-webforms)
+
+> 🔄 **El catálogo público se está migrando a Web API + React** aplicando el patrón
+> *strangler fig*: lo nuevo crece al lado de lo viejo, sin apagar nada.
+> Ver [Migración en curso](#-migración-en-curso--web-api--react).
 
 ---
 
@@ -171,6 +176,10 @@ CatalogoWeb.tests/        531 tests unitarios
 
 **Testing**
 - xUnit 2.9 · Moq 4.20 · `EntityFrameworkCore.InMemory` · coverlet
+
+**Front desacoplado** (migración en curso)
+- React 19 · Vite · JavaScript
+- Proxy de desarrollo hacia el MVC, en el rol que después cumplirá YARP
 
 **Otros**
 - X.PagedList 10.5 para el paginado
@@ -386,6 +395,110 @@ Este catálogo fue implementado tres veces, migrando de escritorio a web moderna
 | **v3** | ASP.NET MVC Core (.NET 10), EF Core, Identity, xUnit | *este repositorio* |
 | **v2** | ASP.NET WebForms, ADO.NET, .NET Framework | [catalogo-web-webforms](https://github.com/patricioSostaric/catalogo-web-webforms) |
 | **v1** | Windows Forms, .NET Framework | [catalogo](https://github.com/patricioSostaric/catalogo) |
+
+Las tres primeras fueron reescrituras: cada versión empezó de cero mirando a la anterior.
+La cuarta no.
+
+---
+
+## 🔄 Migración en curso — Web API + React
+
+El catálogo público se está migrando a una arquitectura de API con front desacoplado,
+aplicando el patrón **strangler fig**: lo nuevo crece al lado de lo viejo y se le van
+mudando responsabilidades de a una, sin apagar nada ni frenar el desarrollo. Lo opuesto
+a la reescritura completa, que obliga a mantener dos sistemas en paralelo hasta un
+encendido único.
+
+### Estado
+
+| Etapa | Estado |
+| --- | --- |
+| 1 · Endpoint `/api/articulos` dentro del proyecto MVC | ✅ hecho |
+| 2 · Front en React (Vite) consumiendo la API | ✅ hecho |
+| 3 · Extraer la API a su propio proyecto, con **YARP** por delante | ⏳ pendiente |
+
+Las vistas Razor siguen atendiendo el catálogo y el resto de la aplicación. El front en
+React es una segunda forma de acceder a los mismos datos, no un reemplazo — todavía.
+
+### Por qué el endpoint arrancó dentro del MVC
+
+Crear el proyecto separado desde el principio obligaba a resolver la referencia a las
+entidades, la cadena de conexión duplicada, CORS, dos imágenes de Docker y dos servicios
+en Azure **antes de escribir la primera línea de API**.
+
+Adentro del MVC, el endpoint se apoya en el `IArticuloService` que ya existía: no duplica
+lógica de negocio ni de filtrado, y el filtrado por texto es el mismo que usa el buscador
+de la vista Razor. La mudanza a un proyecto propio se hace después, con el contrato ya
+consumido y sabiendo exactamente qué hay que mover.
+
+### El contrato
+
+`GET /api/articulos?buscar=galaxy&page=1&pageSize=6`
+
+```json
+{
+  "pagina": 1,
+  "tamanioPagina": 6,
+  "totalArticulos": 15,
+  "totalPaginas": 3,
+  "articulos": [
+    {
+      "id": 1,
+      "nombre": "Galaxy S10",
+      "marca": "Samsung",
+      "categoria": "Celulares",
+      "precio": 699999,
+      "imagenUrl": "/imagen/articulos/s01.jpg",
+      "disponible": true
+    }
+  ]
+}
+```
+
+Devuelve **DTOs y no entidades**: el contrato público queda desacoplado del modelo de
+datos. Devolver la entidad habría expuesto los identificadores internos, el código, el
+estado de alta y el stock exacto, y cualquier propiedad agregada más adelante aparecería
+sola en la respuesta pública. El stock se reduce a un booleano — el catálogo solo necesita
+saber si hay o no hay; la cantidad exacta es información del negocio.
+
+El paginado va en un envoltorio y no en un array pelado: quien consume necesita saber en
+qué parte del total está para poder dibujar su paginador. `pageSize` se acota con
+`Math.Clamp` a un máximo de 50, para que una sola petición no pueda pedir el catálogo
+entero.
+
+### El proxy
+
+En desarrollo, el servidor de Vite reenvía `/api` y `/imagen` al MVC, de modo que el
+navegador ve un solo origen y CORS no interviene. Es el mismo papel que va a cumplir YARP
+en la etapa 3, con la diferencia de que este solo existe en desarrollo: al desplegar hay
+que resolverlo de nuevo.
+
+### El front
+
+```
+catalogo-front/
+├── vite.config.js        Proxy hacia el MVC
+└── src/
+    ├── App.jsx           Estado, pedido a la API, paginado y búsqueda
+    ├── index.css
+    └── components/
+        └── TarjetaArticulo.jsx
+```
+
+Catálogo con tarjetas, paginado y búsqueda por texto con *debounce* de 300 ms: cada tecla
+cancela el pedido anterior, así escribir una palabra genera una sola consulta en lugar de
+una por letra.
+
+Vive en el mismo repositorio que el MVC porque el front y la API cambian de a pares: si se
+toca el contrato, quien lo consume tiene que enterarse en el mismo commit.
+
+```bash
+cd catalogo-front
+npm install
+npm run dev
+```
+
+Requiere el MVC corriendo en `https://localhost:7012`, que es a donde apunta el proxy.
 
 ---
 
