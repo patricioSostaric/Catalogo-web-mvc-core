@@ -57,8 +57,15 @@ var connectionString = builder.Configuration.GetConnectionString("CatalogoDB");
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+// La base es serverless y se pausa sola: al despertar tarda cerca de un minuto y
+// rechaza las conexiones mientras tanto. Sin reintentos, la migracion del arranque
+// falla, la aplicacion muere y el contenedor reinicia en bucle sin llegar a esperarla.
 builder.Services.AddDbContext<CatalogoContext>(options =>
-    options.UseSqlServer(connectionString));
+    options.UseSqlServer(connectionString, sql => sql.EnableRetryOnFailure(
+        maxRetryCount: 6,
+        maxRetryDelay: TimeSpan.FromSeconds(20),
+        errorNumbersToAdd: null)));
+
 
 builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 {
