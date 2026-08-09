@@ -5,7 +5,7 @@ function Layout({ children }) {
   return (
     <>
       <Encabezado />
-      <main>{children}</main>
+      <main className="container py-4">{children}</main>
       <PiePagina />
     </>
   )

@@ -1,11 +1,28 @@
 function TarjetaArticulo({ articulo }) {
   return (
-    <div className="tarjeta">
-      <img src={articulo.imagenUrl} alt={articulo.nombre} width="150" />
-      <h3>{articulo.nombre}</h3>
-      <p>{articulo.marca} · {articulo.categoria}</p>
-<p>${articulo.precio.toLocaleString('es-AR')}</p>
-{articulo.disponible ? <span>Disponible</span> : <span>Sin stock</span>}
+    <div className="col">
+      <div className="card h-100">
+        <img
+          src={articulo.imagenUrl}
+          className="card-img-top p-3"
+          alt={articulo.nombre}
+          style={{ height: '200px', objectFit: 'contain' }}
+        />
+        <div className="card-body d-flex flex-column">
+          <h5 className="card-title">{articulo.nombre}</h5>
+          <p className="card-text text-muted small mb-2">
+            {articulo.marca} · {articulo.categoria}
+          </p>
+          <p className="fw-semibold fs-5 mb-2">
+            ${articulo.precio.toLocaleString('es-AR')}
+          </p>
+          <div className="mt-auto">
+            {articulo.disponible
+              ? <span className="badge text-bg-success">Disponible</span>
+              : <span className="badge text-bg-secondary">Sin stock</span>}
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

@@ -1,20 +1,7 @@
 body {
-  font-family: system-ui, sans-serif;
-  margin: 2rem;
+  background-color: #f8f9fa;
 }
 
-.grilla {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 1rem;
-}
-
-.tarjeta {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 1rem;
-  text-align: center;
-}
 
 .tarjeta img {
   max-width: 100%;

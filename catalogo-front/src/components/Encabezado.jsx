@@ -1,9 +1,10 @@
 function Encabezado() {
   return (
-    <header>
-      <h1>Store Sostaric</h1>
-      <p>Catálogo de artículos electrónicos</p>
-    </header>
+   <nav className="navbar navbar-expand-sm navbar-light bg-white border-bottom mb-3">
+      <div className="container-fluid">
+        <a className="navbar-brand" href="/">Store Sostaric</a>
+      </div>
+    </nav>
   )
 }
 
