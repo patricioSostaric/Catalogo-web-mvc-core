@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import TarjetaArticulo from './components/TarjetaArticulo'
+import Layout from './components/Layout'
 
 function App() {
   // 1. Estado
@@ -10,7 +11,7 @@ function App() {
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(false)
   // 2. Efecto: se vuelve a ejecutar cada vez que cambia `pagina`
- 
+
   useEffect(() => {
     const temporizador = setTimeout(() => {
       setCargando(true)
@@ -31,12 +32,11 @@ function App() {
     return () => clearTimeout(temporizador)
   }, [busqueda, pagina])
 
-   
+
 
   // 3. JSX
   return (
-    <>
-      <h1>Catálogo</h1>
+    <Layout>
       {cargando && <p>Cargando artículos...</p>}
       {error && <p>Error al cargar los artículos.</p>}
       {!cargando && !error && articulos.length === 0 && <p>No se encontraron artículos.</p>}
@@ -51,11 +51,11 @@ function App() {
           Anterior
         </button>
         <span> Página {pagina} de {totalPaginas} </span>
-        <button onClick={() => setPagina(pagina + 1)} disabled={pagina >=  totalPaginas}>
+        <button onClick={() => setPagina(pagina + 1)} disabled={pagina >= totalPaginas}>
           Siguiente
         </button>
       </div>
-    </>
+    </Layout>
   )
 }
 
