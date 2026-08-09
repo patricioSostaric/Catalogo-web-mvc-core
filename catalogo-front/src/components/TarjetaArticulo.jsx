@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 function TarjetaArticulo({ articulo }) {
   return (
     <div className="col">
@@ -16,10 +17,13 @@ function TarjetaArticulo({ articulo }) {
           <p className="fw-semibold fs-5 mb-2">
             ${articulo.precio.toLocaleString('es-AR')}
           </p>
-          <div className="mt-auto">
-            {articulo.disponible
-              ? <span className="badge text-bg-success">Disponible</span>
-              : <span className="badge text-bg-secondary">Sin stock</span>}
+            <div className="mt-auto">
+            {!articulo.disponible && (
+              <span className="badge text-bg-secondary mb-2 d-block">Sin stock</span>
+            )}
+            <Link to={`/articulo/${articulo.id}`} className="btn btn-outline-primary btn-sm">
+              Ver detalle
+            </Link>
           </div>
         </div>
       </div>

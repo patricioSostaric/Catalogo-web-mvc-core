@@ -6,7 +6,7 @@
 ![SQL Server](https://img.shields.io/badge/SQL%20Server-CC2927?logo=microsoftsqlserver&logoColor=white)
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
 ![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-531%20passing-success)
+![Tests](https://img.shields.io/badge/tests-535%20passing-success)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
 Tienda de artículos electrónicos con catálogo público, carrito, pedidos y panel de
@@ -155,7 +155,7 @@ catalogo-web-mvc/
 ├── Views/                Razor, con partials reutilizables
 └── Program.cs            Registro de DI y pipeline de middleware
 
-CatalogoWeb.tests/        531 tests unitarios
+CatalogoWeb.tests/        535 tests unitarios
 ```
 
 ---
@@ -189,11 +189,11 @@ CatalogoWeb.tests/        531 tests unitarios
 
 ## 🧪 Testing
 
-**531 tests unitarios, la totalidad en verde.**
+**535 tests unitarios, la totalidad en verde.**
 
 ```bash
 dotnet test
-# Correctas! - Con error: 0, Superado: 531, Omitido: 0, Total: 531
+# Correctas! - Con error: 0, Superado: 535, Omitido: 0, Total: 535
 ```
 
 Cobertura por capa:
@@ -466,6 +466,14 @@ qué parte del total está para poder dibujar su paginador. `pageSize` se acota 
 `Math.Clamp` a un máximo de 50, para que una sola petición no pueda pedir el catálogo
 entero.
 
+`GET /api/articulos/{id}` devuelve el detalle de un artículo, con su descripción y sin el
+código —dato de administración que sirve para reponer stock y no le aporta nada a quien
+consume el catálogo.
+
+Responde **404 tanto si el artículo no existe como si está dado de baja**, sin
+distinguirlos. Diferenciar los dos casos revelaría que ese artículo existe en el catálogo
+interno aunque no se publique.
+
 ### El proxy
 
 En desarrollo, el servidor de Vite reenvía `/api` y `/imagen` al MVC, de modo que el
@@ -479,15 +487,30 @@ que resolverlo de nuevo.
 catalogo-front/
 ├── vite.config.js        Proxy hacia el MVC
 └── src/
-    ├── App.jsx           Estado, pedido a la API, paginado y búsqueda
+    ├── App.jsx           Layout y tabla de rutas
     ├── index.css
+    ├── paginas/
+    │   ├── Catalogo.jsx  Listado, paginado y búsqueda
+    │   └── Privacidad.jsx
     └── components/
+        ├── Layout.jsx    Encabezado + {children} + pie
+        ├── Encabezado.jsx
+        ├── PiePagina.jsx
         └── TarjetaArticulo.jsx
 ```
 
 Catálogo con tarjetas, paginado y búsqueda por texto con *debounce* de 300 ms: cada tecla
 cancela el pedido anterior, así escribir una palabra genera una sola consulta en lugar de
-una por letra.
+una por letra. La pantalla distingue los estados de carga, error y sin resultados: una
+consulta que falló también devuelve una lista vacía, y decir «no se encontraron artículos»
+sería engañoso.
+
+El ruteo es del lado del cliente: al navegar no hay viaje al servidor, se reemplaza solo
+el contenido y el encabezado y el pie no se redibujan. `Layout` recibe cada página por
+`children`, que cumple el mismo papel que `@RenderBody()` en `_Layout.cshtml`.
+
+Se comparte el estilo con las vistas Razor a propósito. Durante la migración las dos
+mitades conviven, y quien entra no debería notar de cuál viene cada pantalla.
 
 Vive en el mismo repositorio que el MVC porque el front y la API cambian de a pares: si se
 toca el contrato, quien lo consume tiene que enterarse en el mismo commit.

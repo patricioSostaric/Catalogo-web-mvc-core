@@ -2,6 +2,7 @@ using catalogo_web_mvc.Controllers.Api;
 using catalogo_web_mvc.Interfaces.Articulos;
 using catalogo_web_mvc.Models;
 using catalogo_web_mvc.Models.Dtos;
+using catalogo_web_mvc.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using X.PagedList.Extensions;
@@ -191,6 +192,81 @@ namespace CatalogoWeb.Tests.Controllers
             _serviceMock.Verify(s => s.BuscarAsync(It.IsAny<string>(), It.IsAny<bool>(),
                 It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
                 1, It.IsAny<int>(), It.IsAny<bool>()), Times.Once);
+        }
+
+        // ── Detalle ────────────────────────────────────────────────────────────
+
+        private static ArticuloDetalleViewModel DetalleDeEjemplo() => new()
+        {
+            Id = 1,
+            Codigo = "S01",
+            Nombre = "Galaxy S10",
+            Descripcion = "Una canoa cara",
+            Marca = "Samsung",
+            Categoria = "Celulares",
+            Precio = 699999,
+            ImagenUrl = "/imagen/articulos/s01.jpg"
+        };
+
+        [Fact]
+        public async Task GetPorId_DevuelveElArticulo()
+        {
+            _serviceMock.Setup(s => s.ObtenerDetallePublicoAsync(1))
+                .ReturnsAsync(DetalleDeEjemplo());
+            var controller = new ArticulosApiController(_serviceMock.Object);
+
+            var resultado = await controller.GetPorId(1);
+
+            var ok = Assert.IsType<OkObjectResult>(resultado.Result);
+            var dto = Assert.IsType<ArticuloDetalleDto>(ok.Value);
+            Assert.Equal("Galaxy S10", dto.Nombre);
+            Assert.Equal("Una canoa cara", dto.Descripcion);
+            Assert.Equal("Samsung", dto.Marca);
+            Assert.Equal("Celulares", dto.Categoria);
+        }
+
+        [Fact]
+        public async Task GetPorId_NoExponeElCodigo()
+        {
+            // El codigo es dato de administracion: sirve para reponer stock y no
+            // le aporta nada a quien consume el catalogo. Este test falla si
+            // alguien agrega la propiedad al DTO por costumbre.
+            _serviceMock.Setup(s => s.ObtenerDetallePublicoAsync(1))
+                .ReturnsAsync(DetalleDeEjemplo());
+            var controller = new ArticulosApiController(_serviceMock.Object);
+
+            var resultado = await controller.GetPorId(1);
+
+            var ok = Assert.IsType<OkObjectResult>(resultado.Result);
+            var propiedades = ok.Value!.GetType().GetProperties().Select(p => p.Name);
+            Assert.DoesNotContain("Codigo", propiedades);
+        }
+
+        [Fact]
+        public async Task GetPorId_ArticuloInexistenteOInactivo_Devuelve404()
+        {
+            // El servicio devuelve null en los dos casos, y la API no los
+            // distingue: decir "existe pero no se publica" seria filtrar
+            // informacion sobre el catalogo interno.
+            _serviceMock.Setup(s => s.ObtenerDetallePublicoAsync(It.IsAny<int>()))
+                .ReturnsAsync((ArticuloDetalleViewModel?)null);
+            var controller = new ArticulosApiController(_serviceMock.Object);
+
+            var resultado = await controller.GetPorId(999);
+
+            Assert.IsType<NotFoundResult>(resultado.Result);
+        }
+
+        [Fact]
+        public async Task GetPorId_LePasaElIdAlServicio()
+        {
+            _serviceMock.Setup(s => s.ObtenerDetallePublicoAsync(It.IsAny<int>()))
+                .ReturnsAsync(DetalleDeEjemplo());
+            var controller = new ArticulosApiController(_serviceMock.Object);
+
+            await controller.GetPorId(42);
+
+            _serviceMock.Verify(s => s.ObtenerDetallePublicoAsync(42), Times.Once);
         }
     }
 }

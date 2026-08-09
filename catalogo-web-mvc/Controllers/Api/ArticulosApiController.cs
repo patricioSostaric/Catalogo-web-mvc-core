@@ -43,5 +43,27 @@ namespace catalogo_web_mvc.Controllers.Api
 
             return Ok(respuesta);
         }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ArticuloDetalleDto>> GetPorId(int id)
+        {
+            // El servicio ya descarta los articulos dados de baja: devuelve null
+            // tanto si el articulo no existe como si esta inactivo. Para quien
+            // consulta desde afuera son el mismo caso, y conviene que lo sean:
+            // distinguirlos revelaria que el articulo existe pero no se publica.
+            var articulo = await _service.ObtenerDetallePublicoAsync(id);
+            if (articulo == null) return NotFound();
+
+            return Ok(new ArticuloDetalleDto
+            {
+                Id = articulo.Id,
+                Nombre = articulo.Nombre,
+                Descripcion = articulo.Descripcion,
+                Marca = articulo.Marca ?? "",
+                Categoria = articulo.Categoria ?? "",
+                Precio = articulo.Precio,
+                ImagenUrl = articulo.ImagenUrl ?? ""
+            });
+        }
     }
 }
