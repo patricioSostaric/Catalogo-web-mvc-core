@@ -18,10 +18,27 @@ services:
       retries: 10
       start_period: 30s
 
-  web:
-    build: .
+  # Único servicio publicado al host: el gateway es la puerta de entrada, igual que
+  # en una arquitectura real. Que web y api no expongan puertos no es un descuido,
+  # es lo que obliga a que todo el tráfico pase por el proxy.
+  gateway:
+    build:
+      context: .
+      dockerfile: Catalogo.Gateway/Dockerfile
     ports:
       - "8080:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      # Los destinos se pisan por variable de entorno: en la máquina apuntan a
+      # localhost y acá a los nombres de servicio que resuelve la red de Compose.
+      ReverseProxy__Clusters__mvc__Destinations__destino1__Address: "http://web:8080/"
+      ReverseProxy__Clusters__api__Destinations__destino1__Address: "http://api:8080/"
+    depends_on:
+      - web
+      - api
+
+  web:
+    build: .
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       # El doble guion bajo es como .NET mapea secciones anidadas de configuración.
@@ -33,6 +50,17 @@ services:
     volumes:
       # Los avatares subidos sobreviven al recreado del contenedor.
       - uploads:/app/wwwroot/uploads
+
+  api:
+    build:
+      context: .
+      dockerfile: Catalogo.Api/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__CatalogoDB: "Server=db,1433;Database=CatalogoDB;User Id=sa;Password=Catalogo@Dev2024;TrustServerCertificate=True;"
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
   sqldata:
