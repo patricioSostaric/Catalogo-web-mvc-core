@@ -13,18 +13,19 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      // Todo lo que empiece con /api se reenvia al MVC. Para el navegador
-      // sale del mismo origen que el front, asi que no interviene CORS.
+      // Los dos apuntan al gateway y no al MVC: desde que la API se mudo a su
+      // propio proyecto, el MVC dejo de atender /api. El gateway es el unico
+      // que sabe que ruta va a cual aplicacion, y este proxy solo tiene que
+      // llevarlo hasta ahi.
+      //
+      // Requiere el stack levantado con docker compose up.
       '/api': {
-        target: 'https://localhost:7012',
+        target: 'http://localhost:8080',
         changeOrigin: true,
-        // El certificado de desarrollo de ASP.NET es autofirmado.
-        secure: false,
       },
       '/imagen': {
-        target: 'https://localhost:7012',
+        target: 'http://localhost:8080',
         changeOrigin: true,
-        secure: false,
       },
     },
   },
