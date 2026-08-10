@@ -432,7 +432,31 @@ encendido único.
 | --- | --- |
 | 1 · Endpoint `/api/articulos` dentro del proyecto MVC | ✅ hecho |
 | 2 · Front en React (Vite) consumiendo la API | ✅ hecho |
-| 3 · Extraer la API a su propio proyecto, con **YARP** por delante | ⏳ pendiente |
+| 3 · Extraer la API a su propio proyecto, con **YARP** por delante | ✅ hecho (en local) |
+
+La etapa 3 corre con los proyectos por separado en la máquina de desarrollo. El despliegue
+en Azure sigue siendo de un solo proyecto: el plan gratuito admite una única instancia y
+tres aplicaciones necesitarían tres. La decisión fue priorizar entender el patrón por sobre
+pagar por mostrarlo.
+
+```
+Navegador → Catalogo.Gateway (YARP)
+                 ├── /api/*        → Catalogo.Api
+                 └── {**catch-all} → catalogo-web-mvc (Razor + React en /app)
+```
+
+**El proxy se puso antes de mover nada.** Primero reenviaba todo al MVC, sin que cambiara
+nada visible; recién después se creó `Catalogo.Api` y se cambió el destino de `/api`. Ese
+orden es lo que vuelve reversible cada mudanza: si la API nueva falla, se borra su ruta y
+todo vuelve al MVC sin recompilar ni desplegar. Extrayendo la API primero habría que tocar
+el front, el proxy y el back en un mismo movimiento.
+
+Mover una funcionalidad de una aplicación a otra es cambiar el `ClusterId` de su ruta.
+
+Ese paso destapó dos acoplamientos que nadie veía mientras todo vivía en un proyecto:
+`IArticuloService` devolvía `SelectList` —un tipo de la capa de vistas— y `ArticuloService`
+consultaba el `DbContext` salteándose su propio repositorio. Los dos se arreglaron antes de
+extraer nada.
 
 Las vistas Razor siguen atendiendo el catálogo y el resto de la aplicación. El front en
 React es una segunda forma de acceder a los mismos datos, no un reemplazo — todavía.
