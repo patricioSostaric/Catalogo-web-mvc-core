@@ -3,6 +3,9 @@ using catalogo_web_mvc.Interfaces.Articulos;
 using catalogo_web_mvc.Interfaces.Audit;
 using catalogo_web_mvc.Interfaces.Avatar;
 using catalogo_web_mvc.Interfaces.Email;
+using catalogo_web_mvc.Interfaces.Favoritos;
+using catalogo_web_mvc.Repository.Favoritos;
+using catalogo_web_mvc.Services.Favoritos;
 using catalogo_web_mvc.Services.Audit;
 using catalogo_web_mvc.Interfaces.Carrito;
 using catalogo_web_mvc.Interfaces.Categorias;
@@ -25,6 +28,7 @@ using catalogo_web_mvc.Services.Identity;
 using catalogo_web_mvc.Services.Marcas;
 using catalogo_web_mvc.Services.Pedidos;
 using catalogo_web_mvc.Services.Usuarios;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
@@ -57,6 +61,22 @@ var connectionString = builder.Configuration.GetConnectionString("CatalogoDB");
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+// La cookie de sesion la emite esta aplicacion y la valida tambien Catalogo.Api,
+// que corre en otro proceso. La cookie no dice quien es el usuario: es un texto
+// cifrado con las claves que genera Data Protection. Sin un almacen comun cada
+// aplicacion generaria el suyo y la API veria basura.
+//
+// El nombre de aplicacion tambien tiene que coincidir: forma parte del proposito
+// con el que se derivan las claves, asi que con nombres distintos el descifrado
+// falla aunque compartan el archivo.
+var carpetaClaves = builder.Configuration["DataProtection:RutaClaves"]
+    ?? Path.Combine(builder.Environment.ContentRootPath, "..", "claves-compartidas");
+Directory.CreateDirectory(carpetaClaves);
+
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(carpetaClaves))
+    .SetApplicationName("StoreSostaric");
 // La base es serverless y se pausa sola: al despertar tarda cerca de un minuto y
 // rechaza las conexiones mientras tanto. Sin reintentos, la migracion del arranque
 // falla, la aplicacion muere y el contenedor reinicia en bucle sin llegar a esperarla.
@@ -154,6 +174,8 @@ builder.Services.AddScoped<IMarcaRepository, MarcaRepository>();
 builder.Services.AddScoped<IMarcaService, MarcaService>();
 builder.Services.AddScoped<ICarritoRepository, CarritoRepository>();
 builder.Services.AddScoped<ICarritoService, CarritoService>();
+builder.Services.AddScoped<IFavoritoRepository, FavoritoRepository>();
+builder.Services.AddScoped<IFavoritoService, FavoritoService>();
 builder.Services.AddScoped<IPedidoRepository, PedidoRepository>();
 builder.Services.AddScoped<IPedidoService, PedidoService>();
 builder.Services.AddScoped<IUsuarioAdminService, UsuarioAdminService>();
