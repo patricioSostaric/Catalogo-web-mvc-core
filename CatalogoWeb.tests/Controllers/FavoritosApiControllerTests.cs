@@ -96,6 +96,54 @@ namespace CatalogoWeb.Tests.Controllers
             Assert.Equal(2, favorito.ArticuloId);
         }
 
+        // ── Delete ─────────────────────────────────────────────────────────────
+
+        [Fact]
+        public async Task Delete_QuitaElFavorito_YDevuelve204()
+        {
+            using var context = CrearContexto();
+            await SembrarAsync(context);
+            context.ArticuloFavoritos.Add(new ArticuloFavorito { UserId = "user-1", ArticuloId = 1 });
+            await context.SaveChangesAsync();
+
+            var resultado = await CrearController(context).Delete(1);
+
+            Assert.IsType<NoContentResult>(resultado);
+            Assert.Empty(context.ArticuloFavoritos);
+        }
+
+        // Tocar dos veces el boton no puede romper nada: la segunda llamada encuentra
+        // el estado que se pedia y responde lo mismo.
+        [Fact]
+        public async Task Delete_FavoritoInexistente_TambienDevuelve204()
+        {
+            using var context = CrearContexto();
+            await SembrarAsync(context);
+
+            var resultado = await CrearController(context).Delete(99);
+
+            Assert.IsType<NoContentResult>(resultado);
+        }
+
+        // El id del articulo viene de la URL, pero el del usuario no: sale de la cookie.
+        // Sin eso, cualquiera podria vaciarle los favoritos a otro.
+        [Fact]
+        public async Task Delete_NoTocaElFavoritoDeOtroUsuario()
+        {
+            using var context = CrearContexto();
+            await SembrarAsync(context);
+            context.ArticuloFavoritos.AddRange(
+                new ArticuloFavorito { UserId = "user-1", ArticuloId = 1 },
+                new ArticuloFavorito { UserId = "user-2", ArticuloId = 1 }
+            );
+            await context.SaveChangesAsync();
+
+            await CrearController(context, "user-2").Delete(1);
+
+            var restante = Assert.Single(context.ArticuloFavoritos);
+            Assert.Equal("user-1", restante.UserId);
+        }
+
         // Sin imagen el DTO expone cadena vacia y no null: el front no tiene que
         // distinguir entre "no hay campo" y "no hay imagen".
         [Fact]
