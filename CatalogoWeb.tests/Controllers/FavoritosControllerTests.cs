@@ -1,6 +1,9 @@
 using catalogo_web_mvc.Controllers;
 using catalogo_web_mvc.Data;
+using catalogo_web_mvc.Interfaces.Favoritos;
 using catalogo_web_mvc.Models;
+using catalogo_web_mvc.Repository.Favoritos;
+using catalogo_web_mvc.Services.Favoritos;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +17,12 @@ namespace CatalogoWeb.Tests.Controllers
             new(new DbContextOptionsBuilder<CatalogoContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .Options);
+
+        // Se usa el servicio real sobre la base en memoria, no un mock: lo que interesa
+        // probar acá es el recorrido completo hasta los datos, igual que antes de que
+        // la consulta se moviera del controlador al servicio.
+        private static IFavoritoService Favoritos(CatalogoContext context) =>
+            new FavoritoService(new FavoritoRepository(context));
 
         private static ControllerContext ContextoAutenticado(string userId = "user-1")
         {
@@ -37,7 +46,7 @@ namespace CatalogoWeb.Tests.Controllers
             context.ArticuloFavoritos.Add(new ArticuloFavorito { UserId = "user-1", ArticuloId = 1 });
             await context.SaveChangesAsync();
 
-            var controller = new FavoritosController(context)
+            var controller = new FavoritosController(Favoritos(context))
             {
                 ControllerContext = ContextoAutenticado("user-1")
             };
@@ -54,7 +63,7 @@ namespace CatalogoWeb.Tests.Controllers
         public async Task Index_UsuarioSinFavoritos_RetornaListaVacia()
         {
             using var context = CrearContexto();
-            var controller = new FavoritosController(context)
+            var controller = new FavoritosController(Favoritos(context))
             {
                 ControllerContext = ContextoAutenticado("user-sin-favoritos")
             };
@@ -82,7 +91,7 @@ namespace CatalogoWeb.Tests.Controllers
             );
             await context.SaveChangesAsync();
 
-            var controller = new FavoritosController(context)
+            var controller = new FavoritosController(Favoritos(context))
             {
                 ControllerContext = ContextoAutenticado("user-1")
             };
@@ -101,7 +110,7 @@ namespace CatalogoWeb.Tests.Controllers
         public async Task Add_ArticuloNuevo_AgregaFavorito_YRedirige()
         {
             using var context = CrearContexto();
-            var controller = new FavoritosController(context)
+            var controller = new FavoritosController(Favoritos(context))
             {
                 ControllerContext = ContextoAutenticado("user-1")
             };
@@ -121,7 +130,7 @@ namespace CatalogoWeb.Tests.Controllers
             context.ArticuloFavoritos.Add(new ArticuloFavorito { UserId = "user-1", ArticuloId = 5 });
             await context.SaveChangesAsync();
 
-            var controller = new FavoritosController(context)
+            var controller = new FavoritosController(Favoritos(context))
             {
                 ControllerContext = ContextoAutenticado("user-1")
             };
@@ -135,7 +144,7 @@ namespace CatalogoWeb.Tests.Controllers
         public async Task Add_RedirigePaginaIndex()
         {
             using var context = CrearContexto();
-            var controller = new FavoritosController(context)
+            var controller = new FavoritosController(Favoritos(context))
             {
                 ControllerContext = ContextoAutenticado("user-1")
             };
@@ -155,7 +164,7 @@ namespace CatalogoWeb.Tests.Controllers
             context.ArticuloFavoritos.Add(new ArticuloFavorito { UserId = "user-1", ArticuloId = 3 });
             await context.SaveChangesAsync();
 
-            var controller = new FavoritosController(context)
+            var controller = new FavoritosController(Favoritos(context))
             {
                 ControllerContext = ContextoAutenticado("user-1")
             };
@@ -170,7 +179,7 @@ namespace CatalogoWeb.Tests.Controllers
         public async Task Remove_FavoritoInexistente_NoCrashYRedirige()
         {
             using var context = CrearContexto();
-            var controller = new FavoritosController(context)
+            var controller = new FavoritosController(Favoritos(context))
             {
                 ControllerContext = ContextoAutenticado("user-1")
             };
@@ -190,7 +199,7 @@ namespace CatalogoWeb.Tests.Controllers
             );
             await context.SaveChangesAsync();
 
-            var controller = new FavoritosController(context)
+            var controller = new FavoritosController(Favoritos(context))
             {
                 ControllerContext = ContextoAutenticado("user-1")
             };

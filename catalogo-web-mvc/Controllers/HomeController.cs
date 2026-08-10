@@ -1,9 +1,8 @@
-using catalogo_web_mvc.Data;
 using catalogo_web_mvc.Interfaces.Articulos;
+using catalogo_web_mvc.Interfaces.Favoritos;
 using catalogo_web_mvc.Models;
 using catalogo_web_mvc.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using System.Security.Claims;
 
@@ -12,12 +11,12 @@ namespace catalogo_web_mvc.Controllers
     public class HomeController : Controller
     {
         private readonly IArticuloService _service;
-        private readonly CatalogoContext _context;
+        private readonly IFavoritoService _favoritos;
 
-        public HomeController(IArticuloService service, CatalogoContext context)
+        public HomeController(IArticuloService service, IFavoritoService favoritos)
         {
             _service = service;
-            _context = context;
+            _favoritos = favoritos;
         }
 
         public async Task<IActionResult> Index(string? searchString, int? page)
@@ -31,11 +30,8 @@ namespace catalogo_web_mvc.Controllers
 
             if (User.Identity?.IsAuthenticated == true)
             {
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                ViewBag.Favoritos = await _context.ArticuloFavoritos
-                    .Where(f => f.UserId == userId)
-                    .Select(f => f.ArticuloId)
-                    .ToHashSetAsync();
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+                ViewBag.Favoritos = await _favoritos.IdsDeUsuarioAsync(userId);
             }
             else
             {
@@ -52,9 +48,8 @@ namespace catalogo_web_mvc.Controllers
 
             if (User.Identity?.IsAuthenticated == true)
             {
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                ViewBag.EsFavorito = await _context.ArticuloFavoritos
-                    .AnyAsync(f => f.UserId == userId && f.ArticuloId == id);
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+                ViewBag.EsFavorito = await _favoritos.EsFavoritoAsync(userId, id);
             }
             else
             {

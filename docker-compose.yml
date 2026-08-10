@@ -44,12 +44,16 @@ services:
       # El doble guion bajo es como .NET mapea secciones anidadas de configuración.
       # TrustServerCertificate es necesario porque el contenedor de SQL usa un cert autofirmado.
       ConnectionStrings__CatalogoDB: "Server=db,1433;Database=CatalogoDB;User Id=sa;Password=Catalogo@Dev2024;TrustServerCertificate=True;"
+      # Las dos aplicaciones cifran y descifran la cookie de sesión con el mismo
+      # juego de claves, que se guarda en un volumen compartido.
+      DataProtection__RutaClaves: /claves
     depends_on:
       db:
         condition: service_healthy
     volumes:
       # Los avatares subidos sobreviven al recreado del contenedor.
       - uploads:/app/wwwroot/uploads
+      - claves:/claves
 
   api:
     build:
@@ -58,10 +62,14 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__CatalogoDB: "Server=db,1433;Database=CatalogoDB;User Id=sa;Password=Catalogo@Dev2024;TrustServerCertificate=True;"
+      DataProtection__RutaClaves: /claves
     depends_on:
       db:
         condition: service_healthy
+    volumes:
+      - claves:/claves
 
 volumes:
   sqldata:
   uploads:
+  claves:

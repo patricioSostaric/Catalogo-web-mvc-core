@@ -38,3 +38,8 @@ catalogo-web-mvc/wwwroot/uploads/avatars/*
 # se puede regenerar no se versiona, y ademas versionarlo permitiria desplegar
 # un front viejo por haber olvidado compilar.
 catalogo-web-mvc/wwwroot/app/
+
+# Claves de Data Protection compartidas entre el MVC y la API. Con ellas se cifra
+# la cookie de sesion: publicarlas permitiria falsificar sesiones de cualquier
+# usuario. Se generan solas la primera vez que arranca cualquiera de las dos.
+claves-compartidas/

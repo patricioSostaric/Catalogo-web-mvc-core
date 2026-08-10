@@ -1,7 +1,10 @@
 using catalogo_web_mvc.Controllers;
 using catalogo_web_mvc.Data;
 using catalogo_web_mvc.Interfaces.Articulos;
+using catalogo_web_mvc.Interfaces.Favoritos;
 using catalogo_web_mvc.Models;
+using catalogo_web_mvc.Repository.Favoritos;
+using catalogo_web_mvc.Services.Favoritos;
 using catalogo_web_mvc.Models.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -21,6 +24,9 @@ namespace CatalogoWeb.Tests.Controllers
         {
             _serviceMock = new Mock<IArticuloService>();
         }
+
+        private static IFavoritoService Favoritos(CatalogoContext context) =>
+            new FavoritoService(new FavoritoRepository(context));
 
         private static CatalogoContext CrearContexto() =>
             new(new DbContextOptionsBuilder<CatalogoContext>()
@@ -63,7 +69,7 @@ namespace CatalogoWeb.Tests.Controllers
             _serviceMock.Setup(s => s.BuscarAsync(It.IsAny<string>(), It.IsAny<bool>(),
                 It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>()))
                 .ReturnsAsync(ListaPaginada(ArticulosDeEjemplo()));
-            var controller = new HomeController(_serviceMock.Object, context)
+            var controller = new HomeController(_serviceMock.Object, Favoritos(context))
             {
                 ControllerContext = ContextoAnonimo()
             };
@@ -81,7 +87,7 @@ namespace CatalogoWeb.Tests.Controllers
             _serviceMock.Setup(s => s.BuscarAsync(It.IsAny<string>(), It.IsAny<bool>(),
                 It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>()))
                 .ReturnsAsync(ListaPaginada([]));
-            var controller = new HomeController(_serviceMock.Object, context)
+            var controller = new HomeController(_serviceMock.Object, Favoritos(context))
             {
                 ControllerContext = ContextoAnonimo()
             };
@@ -99,7 +105,7 @@ namespace CatalogoWeb.Tests.Controllers
             _serviceMock.Setup(s => s.BuscarAsync(It.IsAny<string>(), It.IsAny<bool>(),
                 It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>()))
                 .ReturnsAsync(ListaPaginada(ArticulosDeEjemplo()));
-            var controller = new HomeController(_serviceMock.Object, context)
+            var controller = new HomeController(_serviceMock.Object, Favoritos(context))
             {
                 ControllerContext = ContextoAnonimo()
             };
@@ -121,7 +127,7 @@ namespace CatalogoWeb.Tests.Controllers
             _serviceMock.Setup(s => s.BuscarAsync(It.IsAny<string>(), It.IsAny<bool>(),
                 It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>()))
                 .ReturnsAsync(ListaPaginada(ArticulosDeEjemplo()));
-            var controller = new HomeController(_serviceMock.Object, context)
+            var controller = new HomeController(_serviceMock.Object, Favoritos(context))
             {
                 ControllerContext = ContextoAutenticado("user-1")
             };
@@ -151,7 +157,7 @@ namespace CatalogoWeb.Tests.Controllers
             using var context = CrearContexto();
             _serviceMock.Setup(s => s.ObtenerDetallePublicoAsync(1))
                 .ReturnsAsync(DetalleDeEjemplo(1));
-            var controller = new HomeController(_serviceMock.Object, context)
+            var controller = new HomeController(_serviceMock.Object, Favoritos(context))
             {
                 ControllerContext = ContextoAnonimo()
             };
@@ -169,7 +175,7 @@ namespace CatalogoWeb.Tests.Controllers
             using var context = CrearContexto();
             _serviceMock.Setup(s => s.ObtenerDetallePublicoAsync(99))
                 .ReturnsAsync((ArticuloDetalleViewModel?)null);
-            var controller = new HomeController(_serviceMock.Object, context);
+            var controller = new HomeController(_serviceMock.Object, Favoritos(context));
 
             var resultado = await controller.Detalle(99);
 
@@ -182,7 +188,7 @@ namespace CatalogoWeb.Tests.Controllers
             using var context = CrearContexto();
             _serviceMock.Setup(s => s.ObtenerDetallePublicoAsync(1))
                 .ReturnsAsync(DetalleDeEjemplo(1));
-            var controller = new HomeController(_serviceMock.Object, context)
+            var controller = new HomeController(_serviceMock.Object, Favoritos(context))
             {
                 ControllerContext = ContextoAnonimo()
             };
@@ -201,7 +207,7 @@ namespace CatalogoWeb.Tests.Controllers
 
             _serviceMock.Setup(s => s.ObtenerDetallePublicoAsync(1))
                 .ReturnsAsync(DetalleDeEjemplo(1));
-            var controller = new HomeController(_serviceMock.Object, context)
+            var controller = new HomeController(_serviceMock.Object, Favoritos(context))
             {
                 ControllerContext = ContextoAutenticado("user-1")
             };
@@ -217,7 +223,7 @@ namespace CatalogoWeb.Tests.Controllers
             using var context = CrearContexto();
             _serviceMock.Setup(s => s.ObtenerDetallePublicoAsync(1))
                 .ReturnsAsync(DetalleDeEjemplo(1));
-            var controller = new HomeController(_serviceMock.Object, context)
+            var controller = new HomeController(_serviceMock.Object, Favoritos(context))
             {
                 ControllerContext = ContextoAutenticado("user-1")
             };
@@ -236,7 +242,7 @@ namespace CatalogoWeb.Tests.Controllers
             _serviceMock.Setup(s => s.BuscarAsync(It.IsAny<string>(), It.IsAny<bool>(),
                 It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>()))
                 .ReturnsAsync(ListaPaginada(ArticulosDeEjemplo()));
-            var controller = new HomeController(_serviceMock.Object, context)
+            var controller = new HomeController(_serviceMock.Object, Favoritos(context))
             {
                 ControllerContext = ContextoAnonimo()
             };

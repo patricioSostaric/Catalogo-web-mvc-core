@@ -94,7 +94,25 @@ namespace CatalogoWeb.Tests.Controllers
             Assert.True(string.IsNullOrEmpty(atributo.Roles));
         }
 
+        // Sin este atributo el endpoint respondería a cualquiera, y como el usuario sale
+        // del principal, una petición anónima devolvería los favoritos de nadie o
+        // reventaría. El test fija que la protección no se puede quitar sin darse cuenta.
+        [Fact]
+        public void FavoritosApiController_ExigeSesionIniciada()
+        {
+            var atributo = ObtenerAtributo<catalogo_web_mvc.Controllers.Api.FavoritosApiController>();
+            Assert.NotNull(atributo);
+            Assert.True(string.IsNullOrEmpty(atributo.Roles));
+        }
+
         // ── Controladores públicos ─────────────────────────────────────────────
+
+        [Fact]
+        public void ArticulosApiController_NoTieneAtributoAuthorize()
+        {
+            var atributo = ObtenerAtributo<catalogo_web_mvc.Controllers.Api.ArticulosApiController>();
+            Assert.Null(atributo);
+        }
 
         [Fact]
         public void HomeController_NoTieneAtributoAuthorize()
