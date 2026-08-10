@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>catalogo_web_mvc</RootNamespace>
+    <!-- Mismo identificador que el MVC: las dos aplicaciones son el mismo sistema
+         contra la misma base, y compartir los secretos evita duplicar la cadena de
+         conexion en la maquina de desarrollo. -->
+    <UserSecretsId>b1cc3b04-d3e0-4a5b-824a-d176f74fca4c</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Catalogo.Datos\Catalogo.Datos.csproj" />
+  </ItemGroup>
+
+</Project>

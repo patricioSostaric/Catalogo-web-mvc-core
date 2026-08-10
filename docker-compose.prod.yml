@@ -27,3 +27,16 @@ services:
       Seed__SuperAdminEmail: ${SEED_SUPERADMIN_EMAIL:?definir SEED_SUPERADMIN_EMAIL en .env}
       Seed__SuperAdminPassword: ${SEED_SUPERADMIN_PASSWORD:?definir SEED_SUPERADMIN_PASSWORD en .env}
     restart: unless-stopped
+
+  # Sin este bloque la API heredaria del compose base el entorno Development y la
+  # contrasena de ejemplo, que es justo lo que este archivo existe para evitar.
+  api:
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__CatalogoDB: "Server=db,1433;Database=CatalogoDB;User Id=sa;Password=${MSSQL_SA_PASSWORD:?definir MSSQL_SA_PASSWORD en .env};TrustServerCertificate=True;"
+    restart: unless-stopped
+
+  gateway:
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+    restart: unless-stopped

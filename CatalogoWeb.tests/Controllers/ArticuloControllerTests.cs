@@ -1,6 +1,8 @@
-using catalogo_web_mvc.Controllers;
+﻿using catalogo_web_mvc.Controllers;
 using catalogo_web_mvc.Interfaces.Articulos;
 using catalogo_web_mvc.Interfaces.Audit;
+using catalogo_web_mvc.Interfaces.Categorias;
+using catalogo_web_mvc.Interfaces.Marcas;
 using catalogo_web_mvc.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -16,13 +18,18 @@ namespace CatalogoWeb.Tests.Controllers
     {
         private readonly Mock<IArticuloService> _serviceMock;
         private readonly Mock<IAuditService> _auditMock;
+        private readonly Mock<IMarcaService> _marcasMock;
+        private readonly Mock<ICategoriaService> _categoriasMock;
         private readonly ArticuloController _controller;
 
         public ArticuloControllerTests()
         {
             _serviceMock = new Mock<IArticuloService>();
             _auditMock = new Mock<IAuditService>();
-            _controller = new ArticuloController(_serviceMock.Object, _auditMock.Object);
+            _marcasMock = new Mock<IMarcaService>();
+            _categoriasMock = new Mock<ICategoriaService>();
+            _controller = new ArticuloController(_serviceMock.Object, _auditMock.Object,
+                _marcasMock.Object, _categoriasMock.Object);
             _controller.ControllerContext = new ControllerContext
             {
                 HttpContext = new DefaultHttpContext
@@ -39,13 +46,13 @@ namespace CatalogoWeb.Tests.Controllers
         private static IPagedList<Articulo> ListaPaginada(IEnumerable<Articulo> articulos, int page = 1, int size = 10)
             => articulos.ToList().ToPagedList(page, size);
 
-        private static SelectList SelectListVacia()
-            => new SelectList(Array.Empty<object>());
-
+        // Los desplegables ya no los arma el servicio de articulos: el controlador
+        // pide las listas a los servicios de marcas y categorias y construye el
+        // SelectList, que es un tipo de la capa de vistas.
         private void ConfigurarSelectLists(int? marcaId = null, int? categoriaId = null)
         {
-            _serviceMock.Setup(s => s.GetMarcasSelectList(It.IsAny<int?>())).ReturnsAsync(SelectListVacia());
-            _serviceMock.Setup(s => s.GetCategoriasSelectList(It.IsAny<int?>())).ReturnsAsync(SelectListVacia());
+            _marcasMock.Setup(s => s.GetAllAsync()).ReturnsAsync(new List<Marca>());
+            _categoriasMock.Setup(s => s.GetAllAsync()).ReturnsAsync(new List<Categoria>());
         }
 
         // ── Index ─────────────────────────────────────────────────────────────
@@ -168,8 +175,39 @@ namespace CatalogoWeb.Tests.Controllers
 
             await _controller.Create();
 
-            _serviceMock.Verify(s => s.GetMarcasSelectList(It.IsAny<int?>()), Times.Once);
-            _serviceMock.Verify(s => s.GetCategoriasSelectList(It.IsAny<int?>()), Times.Once);
+            _marcasMock.Verify(s => s.GetAllAsync(), Times.Once);
+            _categoriasMock.Verify(s => s.GetAllAsync(), Times.Once);
+        }
+
+        [Fact]
+        public async Task Create_Get_OrdenaLosDesplegablesAlfabeticamente()
+        {
+            // El orden lo aplicaba el servicio cuando armaba el SelectList. Al pasar
+            // esa responsabilidad al controlador, la garantia se verifica aca.
+            _marcasMock.Setup(s => s.GetAllAsync()).ReturnsAsync(new List<Marca>
+            {
+                new() { MarcaId = 1, Descripcion = "Samsung" },
+                new() { MarcaId = 2, Descripcion = "Apple" }
+            });
+            _categoriasMock.Setup(s => s.GetAllAsync()).ReturnsAsync(new List<Categoria>
+            {
+                new() { CategoriaId = 1, Descripcion = "Televisores" },
+                new() { CategoriaId = 2, Descripcion = "Celulares" }
+            });
+
+            await _controller.Create();
+
+            // Los metodos de extension no se resuelven sobre dynamic, asi que hay
+            // que salir de ViewBag antes de usar LINQ.
+            SelectList desplegableMarcas = _controller.ViewBag.MarcaId;
+            var marcas = desplegableMarcas.Cast<SelectListItem>().ToList();
+            Assert.Equal("Apple", marcas[0].Text);
+            Assert.Equal("Samsung", marcas[1].Text);
+
+            SelectList desplegableCategorias = _controller.ViewBag.CategoriaId;
+            var categorias = desplegableCategorias.Cast<SelectListItem>().ToList();
+            Assert.Equal("Celulares", categorias[0].Text);
+            Assert.Equal("Televisores", categorias[1].Text);
         }
 
         // ── Create POST ───────────────────────────────────────────────────────
@@ -210,8 +248,8 @@ namespace CatalogoWeb.Tests.Controllers
 
             await _controller.Create(articulo);
 
-            _serviceMock.Verify(s => s.GetMarcasSelectList(It.IsAny<int?>()), Times.Once);
-            _serviceMock.Verify(s => s.GetCategoriasSelectList(It.IsAny<int?>()), Times.Once);
+            _marcasMock.Verify(s => s.GetAllAsync(), Times.Once);
+            _categoriasMock.Verify(s => s.GetAllAsync(), Times.Once);
         }
 
         // ── Edit GET ──────────────────────────────────────────────────────────
@@ -248,8 +286,8 @@ namespace CatalogoWeb.Tests.Controllers
 
             await _controller.Edit(1);
 
-            _serviceMock.Verify(s => s.GetMarcasSelectList(It.IsAny<int?>()), Times.Once);
-            _serviceMock.Verify(s => s.GetCategoriasSelectList(It.IsAny<int?>()), Times.Once);
+            _marcasMock.Verify(s => s.GetAllAsync(), Times.Once);
+            _categoriasMock.Verify(s => s.GetAllAsync(), Times.Once);
         }
 
         // ── Edit POST ─────────────────────────────────────────────────────────
@@ -301,8 +339,8 @@ namespace CatalogoWeb.Tests.Controllers
 
             await _controller.Edit(1, articulo);
 
-            _serviceMock.Verify(s => s.GetMarcasSelectList(It.IsAny<int?>()), Times.Once);
-            _serviceMock.Verify(s => s.GetCategoriasSelectList(It.IsAny<int?>()), Times.Once);
+            _marcasMock.Verify(s => s.GetAllAsync(), Times.Once);
+            _categoriasMock.Verify(s => s.GetAllAsync(), Times.Once);
         }
 
         // ── Delete GET ────────────────────────────────────────────────────────

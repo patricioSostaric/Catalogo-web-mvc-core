@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <!-- Los archivos conservan el namespace catalogo_web_mvc.* para que la mudanza
+         no toque los controladores, las vistas ni los tests. Renombrarlos es un
+         cambio aparte, mecanico y ruidoso, que conviene no mezclar con este. -->
+    <RootNamespace>catalogo_web_mvc</RootNamespace>
+  </PropertyGroup>
+
+  <!-- Identity, IHttpContextAccessor y las anotaciones de model binding viven en el
+       framework web. Una biblioteca puede usarlos con FrameworkReference sin volverse
+       una aplicacion ni arrastrar MVC. -->
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <!-- El SDK web incluye estos namespaces de forma implicita y el de biblioteca no.
+       Declararlos aca evita agregar usings a archivos que no cambiaron: la mudanza
+       queda como lo que es, mover archivos de lugar. -->
+  <ItemGroup>
+    <Using Include="Microsoft.AspNetCore.Http" />
+    <Using Include="Microsoft.AspNetCore.Hosting" />
+    <Using Include="Microsoft.Extensions.Logging" />
+    <Using Include="Microsoft.Extensions.DependencyInjection" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.7" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.7" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.7" />
+    <PackageReference Include="X.PagedList" Version="10.5.9" />
+  </ItemGroup>
+
+</Project>

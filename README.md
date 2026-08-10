@@ -6,7 +6,7 @@
 ![SQL Server](https://img.shields.io/badge/SQL%20Server-CC2927?logo=microsoftsqlserver&logoColor=white)
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
 ![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-535%20passing-success)
+![Tests](https://img.shields.io/badge/tests-532%20passing-success)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
 Tienda de artículos electrónicos con catálogo público, carrito, pedidos y panel de
@@ -140,9 +140,7 @@ justificación.
 ### Estructura del proyecto
 
 ```
-catalogo-web-mvc/
-├── Controllers/          Home, Articulo, Marcas, Categorias, Favoritos, Carrito, Pedidos, GestionPedidos, AuditLog, Usuarios, Account
-│   └── Api/              Endpoints JSON (ArticulosApi)
+Catalogo.Datos/           Biblioteca compartida: no depende de ninguna aplicación
 ├── Interfaces/           Contratos por módulo: Articulos, Marcas, Categorias, Carrito, Pedidos, Audit, Email
 ├── Services/             Lógica de negocio + Email, Audit, Identity
 ├── Repository/           Acceso a datos por entidad
@@ -151,11 +149,30 @@ catalogo-web-mvc/
 │   ├── ViewModels/       Contratos con las vistas
 │   ├── Dtos/             Contratos con los clientes de la API
 │   └── Settings/         Configuración tipada (SmtpSettings)
-├── Migrations/           9 migraciones versionadas de EF Core
+└── Migrations/           12 migraciones versionadas de EF Core
+
+catalogo-web-mvc/         Aplicación web
+├── Controllers/          Home, Articulo, Marcas, Categorias, Favoritos, Carrito, Pedidos, GestionPedidos, AuditLog, Usuarios, Account
+│   └── Api/              Endpoints JSON (ArticulosApi)
 ├── Views/                Razor, con partials reutilizables
+├── wwwroot/app/          El front en React compilado
 └── Program.cs            Registro de DI y pipeline de middleware
 
-CatalogoWeb.tests/        535 tests unitarios
+Catalogo.Gateway/         Proxy inverso con YARP
+catalogo-front/           Front en React (Vite)
+CatalogoWeb.tests/        532 tests unitarios
+```
+
+Las capas de negocio y datos viven en una biblioteca aparte para que más de una
+aplicación pueda usarlas: hoy el MVC, y en el paso siguiente el proyecto de la API. Una
+biblioteca no puede referenciar a una aplicación, así que la dependencia solo va en una
+dirección.
+
+Los comandos de EF Core necesitan indicar los dos proyectos, porque el contexto ya no
+vive donde está la configuración:
+
+```bash
+dotnet ef migrations add NombreDeLaMigracion --project Catalogo.Datos --startup-project catalogo-web-mvc
 ```
 
 ---
@@ -189,11 +206,11 @@ CatalogoWeb.tests/        535 tests unitarios
 
 ## 🧪 Testing
 
-**535 tests unitarios, la totalidad en verde.**
+**532 tests unitarios, la totalidad en verde.**
 
 ```bash
 dotnet test
-# Correctas! - Con error: 0, Superado: 535, Omitido: 0, Total: 535
+# Correctas! - Con error: 0, Superado: 532, Omitido: 0, Total: 532
 ```
 
 Cobertura por capa:
@@ -415,7 +432,31 @@ encendido único.
 | --- | --- |
 | 1 · Endpoint `/api/articulos` dentro del proyecto MVC | ✅ hecho |
 | 2 · Front en React (Vite) consumiendo la API | ✅ hecho |
-| 3 · Extraer la API a su propio proyecto, con **YARP** por delante | ⏳ pendiente |
+| 3 · Extraer la API a su propio proyecto, con **YARP** por delante | ✅ hecho (en local) |
+
+La etapa 3 corre con los proyectos por separado en la máquina de desarrollo. El despliegue
+en Azure sigue siendo de un solo proyecto: el plan gratuito admite una única instancia y
+tres aplicaciones necesitarían tres. La decisión fue priorizar entender el patrón por sobre
+pagar por mostrarlo.
+
+```
+Navegador → Catalogo.Gateway (YARP)
+                 ├── /api/*        → Catalogo.Api
+                 └── {**catch-all} → catalogo-web-mvc (Razor + React en /app)
+```
+
+**El proxy se puso antes de mover nada.** Primero reenviaba todo al MVC, sin que cambiara
+nada visible; recién después se creó `Catalogo.Api` y se cambió el destino de `/api`. Ese
+orden es lo que vuelve reversible cada mudanza: si la API nueva falla, se borra su ruta y
+todo vuelve al MVC sin recompilar ni desplegar. Extrayendo la API primero habría que tocar
+el front, el proxy y el back en un mismo movimiento.
+
+Mover una funcionalidad de una aplicación a otra es cambiar el `ClusterId` de su ruta.
+
+Ese paso destapó dos acoplamientos que nadie veía mientras todo vivía en un proyecto:
+`IArticuloService` devolvía `SelectList` —un tipo de la capa de vistas— y `ArticuloService`
+consultaba el `DbContext` salteándose su propio repositorio. Los dos se arreglaron antes de
+extraer nada.
 
 Las vistas Razor siguen atendiendo el catálogo y el resto de la aplicación. El front en
 React es una segunda forma de acceder a los mismos datos, no un reemplazo — todavía.

@@ -240,8 +240,10 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
-// Habilita el ruteo por atributos, que es el que usan los controladores de API.
-app.MapControllers();
+// El ruteo por atributos ya no hace falta aca: los endpoints JSON se mudaron a
+// Catalogo.Api y el gateway los enruta. Este proyecto solo atiende vistas Razor
+// y los archivos estaticos del front compilado.
+
 // El ruteo de React ocurre en el navegador: el servidor no conoce /app/articulo/2.
 // Para cualquier ruta bajo /app se devuelve el index y React decide que pantalla
 // corresponde. Sin esto la aplicacion navega bien pero falla al recargar.
