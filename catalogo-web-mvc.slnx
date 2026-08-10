@@ -1,4 +1,5 @@
 <Solution>
   <Project Path="catalogo-web-mvc/catalogo-web-mvc.csproj" />
+  <Project Path="Catalogo.Gateway/Catalogo.Gateway.csproj" />
   <Project Path="CatalogoWeb.tests/CatalogoWeb.Tests.csproj" Id="f372e294-2e03-4f51-9b9e-b9baa778fdd9" />
 </Solution>
