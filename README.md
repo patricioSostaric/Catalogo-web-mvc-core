@@ -140,9 +140,7 @@ justificación.
 ### Estructura del proyecto
 
 ```
-catalogo-web-mvc/
-├── Controllers/          Home, Articulo, Marcas, Categorias, Favoritos, Carrito, Pedidos, GestionPedidos, AuditLog, Usuarios, Account
-│   └── Api/              Endpoints JSON (ArticulosApi)
+Catalogo.Datos/           Biblioteca compartida: no depende de ninguna aplicación
 ├── Interfaces/           Contratos por módulo: Articulos, Marcas, Categorias, Carrito, Pedidos, Audit, Email
 ├── Services/             Lógica de negocio + Email, Audit, Identity
 ├── Repository/           Acceso a datos por entidad
@@ -151,11 +149,30 @@ catalogo-web-mvc/
 │   ├── ViewModels/       Contratos con las vistas
 │   ├── Dtos/             Contratos con los clientes de la API
 │   └── Settings/         Configuración tipada (SmtpSettings)
-├── Migrations/           9 migraciones versionadas de EF Core
+└── Migrations/           12 migraciones versionadas de EF Core
+
+catalogo-web-mvc/         Aplicación web
+├── Controllers/          Home, Articulo, Marcas, Categorias, Favoritos, Carrito, Pedidos, GestionPedidos, AuditLog, Usuarios, Account
+│   └── Api/              Endpoints JSON (ArticulosApi)
 ├── Views/                Razor, con partials reutilizables
+├── wwwroot/app/          El front en React compilado
 └── Program.cs            Registro de DI y pipeline de middleware
 
+Catalogo.Gateway/         Proxy inverso con YARP
+catalogo-front/           Front en React (Vite)
 CatalogoWeb.tests/        532 tests unitarios
+```
+
+Las capas de negocio y datos viven en una biblioteca aparte para que más de una
+aplicación pueda usarlas: hoy el MVC, y en el paso siguiente el proyecto de la API. Una
+biblioteca no puede referenciar a una aplicación, así que la dependencia solo va en una
+dirección.
+
+Los comandos de EF Core necesitan indicar los dos proyectos, porque el contexto ya no
+vive donde está la configuración:
+
+```bash
+dotnet ef migrations add NombreDeLaMigracion --project Catalogo.Datos --startup-project catalogo-web-mvc
 ```
 
 ---
