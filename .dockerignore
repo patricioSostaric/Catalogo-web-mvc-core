@@ -7,3 +7,11 @@
 screenShots/
 **/appsettings.Development.json
 **/*.user
+
+# El front se compila dentro de la imagen: las dependencias se instalan alli con
+# npm ci, y el resultado lo genera la etapa de Node. Copiar cualquiera de las dos
+# cosas desde la maquina de desarrollo solo agrandaria el contexto y arriesgaria
+# meter una compilacion vieja en la imagen.
+catalogo-front/node_modules/
+catalogo-front/dist/
+catalogo-web-mvc/wwwroot/app/

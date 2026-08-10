@@ -1,3 +1,18 @@
+# Etapa del front: compila React a archivos estaticos. Node no viaja a la imagen
+# final, igual que el SDK de .NET: solo se usa para producir el resultado.
+FROM node:24-alpine AS front
+WORKDIR /front
+
+# Mismo criterio que con el csproj: se copia primero el manifiesto para que Docker
+# cachee la instalacion de dependencias mientras no cambien.
+COPY catalogo-front/package.json catalogo-front/package-lock.json ./
+RUN npm ci
+
+COPY catalogo-front/ ./
+# vite.config.js publica en ../catalogo-web-mvc/wwwroot/app, que aca queda en
+# /catalogo-web-mvc/wwwroot/app.
+RUN npm run build
+
 # Etapa de compilación: usa el SDK completo, que no viaja a la imagen final.
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
@@ -8,6 +23,12 @@ COPY catalogo-web-mvc/catalogo-web-mvc.csproj catalogo-web-mvc/
 RUN dotnet restore catalogo-web-mvc/catalogo-web-mvc.csproj
 
 COPY catalogo-web-mvc/ catalogo-web-mvc/
+
+# El front compilado entra a wwwroot antes de publicar, asi viaja dentro de la
+# imagen como un archivo estatico mas. Si faltara este paso la aplicacion
+# arrancaria igual y /app responderia 404.
+COPY --from=front /catalogo-web-mvc/wwwroot/app catalogo-web-mvc/wwwroot/app
+
 RUN dotnet publish catalogo-web-mvc/catalogo-web-mvc.csproj -c Release -o /app/publish
 
 # Etapa final: solo el runtime de ASP.NET, mucho más liviana.
