@@ -6,7 +6,7 @@
 ![SQL Server](https://img.shields.io/badge/SQL%20Server-CC2927?logo=microsoftsqlserver&logoColor=white)
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
 ![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-535%20passing-success)
+![Tests](https://img.shields.io/badge/tests-532%20passing-success)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
 Tienda de artículos electrónicos con catálogo público, carrito, pedidos y panel de
@@ -155,7 +155,7 @@ catalogo-web-mvc/
 ├── Views/                Razor, con partials reutilizables
 └── Program.cs            Registro de DI y pipeline de middleware
 
-CatalogoWeb.tests/        535 tests unitarios
+CatalogoWeb.tests/        532 tests unitarios
 ```
 
 ---
@@ -189,11 +189,11 @@ CatalogoWeb.tests/        535 tests unitarios
 
 ## 🧪 Testing
 
-**535 tests unitarios, la totalidad en verde.**
+**532 tests unitarios, la totalidad en verde.**
 
 ```bash
 dotnet test
-# Correctas! - Con error: 0, Superado: 535, Omitido: 0, Total: 535
+# Correctas! - Con error: 0, Superado: 532, Omitido: 0, Total: 532
 ```
 
 Cobertura por capa:

@@ -1,4 +1,4 @@
-using catalogo_web_mvc.Data;
+﻿using catalogo_web_mvc.Data;
 using catalogo_web_mvc.Interfaces.Articulos;
 using catalogo_web_mvc.Models;
 using catalogo_web_mvc.Services.Articulos;
@@ -26,7 +26,7 @@ namespace CatalogoWeb.Tests.Services
             _context = new CatalogoContext(options);
             SeedContexto(_context);
 
-            _service = new ArticuloService(_repoMock.Object, _context);
+            _service = new ArticuloService(_repoMock.Object);
         }
 
         private static void SeedContexto(CatalogoContext ctx)
@@ -391,44 +391,6 @@ namespace CatalogoWeb.Tests.Services
             var resultado = await _service.BuscarAsync(null, false, null, null, null, 1, 10, soloActivos: false);
 
             Assert.Equal(4, resultado.TotalItemCount);
-        }
-
-        // ── SelectLists ───────────────────────────────────────────────────────
-
-        [Fact]
-        public async Task GetMarcasSelectList_RetornaTodasLasMarcas()
-        {
-            var result = await _service.GetMarcasSelectList();
-
-            Assert.Equal(2, result.Count());
-        }
-
-        [Fact]
-        public async Task GetMarcasSelectList_RetornaListaOrdenadaAlfabeticamente()
-        {
-            var result = await _service.GetMarcasSelectList();
-
-            var items = result.Cast<SelectListItem>().ToList();
-            Assert.Equal("Apple", items[0].Text);
-            Assert.Equal("Samsung", items[1].Text);
-        }
-
-        [Fact]
-        public async Task GetCategoriasSelectList_RetornaTodasLasCategorias()
-        {
-            var result = await _service.GetCategoriasSelectList();
-
-            Assert.Equal(2, result.Count());
-        }
-
-        [Fact]
-        public async Task GetCategoriasSelectList_RetornaListaOrdenadaAlfabeticamente()
-        {
-            var result = await _service.GetCategoriasSelectList();
-
-            var items = result.Cast<SelectListItem>().ToList();
-            Assert.Equal("Celulares", items[0].Text);
-            Assert.Equal("Televisores", items[1].Text);
         }
 
         // ── Delegación al repositorio ─────────────────────────────────────────

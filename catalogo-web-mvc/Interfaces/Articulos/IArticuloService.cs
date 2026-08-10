@@ -1,7 +1,6 @@
 ﻿using catalogo_web_mvc.Models;
 using catalogo_web_mvc.Models.ViewModels;
 using X.PagedList;
-using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace catalogo_web_mvc.Interfaces.Articulos
 {
@@ -16,8 +15,5 @@ namespace catalogo_web_mvc.Interfaces.Articulos
         Task UpdateAsync(Articulo articulo);
         Task DeleteAsync(int id);
         Task<bool> ExistsAsync(int id);
-
-        Task<SelectList> GetMarcasSelectList(int? selectedId = null);
-        Task<SelectList> GetCategoriasSelectList(int? selectedId = null);
     }
 }

@@ -11,6 +11,8 @@ using X.PagedList;
 using X.PagedList.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using catalogo_web_mvc.Interfaces.Audit;
+using catalogo_web_mvc.Interfaces.Marcas;
+using catalogo_web_mvc.Interfaces.Categorias;
 using System.Security.Claims;
 
 namespace catalogo_web_mvc.Controllers
@@ -20,11 +22,31 @@ namespace catalogo_web_mvc.Controllers
     {
         private readonly IArticuloService _service;
         private readonly IAuditService _audit;
+        private readonly IMarcaService _marcas;
+        private readonly ICategoriaService _categorias;
 
-        public ArticuloController(IArticuloService service, IAuditService audit)
+        public ArticuloController(IArticuloService service, IAuditService audit,
+            IMarcaService marcas, ICategoriaService categorias)
         {
             _service = service;
             _audit = audit;
+            _marcas = marcas;
+            _categorias = categorias;
+        }
+
+        // SelectList es un tipo de la capa de vistas: existe para llenar un <select>
+        // de Razor. Armarlo aca y no en el servicio evita que la capa de negocio
+        // sepa como se dibuja un formulario, y que la API arrastre esa dependencia
+        // sin usarla nunca.
+        private async Task CargarDesplegablesAsync(int? marcaId = null, int? categoriaId = null)
+        {
+            var marcas = await _marcas.GetAllAsync();
+            var categorias = await _categorias.GetAllAsync();
+
+            ViewBag.MarcaId = new SelectList(
+                marcas.OrderBy(m => m.Descripcion), "MarcaId", "Descripcion", marcaId);
+            ViewBag.CategoriaId = new SelectList(
+                categorias.OrderBy(c => c.Descripcion), "CategoriaId", "Descripcion", categoriaId);
         }
 
         public async Task<IActionResult> Index(string searchString, bool filtroAvanzado,
@@ -51,8 +73,7 @@ namespace catalogo_web_mvc.Controllers
         // GET: Articulo/Create
         public async Task<IActionResult> Create()
         {
-            ViewBag.MarcaId = await _service.GetMarcasSelectList();
-            ViewBag.CategoriaId = await _service.GetCategoriasSelectList();
+            await CargarDesplegablesAsync();
             return View();
         }
 
@@ -61,8 +82,7 @@ namespace catalogo_web_mvc.Controllers
         {
             var articulo = await _service.GetByIdAsync(id);
             if (articulo == null) return NotFound();
-            ViewBag.MarcaId = await _service.GetMarcasSelectList(articulo.MarcaId);
-            ViewBag.CategoriaId = await _service.GetCategoriasSelectList(articulo.CategoriaId);
+            await CargarDesplegablesAsync(articulo.MarcaId, articulo.CategoriaId);
             return View(articulo);
         }
 
@@ -84,8 +104,7 @@ namespace catalogo_web_mvc.Controllers
                 await _audit.RegistrarAsync("CREATE", User.Identity?.Name, User.FindFirstValue(ClaimTypes.NameIdentifier), $"Artículo: {articulo.Nombre} (Cód: {articulo.Codigo})");
                 return RedirectToAction(nameof(Index));
             }
-            ViewBag.MarcaId = await _service.GetMarcasSelectList(articulo.MarcaId);
-            ViewBag.CategoriaId = await _service.GetCategoriasSelectList(articulo.CategoriaId);
+            await CargarDesplegablesAsync(articulo.MarcaId, articulo.CategoriaId);
             return View(articulo);
         }
 
@@ -101,8 +120,7 @@ namespace catalogo_web_mvc.Controllers
                 await _audit.RegistrarAsync("UPDATE", User.Identity?.Name, User.FindFirstValue(ClaimTypes.NameIdentifier), $"Artículo ID {id}: {articulo.Nombre}");
                 return RedirectToAction(nameof(Index));
             }
-            ViewBag.MarcaId = await _service.GetMarcasSelectList(articulo.MarcaId);
-            ViewBag.CategoriaId = await _service.GetCategoriasSelectList(articulo.CategoriaId);
+            await CargarDesplegablesAsync(articulo.MarcaId, articulo.CategoriaId);
             return View(articulo);
         }
 

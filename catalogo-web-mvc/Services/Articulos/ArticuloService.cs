@@ -1,8 +1,6 @@
 ﻿using catalogo_web_mvc.Interfaces.Articulos;
 using catalogo_web_mvc.Models;
 using catalogo_web_mvc.Models.ViewModels;
-using catalogo_web_mvc.Data;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using X.PagedList;
@@ -13,12 +11,10 @@ namespace catalogo_web_mvc.Services.Articulos
     public class ArticuloService : IArticuloService
     {
         private readonly IArticuloRepository _repo;
-        private readonly Data.CatalogoContext _context;
 
-        public ArticuloService(IArticuloRepository repo, Data.CatalogoContext context)
+        public ArticuloService(IArticuloRepository repo)
         {
             _repo = repo;
-            _context = context;
         }
 
         public Task<IPagedList<Articulo>> BuscarAsync(string? searchString, bool filtroAvanzado,
@@ -72,18 +68,6 @@ namespace catalogo_web_mvc.Services.Articulos
 
             
             return Task.FromResult(query.ToPagedList(pageNumber, pageSize));
-        }
-
-        public async Task<SelectList> GetMarcasSelectList(int? selectedId = null)
-        {
-            var marcas = await _context.Marcas.AsNoTracking().OrderBy(m => m.Descripcion).ToListAsync();
-            return new SelectList(marcas, "MarcaId", "Descripcion", selectedId);
-        }
-
-        public async Task<SelectList> GetCategoriasSelectList(int? selectedId = null)
-        {
-            var categorias = await _context.Categorias.AsNoTracking().OrderBy(c => c.Descripcion).ToListAsync();
-            return new SelectList(categorias, "CategoriaId", "Descripcion", selectedId);
         }
 
         public Task<Articulo?> GetByIdAsync(int id) => _repo.GetByIdAsync(id);
