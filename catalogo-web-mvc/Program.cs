@@ -224,7 +224,17 @@ app.UseStaticFiles(new StaticFileOptions
         ctx.Context.Response.Headers.Append("Content-Disposition", "inline");
     }
 });
+// El front en React se compila con npm run build y aterriza en wwwroot/app.
+// MapStaticAssets solo conoce los archivos que existian al compilar el proyecto,
+// asi que esta carpeta necesita su propio middleware, igual que los avatares.
+var carpetaFront = Path.Combine(app.Environment.WebRootPath, "app");
+Directory.CreateDirectory(carpetaFront);
 
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(carpetaFront),
+    RequestPath = "/app"
+});
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}")
@@ -232,7 +242,10 @@ app.MapControllerRoute(
 
 // Habilita el ruteo por atributos, que es el que usan los controladores de API.
 app.MapControllers();
-
+// El ruteo de React ocurre en el navegador: el servidor no conoce /app/articulo/2.
+// Para cualquier ruta bajo /app se devuelve el index y React decide que pantalla
+// corresponde. Sin esto la aplicacion navega bien pero falla al recargar.
+app.MapFallbackToFile("/app/{*path}", "app/index.html");
 using (var scope = app.Services.CreateScope())
 {
     // En Docker la base arranca vacía: hay que aplicar las migraciones antes de

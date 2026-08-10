@@ -12,6 +12,14 @@ function Encabezado() {
           <li className="nav-item">
             <Link className="nav-link" to="/privacidad">Privacidad</Link>
           </li>
+          <li className="nav-item">
+            {/* Sale del front en React hacia las vistas Razor: es otra aplicacion
+                dentro del mismo dominio, asi que va un ancla y no un Link, que
+                intentaria resolver la ruta con el router y no encontraria nada. */}
+            <a className="nav-link" href="/" title="La versión servida por Razor">
+              Volver al sitio clásico
+            </a>
+          </li>
         </ul>
       </div>
     </nav>

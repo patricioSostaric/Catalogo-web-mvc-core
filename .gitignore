@@ -32,3 +32,9 @@ catalogo-web-mvc/wwwroot/uploads/avatars/*
 .env
 .env.*
 !.env.example
+
+# Resultado de compilar el front: lo genera npm run build a partir de
+# catalogo-front, y la imagen de Docker lo rehace en cada construccion. Lo que
+# se puede regenerar no se versiona, y ademas versionarlo permitiria desplegar
+# un front viejo por haber olvidado compilar.
+catalogo-web-mvc/wwwroot/app/
