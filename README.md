@@ -6,7 +6,7 @@
 ![SQL Server](https://img.shields.io/badge/SQL%20Server-CC2927?logo=microsoftsqlserver&logoColor=white)
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
 ![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-532%20passing-success)
+![Tests](https://img.shields.io/badge/tests-541%20passing-success)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
 Tienda de artículos electrónicos con catálogo público, carrito, pedidos y panel de
@@ -141,32 +141,37 @@ justificación.
 
 ```
 Catalogo.Datos/           Biblioteca compartida: no depende de ninguna aplicación
-├── Interfaces/           Contratos por módulo: Articulos, Marcas, Categorias, Carrito, Pedidos, Audit, Email
+├── Interfaces/           Contratos por módulo: Articulos, Marcas, Categorias, Carrito, Pedidos, Favoritos, Usuarios, Avatar, Audit, Email
 ├── Services/             Lógica de negocio + Email, Audit, Identity
 ├── Repository/           Acceso a datos por entidad
 ├── Data/                 CatalogoContext y DbSeeder
 ├── Models/
 │   ├── ViewModels/       Contratos con las vistas
-│   ├── Dtos/             Contratos con los clientes de la API
 │   └── Settings/         Configuración tipada (SmtpSettings)
-└── Migrations/           12 migraciones versionadas de EF Core
+└── Migrations/           14 migraciones versionadas de EF Core
 
-catalogo-web-mvc/         Aplicación web
+catalogo-web-mvc/         Aplicación web (Razor + Identity)
 ├── Controllers/          Home, Articulo, Marcas, Categorias, Favoritos, Carrito, Pedidos, GestionPedidos, AuditLog, Usuarios, Account
-│   └── Api/              Endpoints JSON (ArticulosApi)
 ├── Views/                Razor, con partials reutilizables
 ├── wwwroot/app/          El front en React compilado
 └── Program.cs            Registro de DI y pipeline de middleware
 
+Catalogo.Api/             API JSON: no emite sesiones, solo lee la cookie del MVC
+├── Controllers/          ArticulosApi, FavoritosApi
+└── Dtos/                 Contratos con los clientes de la API
+
 Catalogo.Gateway/         Proxy inverso con YARP
 catalogo-front/           Front en React (Vite)
-CatalogoWeb.tests/        532 tests unitarios
+CatalogoWeb.tests/        541 tests unitarios
 ```
 
 Las capas de negocio y datos viven en una biblioteca aparte para que más de una
-aplicación pueda usarlas: hoy el MVC, y en el paso siguiente el proyecto de la API. Una
-biblioteca no puede referenciar a una aplicación, así que la dependencia solo va en una
-dirección.
+aplicación pueda usarlas: el MVC y la API. Una biblioteca no puede referenciar a una
+aplicación, así que la dependencia solo va en una dirección.
+
+Los DTO viven en el proyecto de la API y no en la biblioteca compartida: son el contrato
+público de esa aplicación, no un tipo del dominio. Los ViewModels, en cambio, quedaron en
+la biblioteca porque los usan tanto las vistas como los servicios que las alimentan.
 
 Los comandos de EF Core necesitan indicar los dos proyectos, porque el contexto ya no
 vive donde está la configuración:
@@ -206,18 +211,18 @@ dotnet ef migrations add NombreDeLaMigracion --project Catalogo.Datos --startup-
 
 ## 🧪 Testing
 
-**532 tests unitarios, la totalidad en verde.**
+**541 tests unitarios, la totalidad en verde.**
 
 ```bash
 dotnet test
-# Correctas! - Con error: 0, Superado: 532, Omitido: 0, Total: 532
+# Correctas! - Con error: 0, Superado: 541, Omitido: 0, Total: 541
 ```
 
 Cobertura por capa:
 
 | Área | Archivos de test |
 | --- | --- |
-| Controllers | Account, Articulo, ArticulosApi, AuditLog, Categorias, Favoritos, GestionPedidos, Home, Marcas, Pedidos, Usuarios, AuthorizationAttribute (incluye qué rol protege cada controlador) |
+| Controllers | Account, Articulo, ArticulosApi, AuditLog, Categorias, Favoritos, FavoritosApi, GestionPedidos, Home, Marcas, Pedidos, Usuarios, AuthorizationAttribute (incluye qué rol protege cada controlador) |
 | Services | Articulo, Carrito, Categoria, Marca, Pedido, UsuarioAdmin, EmailTemplates, SmtpEmailSender, SpanishIdentityErrorDescriber |
 | Repository | Articulo, Categoria, Marca |
 | Data | DbSeeder |
@@ -433,6 +438,7 @@ encendido único.
 | 1 · Endpoint `/api/articulos` dentro del proyecto MVC | ✅ hecho |
 | 2 · Front en React (Vite) consumiendo la API | ✅ hecho |
 | 3 · Extraer la API a su propio proyecto, con **YARP** por delante | ✅ hecho (en local) |
+| 4 · Sesión compartida y primer módulo autenticado migrado (favoritos) | ✅ hecho (en local) |
 
 La etapa 3 corre con los proyectos por separado en la máquina de desarrollo. El despliegue
 en Azure sigue siendo de un solo proyecto: el plan gratuito admite una única instancia y
@@ -459,7 +465,10 @@ consultaba el `DbContext` salteándose su propio repositorio. Los dos se arregla
 extraer nada.
 
 Las vistas Razor siguen atendiendo el catálogo y el resto de la aplicación. El front en
-React es una segunda forma de acceder a los mismos datos, no un reemplazo — todavía.
+React es una segunda forma de acceder a los mismos datos, no un reemplazo — todavía. La
+excepción es favoritos, que ya se puede ver y quitar desde React; marcar sigue siendo cosa
+de las vistas Razor. Que un módulo esté a medio camino sin que nada se rompa es
+exactamente lo que el patrón permite.
 
 ### Por qué el endpoint arrancó dentro del MVC
 
@@ -515,6 +524,47 @@ Responde **404 tanto si el artículo no existe como si está dado de baja**, sin
 distinguirlos. Diferenciar los dos casos revelaría que ese artículo existe en el catálogo
 interno aunque no se publique.
 
+### Un solo login para dos aplicaciones
+
+El catálogo es público, pero para mover cualquier módulo con datos propios de cada usuario
+—carrito, pedidos, favoritos— la API primero necesita saber quién está del otro lado.
+
+Las dos aplicaciones comparten el juego de claves de Data Protection y el nombre de
+aplicación. Eso es lo que le permite a la API descifrar la cookie que emite el MVC: la
+cookie no dice quién es el usuario, va cifrada. Sin esa coincidencia, el usuario tendría
+que iniciar sesión dos veces para usar una sola aplicación.
+
+La API **solo lee** la cookie. No emite sesiones ni tiene pantalla de login: de eso sigue
+ocupándose el MVC, que es el único que conoce las credenciales. Ante una petición sin
+sesión responde `401` en lugar de redirigir al login, porque para un cliente que espera
+JSON una redirección es peor que un error claro.
+
+Las claves quedan fuera del repositorio y en un volumen compartido: con ellas se podrían
+falsificar sesiones de cualquier usuario.
+
+### Favoritos, el primer módulo autenticado
+
+| Método | Ruta | Respuesta |
+| --- | --- | --- |
+| `GET` | `/api/favoritos` | los del usuario de la cookie |
+| `DELETE` | `/api/favoritos/{articuloId}` | `204`, exista o no el favorito |
+
+El `DELETE` es idempotente a propósito: quitar algo que ya no está es el estado que el
+cliente pidió, no un error. Tocar dos veces el botón no tiene por qué fallar.
+
+**El id del usuario no viaja en la ruta**, sale de la cookie. Si viajara, cualquiera con
+una sesión válida podría leerle o vaciarle los favoritos a otro cambiando un número.
+
+No lleva antiforgery, a diferencia de los formularios del MVC: la cookie se emite con
+`SameSite=Strict` y un `DELETE` no se puede disparar desde un formulario ajeno. Queda
+anotado en el código que esto hay que revisarlo si el front pasa a vivir en otro dominio.
+
+Al ir a exponerlo apareció que favoritos era el único módulo sin servicio ni repositorio:
+el controlador consultaba el `DbContext` directo y `HomeController` repetía dos de esas
+consultas por su cuenta. Se extrajo `IFavoritoService` antes de tocar la API, para no
+dejar la misma consulta escrita en dos aplicaciones. El servicio devuelve entidades y no
+ViewModels ni DTOs: de él dependen las dos, y cada una arma la forma que necesita.
+
 ### El proxy
 
 En desarrollo, el servidor de Vite reenvía `/api` y `/imagen` al MVC, de modo que el
@@ -532,12 +582,15 @@ catalogo-front/
     ├── index.css
     ├── paginas/
     │   ├── Catalogo.jsx  Listado, paginado y búsqueda
+    │   ├── Detalle.jsx   Ficha de un artículo
+    │   ├── Favoritos.jsx Pantalla autenticada: lista y quita
     │   └── Privacidad.jsx
     └── components/
         ├── Layout.jsx    Encabezado + {children} + pie
         ├── Encabezado.jsx
         ├── PiePagina.jsx
-        └── TarjetaArticulo.jsx
+        ├── TarjetaArticulo.jsx
+        └── TarjetaFavorito.jsx
 ```
 
 Catálogo con tarjetas, paginado y búsqueda por texto con *debounce* de 300 ms: cada tecla
@@ -562,7 +615,10 @@ npm install
 npm run dev
 ```
 
-Requiere el MVC corriendo en `https://localhost:7012`, que es a donde apunta el proxy.
+Requiere el stack levantado con `docker compose up`: el proxy de Vite apunta al gateway
+en `http://localhost:8080`, no al MVC. Desde que la API se mudó a su propio proyecto, el
+MVC dejó de atender `/api`, y el gateway es el único que sabe qué ruta va a cuál
+aplicación.
 
 ---
 
