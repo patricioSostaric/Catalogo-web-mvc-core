@@ -28,6 +28,14 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Inicio</a>
                         </li>
+                        @* Enlace al catalogo migrado a React. No es una accion del MVC:
+                           lo atiende el front compilado en wwwroot/app, asi que va un
+                           href comun y no los tag helpers de ruteo. *@
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" href="/app" title="La misma pantalla, servida por React">
+                                ⚛️ Catálogo (React)
+                            </a>
+                        </li>
                         @if (User.IsInRole("Admin"))
                         {
                         <li class="nav-item">
