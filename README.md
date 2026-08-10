@@ -30,6 +30,17 @@ administración, construida en ASP.NET MVC Core sobre .NET 10.
 > inactiva, **el primer acceso puede tardar entre 20 y 30 segundos**; a partir de ahí
 > responde con normalidad.
 
+El mismo catálogo se puede ver en sus dos versiones, que conviven en el mismo dominio:
+
+| | |
+| --- | --- |
+| [`/`](https://catalogo-web-wekfqt.azurewebsites.net) | vistas Razor, la aplicación completa |
+| [`/app`](https://catalogo-web-wekfqt.azurewebsites.net/app) | el catálogo migrado a React |
+| [`/api/articulos`](https://catalogo-web-wekfqt.azurewebsites.net/api/articulos) | la API que consume el front |
+
+Se pasa de una a otra desde la barra de navegación. Es la migración en curso, funcionando:
+ver [Migración en curso](#-migración-en-curso--web-api--react).
+
 **Usuario de prueba**
 
 | Rol | Email | Contraseña |
@@ -413,12 +424,22 @@ encendido único.
 
 | Etapa | Estado |
 | --- | --- |
-| 1 · Endpoint `/api/articulos` dentro del proyecto MVC | ✅ hecho |
-| 2 · Front en React (Vite) consumiendo la API | ✅ hecho |
+| 1 · Endpoints `/api/articulos` dentro del proyecto MVC | ✅ hecho |
+| 2 · Front en React (Vite) consumiendo la API, publicado en `/app` | ✅ hecho |
 | 3 · Extraer la API a su propio proyecto, con **YARP** por delante | ⏳ pendiente |
 
 Las vistas Razor siguen atendiendo el catálogo y el resto de la aplicación. El front en
 React es una segunda forma de acceder a los mismos datos, no un reemplazo — todavía.
+
+Las dos versiones conviven en el mismo dominio y se puede pasar de una a otra desde la
+barra de navegación:
+
+| Dirección | Quién atiende |
+| --- | --- |
+| `/` | el catálogo en Razor |
+| `/app` | el catálogo en React |
+| `/api/articulos` | la API |
+| `/imagen/...` | los archivos estáticos |
 
 ### Por qué el endpoint arrancó dentro del MVC
 
@@ -474,12 +495,35 @@ Responde **404 tanto si el artículo no existe como si está dado de baja**, sin
 distinguirlos. Diferenciar los dos casos revelaría que ese artículo existe en el catálogo
 interno aunque no se publique.
 
-### El proxy
+### Un solo origen, en desarrollo y en producción
 
-En desarrollo, el servidor de Vite reenvía `/api` y `/imagen` al MVC, de modo que el
+**En desarrollo**, el servidor de Vite reenvía `/api` y `/imagen` al MVC, de modo que el
 navegador ve un solo origen y CORS no interviene. Es el mismo papel que va a cumplir YARP
-en la etapa 3, con la diferencia de que este solo existe en desarrollo: al desplegar hay
-que resolverlo de nuevo.
+en la etapa 3, aunque este proxy solo existe mientras se trabaja.
+
+**En producción** no hay proxy: `npm run build` genera archivos estáticos que el propio
+MVC sirve bajo `/app`, así que el front y la API salen literalmente del mismo servidor.
+Un solo dominio, un solo despliegue, y la CSP existente (`script-src 'self'`,
+`connect-src 'self'`) los cubre sin cambios.
+
+Publicarlo en un hosting aparte habría resuelto el alojamiento pero alejado del objetivo
+de la etapa 3 —que las dos mitades convivan detrás de un mismo origen— y dejado dos
+dominios que explicar.
+
+Servir una aplicación de página única desde ASP.NET necesita cuatro piezas, y conviene
+saber qué resuelve cada una:
+
+| Pieza | Qué pasa sin ella |
+| --- | --- |
+| `base: '/app/'` en Vite | el HTML pide sus archivos a `/assets` y no los encuentra |
+| `basename="/app"` en el router | las rutas apuntan a la raíz, donde está el sitio Razor |
+| Middleware de estáticos sobre `wwwroot/app` | 404: `MapStaticAssets` solo conoce lo que existía al compilar, y esa carpeta la genera `npm` después |
+| `MapFallbackToFile` para `/app/{*path}` | la navegación funciona, pero recargar cualquier ruta da 404 |
+
+El front se compila **dentro de la imagen de Docker**: una etapa de Node corre `npm ci` y
+`npm run build`, y el resultado se copia a `wwwroot` antes de publicar el proyecto .NET.
+El compilado queda fuera de git — versionarlo ensuciaría cada cambio con un diff de
+doscientos kilobytes y permitiría desplegar un front viejo por haber olvidado compilar.
 
 ### El front
 
@@ -491,6 +535,7 @@ catalogo-front/
     ├── index.css
     ├── paginas/
     │   ├── Catalogo.jsx  Listado, paginado y búsqueda
+    │   ├── Detalle.jsx   Un artículo, con su ruta /articulo/:id
     │   └── Privacidad.jsx
     └── components/
         ├── Layout.jsx    Encabezado + {children} + pie
@@ -515,13 +560,24 @@ mitades conviven, y quien entra no debería notar de cuál viene cada pantalla.
 Vive en el mismo repositorio que el MVC porque el front y la API cambian de a pares: si se
 toca el contrato, quien lo consume tiene que enterarse en el mismo commit.
 
+Hay dos modos de trabajo, y conviene usar cada uno para lo suyo:
+
 ```bash
 cd catalogo-front
 npm install
 npm run dev
 ```
 
-Requiere el MVC corriendo en `https://localhost:7012`, que es a donde apunta el proxy.
+**Desarrollo**, en `http://localhost:5173`, con recarga instantánea al guardar. Requiere el
+MVC corriendo en `https://localhost:7012`, que es a donde apunta el proxy.
+
+```bash
+npm run build
+```
+
+**Verificación**, en `https://localhost:7012/app`: genera los archivos estáticos en
+`wwwroot/app` y los sirve el propio MVC, tal como van a servirse en producción. Es el modo
+para comprobar que el prefijo, el fallback y las rutas se comportan como corresponde.
 
 ---
 
