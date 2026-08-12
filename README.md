@@ -6,7 +6,7 @@
 ![SQL Server](https://img.shields.io/badge/SQL%20Server-CC2927?logo=microsoftsqlserver&logoColor=white)
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
 ![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-541%20passing-success)
+![Tests](https://img.shields.io/badge/tests-546%20passing-success)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
 Tienda de artículos electrónicos con catálogo público, carrito, pedidos y panel de
@@ -164,7 +164,7 @@ Catalogo.Api/             Host de la API: no emite sesiones, solo lee la cookie 
 
 Catalogo.Gateway/         Proxy inverso con YARP
 catalogo-front/           Front en React (Vite)
-CatalogoWeb.tests/        541 tests unitarios
+CatalogoWeb.tests/        546 tests unitarios
 ```
 
 Las capas de negocio y datos viven en una biblioteca aparte para que más de una
@@ -220,11 +220,11 @@ dotnet ef migrations add NombreDeLaMigracion --project Catalogo.Datos --startup-
 
 ## 🧪 Testing
 
-**541 tests unitarios, la totalidad en verde.**
+**546 tests unitarios, la totalidad en verde.**
 
 ```bash
 dotnet test
-# Correctas! - Con error: 0, Superado: 541, Omitido: 0, Total: 541
+# Correctas! - Con error: 0, Superado: 546, Omitido: 0, Total: 546
 ```
 
 Cobertura por capa:
@@ -236,10 +236,26 @@ Cobertura por capa:
 | Repository | Articulo, Categoria, Marca |
 | Data | DbSeeder |
 | Models | Articulo, EstadoPedido, UrlImagenSeguraAttribute |
+| Documentación | Readme (este mismo archivo, contrastado contra el código) |
 
 Los repositorios se prueban contra `EntityFrameworkCore.InMemory`; los servicios y
 controladores, con dobles construidos con **Moq**. El envío de mails es testeable porque
 `SmtpClient` está desacoplado tras una interfaz propia (`ISmtpClient`).
+
+### El README también se testea
+
+Se desactualizó dos veces sin que nadie lo notara: faltaba un proyecto entero en la
+estructura, decía 12 migraciones cuando eran 14, y las instrucciones para levantar el
+front apuntaban a un puerto que había dejado de existir. Quien clonara el repositorio y
+las siguiera no podía arrancarlo.
+
+`ReadmeTests` compara este archivo contra el código y falla si divergen: la cantidad de
+tests del badge, los proyectos de la solución, la cantidad de migraciones y las rutas
+declaradas en los controladores de la API.
+
+No revisa la prosa —una explicación equivocada sigue necesitando ojos—, pero sí todo lo
+que se desincronizó hasta ahora. Una convención que depende de acordarse se rompe; una
+que rompe el build, no.
 
 ---
 
