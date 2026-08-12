@@ -35,6 +35,9 @@
                     <input asp-for="Precio" class="form-control border-light-subtle bg-light bg-opacity-50 px-3 py-2 rounded-end-3" type="text" />
                 </div>
                 <span asp-validation-for="Precio" class="text-danger small mt-1 d-block"></span>
+                @* El sitio corre en es-AR: la coma es el separador decimal. Sin este aviso
+                   se escribe el punto por costumbre y el error aparece recién al guardar. *@
+                <span class="form-text small">Usá coma para los decimales. Ejemplo: 35000,50</span>
             </div>
 
             <!-- Stock -->

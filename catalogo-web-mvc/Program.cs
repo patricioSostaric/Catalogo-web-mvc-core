@@ -72,7 +72,30 @@ var connectionString = builder.Configuration.GetConnectionString("CatalogoDB");
 //
 // La contra a tener presente: producción y desarrollo dejan de compartir topología, y esa
 // diferencia es de las que esconden errores.
-builder.Services.AddControllersWithViews()
+builder.Services.AddControllersWithViews(options =>
+{
+    // Los mensajes por defecto de model binding vienen en inglés y no dicen qué se
+    // esperaba. Con cultura es-AR el separador decimal es la coma, así que quien escribe
+    // "35000.50" —lo que sale por costumbre y con el teclado numérico— recibía "The field
+    // Precio must be a number" habiendo escrito un número perfectamente razonable.
+    //
+    // Estos accesores alcanzan a las dos validaciones: la del servidor y la del navegador,
+    // porque el atributo data-val-number del formulario sale de acá.
+    options.ModelBindingMessageProvider.SetValueMustBeANumberAccessor(
+        campo => $"El campo {campo} debe ser un número. Usá coma para los decimales (por ejemplo: 35000,50).");
+
+    options.ModelBindingMessageProvider.SetValueIsInvalidAccessor(
+        valor => $"El valor {valor} no es válido.");
+
+    options.ModelBindingMessageProvider.SetMissingBindRequiredValueAccessor(
+        campo => $"El campo {campo} es obligatorio.");
+
+    options.ModelBindingMessageProvider.SetValueMustNotBeNullAccessor(
+        campo => $"El campo {campo} no puede estar vacío.");
+
+    options.ModelBindingMessageProvider.SetAttemptedValueIsInvalidAccessor(
+        (valor, campo) => $"El valor {valor} no es válido para {campo}.");
+})
     .AddApplicationPart(typeof(catalogo_web_mvc.Controllers.Api.ArticulosApiController).Assembly);
 
 // La cookie de sesion la emite esta aplicacion y la valida tambien Catalogo.Api,
