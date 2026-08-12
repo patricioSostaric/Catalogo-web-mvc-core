@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <!-- Mismo criterio que Catalogo.Datos: los archivos conservan el namespace
+         catalogo_web_mvc.* para que la mudanza no toque los controladores ni los tests. -->
+    <RootNamespace>catalogo_web_mvc</RootNamespace>
+  </PropertyGroup>
+
+  <!-- Los controladores viven acá y no en Catalogo.Api porque dos aplicaciones los
+       alojan: la API cuando corre como proceso propio detrás del gateway, y el MVC
+       cuando en Azure todo va en un solo contenedor. Referenciar el ejecutable en vez
+       de esta biblioteca hacía chocar los dos appsettings.json al publicar, y arrastraba
+       el Program de la API adentro del MVC. -->
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Catalogo.Datos\Catalogo.Datos.csproj" />
+  </ItemGroup>
+
+</Project>

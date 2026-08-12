@@ -20,10 +20,14 @@ WORKDIR /src
 # Se copia primero el csproj solo para que Docker cachee el restore mientras
 # no cambien las dependencias. Sin esto, cada cambio de código rehace el restore.
 COPY Catalogo.Datos/Catalogo.Datos.csproj Catalogo.Datos/
+COPY Catalogo.Endpoints/Catalogo.Endpoints.csproj Catalogo.Endpoints/
 COPY catalogo-web-mvc/catalogo-web-mvc.csproj catalogo-web-mvc/
 RUN dotnet restore catalogo-web-mvc/catalogo-web-mvc.csproj
 
 COPY Catalogo.Datos/ Catalogo.Datos/
+# El MVC aloja los controladores de la API: en esta imagen un solo proceso atiende las
+# vistas Razor y /api. Sin esta copia el build falla al restaurar.
+COPY Catalogo.Endpoints/ Catalogo.Endpoints/
 COPY catalogo-web-mvc/ catalogo-web-mvc/
 
 # El front compilado entra a wwwroot antes de publicar, asi viaja dentro de la
