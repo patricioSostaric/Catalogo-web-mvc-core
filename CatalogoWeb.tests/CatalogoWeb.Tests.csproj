@@ -19,7 +19,7 @@
   <ItemGroup>
     <ProjectReference Include="..\catalogo-web-mvc\catalogo-web-mvc.csproj" />
     <ProjectReference Include="..\Catalogo.Datos\Catalogo.Datos.csproj" />
-    <ProjectReference Include="..\Catalogo.Api\Catalogo.Api.csproj" />
+    <ProjectReference Include="..\Catalogo.Endpoints\Catalogo.Endpoints.csproj" />
   </ItemGroup>
 
   <ItemGroup>

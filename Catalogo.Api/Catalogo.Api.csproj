@@ -11,8 +11,11 @@
     <UserSecretsId>b1cc3b04-d3e0-4a5b-824a-d176f74fca4c</UserSecretsId>
   </PropertyGroup>
 
+  <!-- Este proyecto quedó como host: arranca el proceso, configura autenticación y DI,
+       y aloja los controladores que viven en Catalogo.Endpoints. -->
   <ItemGroup>
     <ProjectReference Include="..\Catalogo.Datos\Catalogo.Datos.csproj" />
+    <ProjectReference Include="..\Catalogo.Endpoints\Catalogo.Endpoints.csproj" />
   </ItemGroup>
 
 </Project>

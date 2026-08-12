@@ -60,7 +60,20 @@ if (builder.Environment.IsDevelopment())
 var connectionString = builder.Configuration.GetConnectionString("CatalogoDB");
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+// Los controladores de la API viven en Catalogo.Api, que en desarrollo corre como un
+// proceso aparte detrás del gateway. En Azure no: el plan gratuito admite una sola
+// instancia, y tres aplicaciones necesitarían tres. AddApplicationPart le dice a MVC que
+// busque controladores también en ese ensamblado, así un único proceso atiende las vistas
+// Razor y /api.
+//
+// Es una concesión al presupuesto, no al diseño: la separación real es la del compose, y
+// volver a ella es quitar esta línea y la referencia del csproj. Que sea posible es
+// justamente la prueba de que la API no depende del MVC.
+//
+// La contra a tener presente: producción y desarrollo dejan de compartir topología, y esa
+// diferencia es de las que esconden errores.
+builder.Services.AddControllersWithViews()
+    .AddApplicationPart(typeof(catalogo_web_mvc.Controllers.Api.ArticulosApiController).Assembly);
 
 // La cookie de sesion la emite esta aplicacion y la valida tambien Catalogo.Api,
 // que corre en otro proceso. La cookie no dice quien es el usuario: es un texto
@@ -124,6 +137,38 @@ builder.Services.ConfigureApplicationCookie(options =>
     // proyecto: un usuario sin permisos recibia un 404 en lugar de una explicacion.
     options.LoginPath = "/Account/Login";
     options.AccessDeniedPath = "/Account/AccessDenied";
+
+    // Cuando este proceso aloja también los endpoints de la API (ver AddApplicationPart),
+    // deja de correr el Program de Catalogo.Api, que es donde vivían estas reglas. Sin
+    // ellas, una petición a /api sin sesión recibiría una redirección al login: el fetch
+    // la seguiría, el navegador devolvería el HTML del formulario con estado 200, y el
+    // front de React intentaría leerlo como JSON. El error aparecería lejos de la causa.
+    //
+    // Solo se altera /api. Una vista Razor sin sesión sigue yendo al login, que es lo que
+    // corresponde cuando del otro lado hay una persona y no un fetch.
+    options.Events.OnRedirectToLogin = contexto =>
+    {
+        if (contexto.Request.Path.StartsWithSegments("/api"))
+        {
+            contexto.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            return Task.CompletedTask;
+        }
+
+        contexto.Response.Redirect(contexto.RedirectUri);
+        return Task.CompletedTask;
+    };
+
+    options.Events.OnRedirectToAccessDenied = contexto =>
+    {
+        if (contexto.Request.Path.StartsWithSegments("/api"))
+        {
+            contexto.Response.StatusCode = StatusCodes.Status403Forbidden;
+            return Task.CompletedTask;
+        }
+
+        contexto.Response.Redirect(contexto.RedirectUri);
+        return Task.CompletedTask;
+    };
 });
 
 builder.Services.AddRateLimiter(options =>
@@ -262,9 +307,10 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
-// El ruteo por atributos ya no hace falta aca: los endpoints JSON se mudaron a
-// Catalogo.Api y el gateway los enruta. Este proyecto solo atiende vistas Razor
-// y los archivos estaticos del front compilado.
+// Los controladores de la API usan ruteo por atributos ([Route("api/...")]), que la ruta
+// convencional de arriba no contempla. Detrás del gateway estos endpoints quedan opacados
+// —/api va al otro proceso—, y en Azure son los que atienden.
+app.MapControllers();
 
 // El ruteo de React ocurre en el navegador: el servidor no conoce /app/articulo/2.
 // Para cualquier ruta bajo /app se devuelve el index y React decide que pantalla

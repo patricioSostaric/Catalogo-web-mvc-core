@@ -63,7 +63,12 @@ builder.Services.AddScoped<IArticuloService, ArticuloService>();
 builder.Services.AddScoped<IFavoritoRepository, FavoritoRepository>();
 builder.Services.AddScoped<IFavoritoService, FavoritoService>();
 
-builder.Services.AddControllers();
+// Los controladores viven en Catalogo.Endpoints, no en este ensamblado. MVC suele
+// descubrirlos solo recorriendo las dependencias, pero se declara explicito: si algun dia
+// dejara de encontrarlos, el sintoma seria un 404 en todos los endpoints y ninguna pista
+// de por que.
+builder.Services.AddControllers()
+    .AddApplicationPart(typeof(catalogo_web_mvc.Controllers.Api.ArticulosApiController).Assembly);
 
 var app = builder.Build();
 

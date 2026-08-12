@@ -31,6 +31,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Catalogo.Datos\Catalogo.Datos.csproj" />
+    <!-- Solo por los controladores de la API, que este proyecto vuelve a alojar en
+         producción. Ver el comentario junto a AddApplicationPart en Program.cs.
+         Es la biblioteca y no Catalogo.Api: referenciar el ejecutable traía su Program
+         y su appsettings.json, que chocaba con el de acá al publicar. -->
+    <ProjectReference Include="..\Catalogo.Endpoints\Catalogo.Endpoints.csproj" />
   </ItemGroup>
 
 </Project>

@@ -5,10 +5,12 @@ WORKDIR /src
 
 # Primero los csproj: mientras no cambien las dependencias, Docker reusa el restore.
 COPY Catalogo.Datos/Catalogo.Datos.csproj Catalogo.Datos/
+COPY Catalogo.Endpoints/Catalogo.Endpoints.csproj Catalogo.Endpoints/
 COPY Catalogo.Api/Catalogo.Api.csproj Catalogo.Api/
 RUN dotnet restore Catalogo.Api/Catalogo.Api.csproj
 
 COPY Catalogo.Datos/ Catalogo.Datos/
+COPY Catalogo.Endpoints/ Catalogo.Endpoints/
 COPY Catalogo.Api/ Catalogo.Api/
 RUN dotnet publish Catalogo.Api/Catalogo.Api.csproj -c Release -o /app/publish
 

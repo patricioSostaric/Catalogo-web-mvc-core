@@ -156,9 +156,11 @@ catalogo-web-mvc/         Aplicación web (Razor + Identity)
 ├── wwwroot/app/          El front en React compilado
 └── Program.cs            Registro de DI y pipeline de middleware
 
-Catalogo.Api/             API JSON: no emite sesiones, solo lee la cookie del MVC
+Catalogo.Endpoints/       Los controladores JSON, en una biblioteca: dos apps los alojan
 ├── Controllers/          ArticulosApi, FavoritosApi
 └── Dtos/                 Contratos con los clientes de la API
+
+Catalogo.Api/             Host de la API: no emite sesiones, solo lee la cookie del MVC
 
 Catalogo.Gateway/         Proxy inverso con YARP
 catalogo-front/           Front en React (Vite)
@@ -169,9 +171,16 @@ Las capas de negocio y datos viven en una biblioteca aparte para que más de una
 aplicación pueda usarlas: el MVC y la API. Una biblioteca no puede referenciar a una
 aplicación, así que la dependencia solo va en una dirección.
 
-Los DTO viven en el proyecto de la API y no en la biblioteca compartida: son el contrato
-público de esa aplicación, no un tipo del dominio. Los ViewModels, en cambio, quedaron en
-la biblioteca porque los usan tanto las vistas como los servicios que las alimentan.
+Los DTO viven junto a los controladores y no en `Catalogo.Datos`: son el contrato público
+de la API, no un tipo del dominio. Los ViewModels, en cambio, quedaron en la biblioteca
+compartida porque los usan tanto las vistas como los servicios que las alimentan.
+
+`Catalogo.Endpoints` existe porque los controladores necesitan **dos anfitriones**. Al
+principio vivían dentro de `Catalogo.Api`, pero referenciar un ejecutable desde el MVC
+arrastraba su `Program` y su `appsettings.json`, que chocaba con el del MVC al publicar
+(`NETSDK1152`). Uno habría pisado al otro sin que estuviera definido cuál — cadena de
+conexión incluida. Separar los controladores a una biblioteca lo resuelve de raíz y deja a
+`Catalogo.Api` como lo que es: un host.
 
 Los comandos de EF Core necesitan indicar los dos proyectos, porque el contexto ya no
 vive donde está la configuración:
@@ -440,10 +449,28 @@ encendido único.
 | 3 · Extraer la API a su propio proyecto, con **YARP** por delante | ✅ hecho (en local) |
 | 4 · Sesión compartida y primer módulo autenticado migrado (favoritos) | ✅ hecho (en local) |
 
-La etapa 3 corre con los proyectos por separado en la máquina de desarrollo. El despliegue
-en Azure sigue siendo de un solo proyecto: el plan gratuito admite una única instancia y
+Las etapas 3 y 4 corren con los proyectos por separado en la máquina de desarrollo. En
+Azure todo va en **un solo contenedor**: el plan gratuito admite una única instancia y
 tres aplicaciones necesitarían tres. La decisión fue priorizar entender el patrón por sobre
 pagar por mostrarlo.
+
+Eso es posible porque los controladores JSON viven en `Catalogo.Endpoints`, una biblioteca
+que **dos aplicaciones distintas pueden alojar**: `Catalogo.Api` cuando corre como proceso
+propio detrás del gateway, y el MVC —vía `AddApplicationPart`— cuando todo va junto. Los
+controladores no cambian una línea entre un caso y el otro, que es justamente la prueba de
+que la API no depende del MVC.
+
+Es una concesión al presupuesto, no al diseño: la separación real es la del `compose`, y
+volver a ella es quitar una línea del `Program.cs` y una referencia del `.csproj`. La
+contra a tener presente es que producción y desarrollo dejan de compartir topología, y esa
+diferencia es de las que esconden errores.
+
+Uno apareció al probarlo. Cuando el MVC aloja los endpoints, deja de correr el `Program`
+de `Catalogo.Api`, que era donde vivía la regla de responder `401` en lugar de redirigir al
+login. Sin ella, un `fetch` sin sesión recibía el HTML del formulario de login con estado
+`200` e intentaba leerlo como JSON. Se resolvió en `ConfigureApplicationCookie`: la misma
+falta de sesión devuelve `401` bajo `/api` y sigue redirigiendo al login en las vistas
+Razor, según quién pregunte.
 
 ```
 Navegador → Catalogo.Gateway (YARP)
