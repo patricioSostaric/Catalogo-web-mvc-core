@@ -101,7 +101,7 @@ Son datos de terceros, y el rol `Admin` está pensado para poder compartirse con
 quiera recorrer el panel de administración.
 
 **Las direcciones IP se anonimizan antes de guardarse.** Se conserva la red de origen y
-se descarta el último octeto: `186.13.114.8` se almacena como `186.13.114.0`. Eso alcanza
+se descarta el último octeto: `203.0.113.45` se almacena como `203.0.113.0`. Eso alcanza
 para distinguir veinte intentos fallidos de un mismo origen de veinte personas distintas,
 que es para lo que sirve el dato en un registro de seguridad, sin almacenar información
 que identifique a una persona. Es el principio de minimización de datos del GDPR. La IP

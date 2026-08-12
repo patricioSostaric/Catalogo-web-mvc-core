@@ -19,7 +19,7 @@ namespace catalogo_web_mvc.Services.Audit
         {
             if (direccion == null) return null;
 
-            // Detras de un proxy las IPv4 suelen llegar mapeadas como ::ffff:186.13.114.8.
+            // Detras de un proxy las IPv4 suelen llegar mapeadas como ::ffff:203.0.113.45.
             // Se las devuelve a su forma IPv4 para no enmascararlas como si fueran IPv6.
             if (direccion.IsIPv4MappedToIPv6)
                 direccion = direccion.MapToIPv4();
