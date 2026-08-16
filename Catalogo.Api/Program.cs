@@ -1,26 +1,21 @@
 using catalogo_web_mvc.Data;
+using catalogo_web_mvc.Extensions;
 using catalogo_web_mvc.Interfaces.Articulos;
 using catalogo_web_mvc.Interfaces.Favoritos;
 using catalogo_web_mvc.Repository.Articulos;
 using catalogo_web_mvc.Repository.Favoritos;
 using catalogo_web_mvc.Services.Articulos;
 using catalogo_web_mvc.Services.Favoritos;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Mismo almacen de claves y mismo nombre de aplicacion que el MVC. Es lo que le
-// permite a esta aplicacion descifrar la cookie de sesion que emitio el otro
-// proceso: la cookie no dice quien es el usuario, va cifrada.
-var carpetaClaves = builder.Configuration["DataProtection:RutaClaves"]
-    ?? Path.Combine(builder.Environment.ContentRootPath, "..", "claves-compartidas");
-Directory.CreateDirectory(carpetaClaves);
-
-builder.Services.AddDataProtection()
-    .PersistKeysToFileSystem(new DirectoryInfo(carpetaClaves))
-    .SetApplicationName("StoreSostaric");
+// Mismo almacen de claves y mismo nombre de aplicacion que el MVC: es lo que le permite a
+// esta aplicacion descifrar la cookie de sesion que emitio el otro proceso. La extension
+// vive en la biblioteca compartida justamente para que no haya dos copias que puedan
+// dejar de coincidir.
+builder.Services.AddClavesCompartidas(builder.Configuration, builder.Environment);
 
 // La API solo lee la cookie: no emite sesiones ni tiene pantalla de login. De eso
 // se sigue ocupando el MVC, que es el unico que conoce las credenciales.
