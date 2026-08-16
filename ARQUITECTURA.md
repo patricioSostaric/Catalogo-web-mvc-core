@@ -66,6 +66,30 @@ builder.Services.AddScoped<IArticuloService, ArticuloService>();
 `AddScoped` = una instancia por request HTTP. Es lo correcto acá porque el `DbContext`
 también es scoped, y todos comparten la misma unidad de trabajo dentro de una request.
 
+**Los registros están agrupados en extensiones sobre `IServiceCollection`**, una por
+área, en la carpeta `Extensions/`:
+
+```csharp
+builder.Services.AddClavesCompartidas(builder.Configuration, builder.Environment);
+builder.Services.AddPersistencia(builder.Configuration);
+builder.Services.AddIdentidad(builder.Environment);
+builder.Services.AddProteccionDeAbuso();
+builder.Services.AddCabecerasDeProxy();
+builder.Services.AddCorreo(builder.Configuration);
+builder.Services.AddServiciosDelCatalogo();
+```
+
+El `Program` dice **qué** se configura; cada extensión, **cómo**. Antes eran más de
+trescientas líneas donde convivían Identity, el rate limiter, las cabeceras del proxy y
+el registro de nueve módulos sin separación visible entre una cosa y la otra.
+
+Esto no cambia la arquitectura —las capas y los servicios son los mismos—, cambia la
+legibilidad del arranque. Con una excepción que sí es de diseño: `AddClavesCompartidas`
+vive en `Catalogo.Datos` y la llaman **las dos** aplicaciones, porque su configuración
+tiene que coincidir exactamente entre el MVC y la API. Estaba copiada en los dos
+`Program.cs`, y dos copias de algo que debe coincidir son dos oportunidades de que dejen
+de hacerlo.
+
 **El pipeline de middleware.** El orden importa y no es decorativo:
 `UseAuthentication` va **antes** de `UseAuthorization` porque primero hay que saber
 *quién sos* y después *qué podés hacer*. Y `UseRouting` va antes que ambos porque
@@ -81,9 +105,10 @@ hasta que no se resuelve la ruta no se sabe qué atributos `[Authorize]` aplican
 | `ArticuloFavorito` | Tabla puente usuario ↔ artículo |
 | `AuditLog` | Registro de operaciones |
 
-Las **9 migraciones** son la historia versionada de la base:
+Las **14 migraciones** son la historia versionada de la base:
 `InitialCreate` → `UpdateArticuloColumns` → seeds → `AddIdentity` → `AddFavoritos`
-→ `AddAuditLog` → `AddArticuloActivoStock` → `SeedMarcasCategoriasArticulos`.
+→ `AddAuditLog` → `AddArticuloActivoStock` → `SeedMarcasCategoriasArticulos`
+→ `AddPerfilUsuario` → `ImagenesLocalesArticulos` → `CarritoYPedidos` → `EstadoDePedido`.
 
 ### Repository — solo datos, cero reglas
 
