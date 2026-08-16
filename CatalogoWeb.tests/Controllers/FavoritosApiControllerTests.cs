@@ -1,9 +1,12 @@
 using catalogo_web_mvc.Controllers.Api;
 using catalogo_web_mvc.Data;
+using catalogo_web_mvc.Interfaces.Articulos;
 using catalogo_web_mvc.Interfaces.Favoritos;
 using catalogo_web_mvc.Models;
 using catalogo_web_mvc.Models.Dtos;
+using catalogo_web_mvc.Repository.Articulos;
 using catalogo_web_mvc.Repository.Favoritos;
+using catalogo_web_mvc.Services.Articulos;
 using catalogo_web_mvc.Services.Favoritos;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -34,8 +37,13 @@ namespace CatalogoWeb.Tests.Controllers
                 }
             };
 
+        // El servicio de articulos tambien es el real sobre la base en memoria: lo que se
+        // prueba incluye que no se pueda marcar un articulo inexistente o dado de baja.
+        private static IArticuloService Articulos(CatalogoContext context) =>
+            new ArticuloService(new ArticuloRepository(context));
+
         private static FavoritosApiController CrearController(CatalogoContext context, string userId = "user-1") =>
-            new(Favoritos(context)) { ControllerContext = ContextoAutenticado(userId) };
+            new(Favoritos(context), Articulos(context)) { ControllerContext = ContextoAutenticado(userId) };
 
         private static async Task SembrarAsync(CatalogoContext context)
         {
@@ -94,6 +102,81 @@ namespace CatalogoWeb.Tests.Controllers
 
             var favorito = Assert.Single(Assert.IsType<List<FavoritoDto>>(resultado.Value));
             Assert.Equal(2, favorito.ArticuloId);
+        }
+
+        // ── Post ───────────────────────────────────────────────────────────────
+
+        [Fact]
+        public async Task Post_MarcaElArticulo_YDevuelve204()
+        {
+            using var context = CrearContexto();
+            await SembrarAsync(context);
+
+            var resultado = await CrearController(context).Post(new FavoritoNuevoDto { ArticuloId = 1 });
+
+            Assert.IsType<NoContentResult>(resultado);
+            var favorito = Assert.Single(context.ArticuloFavoritos);
+            Assert.Equal("user-1", favorito.UserId);
+            Assert.Equal(1, favorito.ArticuloId);
+        }
+
+        // Marcar dos veces el mismo articulo deja el estado que el cliente pidio, asi que
+        // no es un error. Sin esto quedarian filas duplicadas y la lista lo mostraria dos veces.
+        [Fact]
+        public async Task Post_ArticuloYaMarcado_NoDuplica()
+        {
+            using var context = CrearContexto();
+            await SembrarAsync(context);
+            context.ArticuloFavoritos.Add(new ArticuloFavorito { UserId = "user-1", ArticuloId = 1 });
+            await context.SaveChangesAsync();
+
+            var resultado = await CrearController(context).Post(new FavoritoNuevoDto { ArticuloId = 1 });
+
+            Assert.IsType<NoContentResult>(resultado);
+            Assert.Single(context.ArticuloFavoritos);
+        }
+
+        // Sin esta comprobacion el insert revienta contra la clave foranea y devuelve 500.
+        [Fact]
+        public async Task Post_ArticuloInexistente_Devuelve404()
+        {
+            using var context = CrearContexto();
+            await SembrarAsync(context);
+
+            var resultado = await CrearController(context).Post(new FavoritoNuevoDto { ArticuloId = 999 });
+
+            Assert.IsType<NotFoundResult>(resultado);
+            Assert.Empty(context.ArticuloFavoritos);
+        }
+
+        // Un articulo dado de baja no aparece en el catalogo: llegar hasta aca significa que
+        // alguien armo el pedido a mano.
+        [Fact]
+        public async Task Post_ArticuloDadoDeBaja_Devuelve404()
+        {
+            using var context = CrearContexto();
+            await SembrarAsync(context);
+            var articulo = await context.Articulos.FindAsync(2);
+            articulo!.Activo = false;
+            await context.SaveChangesAsync();
+
+            var resultado = await CrearController(context).Post(new FavoritoNuevoDto { ArticuloId = 2 });
+
+            Assert.IsType<NotFoundResult>(resultado);
+            Assert.Empty(context.ArticuloFavoritos);
+        }
+
+        // El usuario sale de la cookie tambien al marcar: nadie puede llenarle los favoritos
+        // a otro.
+        [Fact]
+        public async Task Post_MarcaAlUsuarioDeLaSesion()
+        {
+            using var context = CrearContexto();
+            await SembrarAsync(context);
+
+            await CrearController(context, "user-2").Post(new FavoritoNuevoDto { ArticuloId = 1 });
+
+            Assert.Equal("user-2", Assert.Single(context.ArticuloFavoritos).UserId);
         }
 
         // ── Delete ─────────────────────────────────────────────────────────────

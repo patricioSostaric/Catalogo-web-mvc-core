@@ -11,6 +11,50 @@ function Catalogo() {
   const [busqueda, setBusqueda] = useState('')
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(false)
+
+  // Los ids marcados como favoritos. Un Set y no una lista porque la unica pregunta que
+  // se hace es "¿esta este id?", una vez por tarjeta.
+  //
+  // Empieza en null y no en un Set vacio: null significa "todavia no se sabe" o "no hay
+  // sesion", y con eso las tarjetas ocultan el corazon. Un Set vacio significaria "hay
+  // sesion y no hay favoritos", que es distinto.
+  const [favoritos, setFavoritos] = useState(null)
+
+  useEffect(() => {
+    fetch('/api/favoritos')
+      .then(respuesta => {
+        // 401 es la respuesta normal para quien mira el catalogo sin iniciar sesion:
+        // el catalogo es publico, los favoritos no.
+        if (!respuesta.ok) return null
+        return respuesta.json()
+      })
+      .then(datos => {
+        if (datos === null) return
+        setFavoritos(new Set(datos.map(f => f.articuloId)))
+      })
+      .catch(() => { /* sin favoritos: las tarjetas quedan sin corazon */ })
+  }, [])
+
+  async function alternarFavorito(articuloId) {
+    const yaEstaba = favoritos.has(articuloId)
+
+    const respuesta = yaEstaba
+      ? await fetch(`/api/favoritos/${articuloId}`, { method: 'DELETE' })
+      : await fetch('/api/favoritos', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ articuloId })
+        })
+
+    if (!respuesta.ok) return
+
+    // Se actualiza el estado local en vez de volver a pedir la lista: el servidor ya
+    // confirmo, y el corazon cambia al instante.
+    const actualizados = new Set(favoritos)
+    yaEstaba ? actualizados.delete(articuloId) : actualizados.add(articuloId)
+    setFavoritos(actualizados)
+  }
+
   // 2. Efecto: se vuelve a ejecutar cada vez que cambia `pagina`
 
   useEffect(() => {
@@ -66,7 +110,12 @@ function Catalogo() {
 
       <div className="row row-cols-1 row-cols-sm-2 row-cols-lg-3 gy-4">
         {articulos.map(a => (
-          <TarjetaArticulo key={a.id} articulo={a} />
+          <TarjetaArticulo
+            key={a.id}
+            articulo={a}
+            esFavorito={favoritos?.has(a.id) ?? false}
+            onAlternarFavorito={favoritos ? alternarFavorito : undefined}
+          />
         ))}
       </div>
             <nav className="d-flex justify-content-center mt-4">
