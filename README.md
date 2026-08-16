@@ -6,7 +6,7 @@
 ![SQL Server](https://img.shields.io/badge/SQL%20Server-CC2927?logo=microsoftsqlserver&logoColor=white)
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
 ![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-546%20passing-success)
+![Tests](https://img.shields.io/badge/tests-547%20passing-success)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
 Tienda de artículos electrónicos con catálogo público, carrito, pedidos y panel de
@@ -154,7 +154,8 @@ catalogo-web-mvc/         Aplicación web (Razor + Identity)
 ├── Controllers/          Home, Articulo, Marcas, Categorias, Favoritos, Carrito, Pedidos, GestionPedidos, AuditLog, Usuarios, Account
 ├── Views/                Razor, con partials reutilizables
 ├── wwwroot/app/          El front en React compilado
-└── Program.cs            Registro de DI y pipeline de middleware
+├── Extensions/           Métodos de extensión que agrupan el registro por módulo
+└── Program.cs            Composición: qué se configura, en qué orden
 
 Catalogo.Endpoints/       Los controladores JSON, en una biblioteca: dos apps los alojan
 ├── Controllers/          ArticulosApi, FavoritosApi
@@ -164,7 +165,7 @@ Catalogo.Api/             Host de la API: no emite sesiones, solo lee la cookie 
 
 Catalogo.Gateway/         Proxy inverso con YARP
 catalogo-front/           Front en React (Vite)
-CatalogoWeb.tests/        546 tests unitarios
+CatalogoWeb.tests/        547 tests unitarios
 ```
 
 Las capas de negocio y datos viven en una biblioteca aparte para que más de una
@@ -220,11 +221,11 @@ dotnet ef migrations add NombreDeLaMigracion --project Catalogo.Datos --startup-
 
 ## 🧪 Testing
 
-**546 tests unitarios, la totalidad en verde.**
+**547 tests unitarios, la totalidad en verde.**
 
 ```bash
 dotnet test
-# Correctas! - Con error: 0, Superado: 546, Omitido: 0, Total: 546
+# Correctas! - Con error: 0, Superado: 547, Omitido: 0, Total: 547
 ```
 
 Cobertura por capa:
@@ -348,9 +349,23 @@ solo [Docker Desktop](https://www.docker.com/products/docker-desktop).
 docker compose up --build
 ```
 
-Eso levanta dos contenedores: la aplicación y una instancia de SQL Server 2022. Al arrancar
-se aplican las migraciones y se siembran los usuarios de prueba de la tabla del comienzo.
-La app queda en **http://localhost:8080**.
+Eso levanta cuatro contenedores: el gateway (YARP), la aplicación MVC, la API y una
+instancia de SQL Server 2022. Al arrancar se aplican las migraciones y se siembran los
+usuarios de prueba. **Solo el gateway publica puerto**, y queda en
+**http://localhost:8080**: que `web` y `api` no sean accesibles desde afuera no es un
+descuido, es lo que obliga a que todo el tráfico pase por el proxy.
+
+Las cuentas sembradas en local son estas. En producción las contraseñas se pisan con las
+variables del `.env` (ver `.env.example`), así que estos valores solo sirven en desarrollo:
+
+| Rol | Email | Contraseña |
+| --- | --- | --- |
+| Usuario | `usuario@catalogo.com` | `Usuario@1234` |
+| Admin | `admin@catalogo.com` | `Admin@1234` |
+| SuperAdmin | `superadmin@catalogo.com` | `Super@1234` |
+
+El registro de auditoría solo lo ve el SuperAdmin: guarda IP y correos de terceros, y el
+rol `Admin` está pensado para poder compartirse con quien quiera recorrer el ABM.
 
 La primera ejecución descarga alrededor de 2 GB de imágenes base; las siguientes son inmediatas.
 

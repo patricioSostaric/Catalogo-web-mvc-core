@@ -100,8 +100,13 @@ namespace CatalogoWeb.Tests.Documentacion
                 $"Estos proyectos están en la solución pero no en el README: {string.Join(", ", ausentes)}");
         }
 
-        [Fact]
-        public void LaCantidadDeMigraciones_CoincideConLasQueHay()
+        // Los dos documentos nombran la cantidad de migraciones, y los dos se desfasaron:
+        // el README decia 12 y ARQUITECTURA.md 9 cuando ya eran 14. Por eso se comprueban
+        // ambos: alcanzaba con actualizar uno y creer que estaba hecho.
+        [Theory]
+        [InlineData("README.md")]
+        [InlineData("ARQUITECTURA.md")]
+        public void LaCantidadDeMigraciones_CoincideConLasQueHay(string documento)
         {
             // Cada migracion genera tambien un .Designer.cs, y el snapshot no es una
             // migracion: contarlos infla el numero.
@@ -109,9 +114,11 @@ namespace CatalogoWeb.Tests.Documentacion
                 .GetFiles(Path.Combine(RaizRepo, "Catalogo.Datos", "Migrations"), "*.cs")
                 .Count(f => !f.EndsWith(".Designer.cs") && !f.EndsWith("ModelSnapshot.cs"));
 
+            var texto = File.ReadAllText(Path.Combine(RaizRepo, documento));
+
             Assert.True(
-                Readme.Contains($"{migraciones} migraciones"),
-                $"El README no dice «{migraciones} migraciones». Hay {migraciones} en Catalogo.Datos/Migrations.");
+                texto.Contains($"{migraciones} migraciones"),
+                $"{documento} no dice «{migraciones} migraciones». Hay {migraciones} en Catalogo.Datos/Migrations.");
         }
 
         // ── Endpoints ──────────────────────────────────────────────────────────
