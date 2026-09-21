@@ -105,7 +105,7 @@ hasta que no se resuelve la ruta no se sabe qué atributos `[Authorize]` aplican
 | `ArticuloFavorito` | Tabla puente usuario ↔ artículo |
 | `AuditLog` | Registro de operaciones |
 
-Las **14 migraciones** son la historia versionada de la base:
+Las **15 migraciones** son la historia versionada de la base:
 `InitialCreate` → `UpdateArticuloColumns` → seeds → `AddIdentity` → `AddFavoritos`
 → `AddAuditLog` → `AddArticuloActivoStock` → `SeedMarcasCategoriasArticulos`
 → `AddPerfilUsuario` → `ImagenesLocalesArticulos` → `CarritoYPedidos` → `EstadoDePedido`.
