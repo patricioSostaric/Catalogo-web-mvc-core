@@ -148,7 +148,7 @@ Catalogo.Datos/           Biblioteca compartida: no depende de ninguna aplicaci�
 ├── Models/
 │   ├── ViewModels/       Contratos con las vistas
 │   └── Settings/         Configuración tipada (SmtpSettings)
-└── Migrations/           14 migraciones versionadas de EF Core
+└── Migrations/           15 migraciones versionadas de EF Core
 
 catalogo-web-mvc/         Aplicación web (Razor + Identity)
 ├── Controllers/          Home, Articulo, Marcas, Categorias, Favoritos, Carrito, Pedidos, GestionPedidos, AuditLog, Usuarios, Account
