@@ -58,23 +58,30 @@ function Catalogo() {
   // 2. Efecto: se vuelve a ejecutar cada vez que cambia `pagina`
 
   useEffect(() => {
+     let vigente=true;
     const temporizador = setTimeout(() => {
+      
       setCargando(true)
       setError(false)
+      
       fetch(`/api/articulos?buscar=${busqueda}&page=${pagina}`)
         .then(respuesta => respuesta.json())
         .then(datos => {
+          if (!vigente) return
           setArticulos(datos.articulos)
           setTotalPaginas(datos.totalPaginas)
           setCargando(false)
         })
         .catch(() => {
+          if (!vigente) return
           setError(true)
           setCargando(false)
         })
     }, 300)
 
-    return () => clearTimeout(temporizador)
+    return () =>{ clearTimeout(temporizador);
+                  vigente=false;
+                }
   }, [busqueda, pagina])
 
 
