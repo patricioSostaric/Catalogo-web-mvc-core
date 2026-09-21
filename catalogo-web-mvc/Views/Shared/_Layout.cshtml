@@ -8,14 +8,18 @@
 
     @* Open Graph: es lo que leen LinkedIn, WhatsApp o Slack para armar la vista
        previa del enlace. Sin estas etiquetas el link se comparte pelado, porque
-       el crawler entra y no encuentra que mostrar. Falta og:image, que necesita
-       una captura de 1200x630 servida por URL absoluta. *@
+       el crawler entra y no encuentra que mostrar. La imagen va por URL absoluta:
+       el crawler no resuelve rutas relativas. *@
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Store Sostaric" />
     <meta property="og:title" content="Store Sostaric — tienda en ASP.NET Core + React" />
     <meta property="og:description" content="Catalogo y ventas desplegado en Azure. Migracion a Web API + React con el patron strangler fig y YARP como proxy inverso." />
     <meta property="og:url" content="https://catalogo-web-wekfqt.azurewebsites.net" />
-    <meta name="twitter:card" content="summary" />
+    <meta property="og:image" content="https://catalogo-web-wekfqt.azurewebsites.net/img/preview.png" />
+    <meta property="og:image:width" content="1530" />
+    <meta property="og:image:height" content="767" />
+    <meta property="og:image:alt" content="Catalogo de articulos de Store Sostaric, con buscador y grilla de productos." />
+    <meta name="twitter:card" content="summary_large_image" />
 
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
