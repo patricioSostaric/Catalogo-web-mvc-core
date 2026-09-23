@@ -619,6 +619,23 @@ El `POST` comprueba que el artículo exista y esté activo antes de insertar. Si
 inventado choca contra la clave foránea y devuelve `500`; y un artículo dado de baja no
 figura en el catálogo, así que marcarlo solo es posible armando el pedido a mano.
 
+### Marcas, el primer ABM completo
+
+| Método | Ruta | Respuesta |
+| --- | --- | --- |
+| `GET` | `/api/marcas` | la lista completa de marcas |
+
+Solo para el rol `Admin`, igual que el ABM del MVC. El atributo va también en la API y no
+solo en el MVC: son dos puertas distintas, y sin él cualquiera podría operar sobre los
+endpoints armando el pedido a mano.
+
+La respuesta usa `MarcaDto` y no la entidad. `Marca` tiene la relación inversa hacia
+artículos, y cada artículo tiene su marca: serializar la entidad entra en un ciclo y
+`System.Text.Json` corta con una excepción. El DTO además expone solo los dos campos que
+el cliente usa.
+
+Los verbos de escritura se suman a medida que avanza el ABM.
+
 **El id del usuario no viaja en la ruta**, sale de la cookie. Si viajara, cualquiera con
 una sesión válida podría leerle o vaciarle los favoritos a otro cambiando un número.
 
