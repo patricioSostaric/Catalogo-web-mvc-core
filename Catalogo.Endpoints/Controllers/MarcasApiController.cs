@@ -3,8 +3,6 @@ using catalogo_web_mvc.Models.Dtos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-
-
 namespace catalogo_web_mvc.Controllers.Api
 {
     [ApiController]
@@ -12,13 +10,14 @@ namespace catalogo_web_mvc.Controllers.Api
     [Authorize(Roles = "Admin")]
     public class MarcasApiController : ControllerBase
     {
-        
         private readonly IMarcaService _marcas;
+
         public MarcasApiController(IMarcaService marcas)
         {
             _marcas = marcas;
         }
 
+        // GET: api/marcas
         [HttpGet]
         public async Task<ActionResult<List<MarcaDto>>> Get()
         {
@@ -30,6 +29,25 @@ namespace catalogo_web_mvc.Controllers.Api
                 Descripcion = m.Descripcion
             }).ToList();
         }
-    }
 
+        // GET: api/marcas/{id}
+        [HttpGet("{id}")]
+        public async Task<ActionResult<MarcaDto>> GetPorId(int id)
+        {
+            var marca = await _marcas.GetByIdAsync(id);
+
+            if (marca == null)
+            {
+                return NotFound();
+            }
+
+            var dto = new MarcaDto
+            {
+                MarcaId = marca.MarcaId,
+                Descripcion = marca.Descripcion
+            };
+
+            return Ok(dto);
+        }
+    }
 }
