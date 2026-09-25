@@ -18,5 +18,6 @@ namespace catalogo_web_mvc.Services.Marcas
         public Task UpdateAsync(Marca marca) => _repo.UpdateAsync(marca);
         public Task DeleteAsync(int id) => _repo.DeleteAsync(id);
         public Task<bool> ExistsAsync(int id) => _repo.ExistsAsync(id);
+        public Task<bool> TieneArticulosAsync(int id) => _repo.TieneArticulosAsync(id);
     }
 }

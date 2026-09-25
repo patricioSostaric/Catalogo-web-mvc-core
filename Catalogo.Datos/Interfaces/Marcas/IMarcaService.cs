@@ -1,5 +1,6 @@
 using catalogo_web_mvc.Models;
 
+
 namespace catalogo_web_mvc.Interfaces.Marcas
 {
     public interface IMarcaService
@@ -10,5 +11,7 @@ namespace catalogo_web_mvc.Interfaces.Marcas
         Task UpdateAsync(Marca marca);
         Task DeleteAsync(int id);
         Task<bool> ExistsAsync(int id);
+        
+        Task<bool> TieneArticulosAsync(int id);
     }
 }

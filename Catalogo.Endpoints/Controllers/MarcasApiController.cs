@@ -65,5 +65,18 @@ namespace catalogo_web_mvc.Controllers.Api
             return CreatedAtAction(nameof(GetPorId), new { id = dto.MarcaId }, dto);
 
         }
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            if (!await _marcas.ExistsAsync(id))
+                return NotFound();
+
+            if (await _marcas.TieneArticulosAsync(id))
+                return Conflict("No se puede eliminar una marca que tiene articulos asociados.");
+
+            await _marcas.DeleteAsync(id);
+
+            return NoContent();
+        }
     }
 }

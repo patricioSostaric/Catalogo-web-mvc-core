@@ -624,6 +624,9 @@ figura en el catálogo, así que marcarlo solo es posible armando el pedido a ma
 | Método | Ruta | Respuesta |
 | --- | --- | --- |
 | `GET` | `/api/marcas` | la lista completa de marcas |
+| `GET` | `/api/marcas/{id}` | la marca, o `404` si no existe |
+| `POST` | `/api/marcas` | `201` con la marca creada y la cabecera `Location` |
+| `DELETE` | `/api/marcas/{id}` | `204`; `404` si no existe, `409` si tiene artículos |
 
 Solo para el rol `Admin`, igual que el ABM del MVC. El atributo va también en la API y no
 solo en el MVC: son dos puertas distintas, y sin él cualquiera podría operar sobre los
@@ -634,7 +637,13 @@ artículos, y cada artículo tiene su marca: serializar la entidad entra en un c
 `System.Text.Json` corta con una excepción. El DTO además expone solo los dos campos que
 el cliente usa.
 
-Los verbos de escritura se suman a medida que avanza el ABM.
+Borrar una marca con artículos asociados choca contra la clave foránea. Sin
+comprobarlo antes, la excepción sube sin atrapar y el cliente recibe un `500`, que
+significa «me rompí» cuando en realidad el servidor entendió el pedido y lo rechazó por
+una regla legítima. Por eso el endpoint consulta primero y responde `409`, que el front
+muestra como mensaje.
+
+Falta el `PUT`, que llega con la edición.
 
 **El id del usuario no viaja en la ruta**, sale de la cookie. Si viajara, cualquiera con
 una sesión válida podría leerle o vaciarle los favoritos a otro cambiando un número.

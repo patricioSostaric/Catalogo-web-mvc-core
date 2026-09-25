@@ -44,5 +44,7 @@ namespace catalogo_web_mvc.Repository.Marcas
 
         public async Task<bool> ExistsAsync(int id)
             => await _context.Marcas.AnyAsync(m => m.MarcaId == id);
+        public async Task<bool> TieneArticulosAsync(int id)
+        => await _context.Articulos.AnyAsync(a => a.MarcaId == id);
     }
 }
