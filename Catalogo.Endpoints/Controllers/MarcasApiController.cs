@@ -78,5 +78,22 @@ namespace catalogo_web_mvc.Controllers.Api
 
             return NoContent();
         }
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Put(int id, [FromBody] MarcaNuevaDto modificada)
+        {
+            // Se trae la entidad y se le cambia solo el campo que llego, en lugar de armar
+            // una nueva con el id: Update() marca todas las propiedades como modificadas,
+            // asi que lo que no se asigna se guardaria con su valor por defecto. Con dos
+            // campos da igual, pero el patron es el mismo para entidades mas grandes.
+            var marca = await _marcas.GetByIdAsync(id);
+
+            if (marca == null)
+                return NotFound();
+
+            marca.Descripcion = modificada.Descripcion;
+            await _marcas.UpdateAsync(marca);
+
+            return NoContent();
+        }
     }
 }

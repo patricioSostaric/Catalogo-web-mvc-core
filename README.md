@@ -626,6 +626,7 @@ figura en el catálogo, así que marcarlo solo es posible armando el pedido a ma
 | `GET` | `/api/marcas` | la lista completa de marcas |
 | `GET` | `/api/marcas/{id}` | la marca, o `404` si no existe |
 | `POST` | `/api/marcas` | `201` con la marca creada y la cabecera `Location` |
+| `PUT` | `/api/marcas/{id}` | `204`; `404` si no existe |
 | `DELETE` | `/api/marcas/{id}` | `204`; `404` si no existe, `409` si tiene artículos |
 
 Solo para el rol `Admin`, igual que el ABM del MVC. El atributo va también en la API y no
@@ -643,7 +644,11 @@ significa «me rompí» cuando en realidad el servidor entendió el pedido y lo 
 una regla legítima. Por eso el endpoint consulta primero y responde `409`, que el front
 muestra como mensaje.
 
-Falta el `PUT`, que llega con la edición.
+El `PUT` reusa `MarcaNuevaDto`: el cliente manda solo la descripción, porque el id ya
+viaja en la ruta. Trae la entidad y le cambia el campo en lugar de construir una nueva
+con el id, porque `Update()` marca todas las propiedades como modificadas y lo que no se
+asigne se guardaría con su valor por defecto. Con dos campos da igual; el patrón importa
+para entidades más grandes.
 
 **El id del usuario no viaja en la ruta**, sale de la cookie. Si viajara, cualquiera con
 una sesión válida podría leerle o vaciarle los favoritos a otro cambiando un número.
