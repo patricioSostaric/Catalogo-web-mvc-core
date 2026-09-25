@@ -6,7 +6,7 @@
 ![SQL Server](https://img.shields.io/badge/SQL%20Server-CC2927?logo=microsoftsqlserver&logoColor=white)
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
 ![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-552%20passing-success)
+![Tests](https://img.shields.io/badge/tests-562%20passing-success)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
 Tienda de artículos electrónicos con catálogo público, carrito, pedidos y panel de
@@ -165,7 +165,7 @@ Catalogo.Api/             Host de la API: no emite sesiones, solo lee la cookie 
 
 Catalogo.Gateway/         Proxy inverso con YARP
 catalogo-front/           Front en React (Vite)
-CatalogoWeb.tests/        552 tests unitarios
+CatalogoWeb.tests/        562 tests unitarios
 ```
 
 Las capas de negocio y datos viven en una biblioteca aparte para que más de una
@@ -221,11 +221,11 @@ dotnet ef migrations add NombreDeLaMigracion --project Catalogo.Datos --startup-
 
 ## 🧪 Testing
 
-**552 tests unitarios, la totalidad en verde.**
+**562 tests unitarios, la totalidad en verde.**
 
 ```bash
 dotnet test
-# Correctas! - Con error: 0, Superado: 552, Omitido: 0, Total: 552
+# Correctas! - Con error: 0, Superado: 562, Omitido: 0, Total: 562
 ```
 
 Cobertura por capa:
