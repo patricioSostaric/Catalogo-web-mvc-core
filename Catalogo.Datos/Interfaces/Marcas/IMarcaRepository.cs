@@ -10,5 +10,6 @@ namespace catalogo_web_mvc.Interfaces.Marcas
         Task UpdateAsync(Marca marca);
         Task DeleteAsync(int id);
         Task<bool> ExistsAsync(int id);
+        Task<bool> TieneArticulosAsync(int id);
     }
 }

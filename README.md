@@ -6,7 +6,7 @@
 ![SQL Server](https://img.shields.io/badge/SQL%20Server-CC2927?logo=microsoftsqlserver&logoColor=white)
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
 ![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-552%20passing-success)
+![Tests](https://img.shields.io/badge/tests-562%20passing-success)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
 Tienda de artículos electrónicos con catálogo público, carrito, pedidos y panel de
@@ -165,7 +165,7 @@ Catalogo.Api/             Host de la API: no emite sesiones, solo lee la cookie 
 
 Catalogo.Gateway/         Proxy inverso con YARP
 catalogo-front/           Front en React (Vite)
-CatalogoWeb.tests/        552 tests unitarios
+CatalogoWeb.tests/        562 tests unitarios
 ```
 
 Las capas de negocio y datos viven en una biblioteca aparte para que más de una
@@ -221,11 +221,11 @@ dotnet ef migrations add NombreDeLaMigracion --project Catalogo.Datos --startup-
 
 ## 🧪 Testing
 
-**552 tests unitarios, la totalidad en verde.**
+**562 tests unitarios, la totalidad en verde.**
 
 ```bash
 dotnet test
-# Correctas! - Con error: 0, Superado: 552, Omitido: 0, Total: 552
+# Correctas! - Con error: 0, Superado: 562, Omitido: 0, Total: 562
 ```
 
 Cobertura por capa:
@@ -618,6 +618,37 @@ uno agrega un elemento a la colección, el otro borra un elemento identificado.
 El `POST` comprueba que el artículo exista y esté activo antes de insertar. Sin eso, un id
 inventado choca contra la clave foránea y devuelve `500`; y un artículo dado de baja no
 figura en el catálogo, así que marcarlo solo es posible armando el pedido a mano.
+
+### Marcas, el primer ABM completo
+
+| Método | Ruta | Respuesta |
+| --- | --- | --- |
+| `GET` | `/api/marcas` | la lista completa de marcas |
+| `GET` | `/api/marcas/{id}` | la marca, o `404` si no existe |
+| `POST` | `/api/marcas` | `201` con la marca creada y la cabecera `Location` |
+| `PUT` | `/api/marcas/{id}` | `204`; `404` si no existe |
+| `DELETE` | `/api/marcas/{id}` | `204`; `404` si no existe, `409` si tiene artículos |
+
+Solo para el rol `Admin`, igual que el ABM del MVC. El atributo va también en la API y no
+solo en el MVC: son dos puertas distintas, y sin él cualquiera podría operar sobre los
+endpoints armando el pedido a mano.
+
+La respuesta usa `MarcaDto` y no la entidad. `Marca` tiene la relación inversa hacia
+artículos, y cada artículo tiene su marca: serializar la entidad entra en un ciclo y
+`System.Text.Json` corta con una excepción. El DTO además expone solo los dos campos que
+el cliente usa.
+
+Borrar una marca con artículos asociados choca contra la clave foránea. Sin
+comprobarlo antes, la excepción sube sin atrapar y el cliente recibe un `500`, que
+significa «me rompí» cuando en realidad el servidor entendió el pedido y lo rechazó por
+una regla legítima. Por eso el endpoint consulta primero y responde `409`, que el front
+muestra como mensaje.
+
+El `PUT` reusa `MarcaNuevaDto`: el cliente manda solo la descripción, porque el id ya
+viaja en la ruta. Trae la entidad y le cambia el campo en lugar de construir una nueva
+con el id, porque `Update()` marca todas las propiedades como modificadas y lo que no se
+asigne se guardaría con su valor por defecto. Con dos campos da igual; el patrón importa
+para entidades más grandes.
 
 **El id del usuario no viaja en la ruta**, sale de la cookie. Si viajara, cualquiera con
 una sesión válida podría leerle o vaciarle los favoritos a otro cambiando un número.

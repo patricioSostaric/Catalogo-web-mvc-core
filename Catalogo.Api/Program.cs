@@ -2,10 +2,13 @@ using catalogo_web_mvc.Data;
 using catalogo_web_mvc.Extensions;
 using catalogo_web_mvc.Interfaces.Articulos;
 using catalogo_web_mvc.Interfaces.Favoritos;
+using catalogo_web_mvc.Interfaces.Marcas;
 using catalogo_web_mvc.Repository.Articulos;
 using catalogo_web_mvc.Repository.Favoritos;
+using catalogo_web_mvc.Repository.Marcas;
 using catalogo_web_mvc.Services.Articulos;
 using catalogo_web_mvc.Services.Favoritos;
+using catalogo_web_mvc.Services.Marcas;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -57,6 +60,8 @@ builder.Services.AddScoped<IArticuloRepository, ArticuloRepository>();
 builder.Services.AddScoped<IArticuloService, ArticuloService>();
 builder.Services.AddScoped<IFavoritoRepository, FavoritoRepository>();
 builder.Services.AddScoped<IFavoritoService, FavoritoService>();
+builder.Services.AddScoped<IMarcaRepository, MarcaRepository>();
+builder.Services.AddScoped<IMarcaService, MarcaService>();
 
 // Los controladores viven en Catalogo.Endpoints, no en este ensamblado. MVC suele
 // descubrirlos solo recorriendo las dependencias, pero se declara explicito: si algun dia
