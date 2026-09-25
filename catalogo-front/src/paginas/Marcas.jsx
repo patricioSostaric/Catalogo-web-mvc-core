@@ -4,10 +4,16 @@ function Marcas() {
   const [marcas, setMarcas] = useState([])
 
   useEffect(() => {
-    fetch('/api/marcas')
-      .then(response => response.json())
-      .then(data => setMarcas(data))
-  }, [])
+  fetch('/api/marcas')
+    .then(response => {
+      if (!response.ok) return null
+      return response.json()
+    })
+    .then(data => {
+      if (data === null) return
+      setMarcas(data)
+    })
+}, [])
 
   return (
     <div>
