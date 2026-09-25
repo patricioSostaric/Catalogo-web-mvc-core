@@ -2,6 +2,7 @@
 using catalogo_web_mvc.Models.Dtos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using catalogo_web_mvc.Models;
 
 namespace catalogo_web_mvc.Controllers.Api
 {
@@ -48,6 +49,21 @@ namespace catalogo_web_mvc.Controllers.Api
             };
 
             return Ok(dto);
+        }
+        [HttpPost]
+        public async Task<ActionResult<MarcaDto>> Post([FromBody] MarcaNuevaDto nueva)
+        {
+            var marca = new Marca { Descripcion = nueva.Descripcion };
+            await _marcas.AddAsync(marca);
+
+            var dto = new MarcaDto
+            {
+                MarcaId = marca.MarcaId,
+                Descripcion = marca.Descripcion
+            };
+
+            return CreatedAtAction(nameof(GetPorId), new { id = dto.MarcaId }, dto);
+
         }
     }
 }
