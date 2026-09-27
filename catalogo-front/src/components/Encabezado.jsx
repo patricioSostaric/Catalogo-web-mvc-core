@@ -13,6 +13,9 @@ function Encabezado() {
             <Link className="nav-link" to="/favoritos">Favoritos</Link>
           </li>
           <li className="nav-item">
+          <Link className="nav-link" to="/marcas">Marcas</Link>
+          </li>
+          <li className="nav-item">
             <Link className="nav-link" to="/privacidad">Privacidad</Link>
           </li>
           <li className="nav-item">
