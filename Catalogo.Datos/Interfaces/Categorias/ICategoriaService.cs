@@ -4,6 +4,7 @@ namespace catalogo_web_mvc.Interfaces.Categorias
 {
     public interface ICategoriaService
     {
+        Task<bool> TieneArticulosAsync(int id);
         Task<List<Categoria>> GetAllAsync();
         Task<Categoria?> GetByIdAsync(int id);
         Task AddAsync(Categoria categoria);

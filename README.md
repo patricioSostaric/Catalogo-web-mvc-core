@@ -6,7 +6,7 @@
 ![SQL Server](https://img.shields.io/badge/SQL%20Server-CC2927?logo=microsoftsqlserver&logoColor=white)
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
 ![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-562%20passing-success)
+![Tests](https://img.shields.io/badge/tests-572%20passing-success)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
 Tienda de artículos electrónicos con catálogo público, carrito, pedidos y panel de
@@ -165,7 +165,7 @@ Catalogo.Api/             Host de la API: no emite sesiones, solo lee la cookie 
 
 Catalogo.Gateway/         Proxy inverso con YARP
 catalogo-front/           Front en React (Vite)
-CatalogoWeb.tests/        562 tests unitarios
+CatalogoWeb.tests/        572 tests unitarios
 ```
 
 Las capas de negocio y datos viven en una biblioteca aparte para que más de una
@@ -221,11 +221,11 @@ dotnet ef migrations add NombreDeLaMigracion --project Catalogo.Datos --startup-
 
 ## 🧪 Testing
 
-**562 tests unitarios, la totalidad en verde.**
+**572 tests unitarios, la totalidad en verde.**
 
 ```bash
 dotnet test
-# Correctas! - Con error: 0, Superado: 562, Omitido: 0, Total: 562
+# Correctas! - Con error: 0, Superado: 572, Omitido: 0, Total: 572
 ```
 
 Cobertura por capa:
@@ -649,6 +649,26 @@ viaja en la ruta. Trae la entidad y le cambia el campo en lugar de construir una
 con el id, porque `Update()` marca todas las propiedades como modificadas y lo que no se
 asigne se guardaría con su valor por defecto. Con dos campos da igual; el patrón importa
 para entidades más grandes.
+
+### Categorías
+
+| Método | Ruta | Respuesta |
+| --- | --- | --- |
+| `GET` | `/api/categorias` | la lista completa de categorías |
+| `GET` | `/api/categorias/{id}` | la categoría, o `404` si no existe |
+| `POST` | `/api/categorias` | `201` con la categoría creada y la cabecera `Location` |
+| `PUT` | `/api/categorias/{id}` | `204`; `404` si no existe |
+| `DELETE` | `/api/categorias/{id}` | `204`; `404` si no existe, `409` si tiene artículos |
+
+Mismo contrato y mismas decisiones que marcas: las dos entidades son una descripción con
+su clave. El controlador está duplicado a propósito. Una base genérica para ambos
+exigiría una clave con nombre común —hoy son `MarcaId` y `CategoriaId`, y renombrarlas
+toca entidades, seed y migraciones— además de la plomería para que ASP.NET descubra
+controladores genéricos. Con dos casos, la duplicación sale más barata que la abstracción.
+
+El formulario del front valida que el nombre no esté vacío antes de enviar. Es una
+comodidad para quien usa la pantalla, no una defensa: la validación que cuenta es la del
+DTO, que rechaza con `400` cualquier pedido armado a mano.
 
 **El id del usuario no viaja en la ruta**, sale de la cookie. Si viajara, cualquiera con
 una sesión válida podría leerle o vaciarle los favoritos a otro cambiando un número.
