@@ -14,6 +14,9 @@ namespace catalogo_web_mvc.Repository.Categorias
             _context = context;
         }
 
+        public async Task<bool> TieneArticulosAsync(int id)
+    => await _context.Articulos.AnyAsync(a => a.CategoriaId == id);
+
         public async Task<List<Categoria>> GetAllAsync()
             => await _context.Categorias.ToListAsync();
 
