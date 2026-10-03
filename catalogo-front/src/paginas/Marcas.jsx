@@ -35,6 +35,10 @@ function Marcas() {
 
   async function agregarMarca(e) {
     e.preventDefault();
+    if (descripcion.trim() === '') {
+      setError('Escribí un nombre para la marca.');
+      return;
+    }
 
     const respuesta = await fetch('/api/marcas', {
       method: 'POST',
@@ -42,7 +46,12 @@ function Marcas() {
       body: JSON.stringify({ descripcion }),
     });
 
-    if (!respuesta.ok) return;
+    if (!respuesta.ok) {
+      setError('No se pudo crear la marca.');
+      return;
+    }
+
+    setError('');
 
     const creada = await respuesta.json();
     setMarcas([...marcas, creada]);
