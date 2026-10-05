@@ -1,20 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 
-function Detalle() {
-  // El nombre tiene que coincidir con el comodin declarado en la ruta: /articulo/:id
-  const { id } = useParams()
-
+function DetalleArticulo({ id }) {
   const [articulo, setArticulo] = useState(null)
   const [cargando, setCargando] = useState(true)
   const [noEncontrado, setNoEncontrado] = useState(false)
   const [error, setError] = useState(false)
 
   useEffect(() => {
-    setCargando(true)
-    setNoEncontrado(false)
-    setError(false)
-
     fetch(`/api/articulos/${id}`)
       .then(respuesta => {
         // Un 404 es una respuesta valida del servidor, no un fallo de red:
@@ -112,5 +105,12 @@ function Detalle() {
     </>
   )
 }
+function Detalle() {
+  // El nombre tiene que coincidir con el comodin declarado en la ruta: /articulo/:id
+  const { id } = useParams()
 
+  // La key hace que cada articulo sea una instancia nueva: al cambiar el id,
+  // React descarta el estado anterior en lugar de reusarlo.
+  return <DetalleArticulo key={id} id={id} />
+}
 export default Detalle
