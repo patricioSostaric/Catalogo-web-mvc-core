@@ -9,10 +9,6 @@ function Favoritos() {
   const [error, setError] = useState(false)
 
   useEffect(() => {
-    setCargando(true)
-    setSinSesion(false)
-    setError(false)
-
     // No lleva token ni cabeceras: la cookie de sesion viaja sola porque es el
     // mismo origen. Eso es lo que hace posible esta pagina.
     fetch('/api/favoritos')
