@@ -6,6 +6,12 @@ function AbmSimple({ titulo, singular, recurso, campoId }) {
   const [error, setError] = useState('');
   const [editandoId, setEditandoId] = useState(null);
   const [textoEdicion, setTextoEdicion] = useState('');
+
+  // 'cargando' | 'listo' | 'fallo'. Hace falta para la tabla: una lista vacia
+  // puede ser que todavia no llego, que llego sin filas o que no se pudo pedir, y
+  // en cada caso corresponde mostrar algo distinto.
+  const [carga, setCarga] = useState('cargando');
+
   useEffect(() => {
     fetch(recurso)
       .then((response) => {
@@ -29,8 +35,18 @@ function AbmSimple({ titulo, singular, recurso, campoId }) {
         return response.json();
       })
       .then((data) => {
-        if (data === null) return;
+        if (data === null) {
+          setCarga('fallo');
+          return;
+        }
         setItems(data);
+        setCarga('listo');
+      })
+      .catch(() => {
+        // Sin red o con el servidor caido el fetch rechaza la promesa: sin este
+        // catch la pagina quedaba en blanco y sin explicacion.
+        setError(`No se pudieron cargar las ${titulo.toLowerCase()}.`);
+        setCarga('fallo');
       });
   }, [recurso, titulo]);
   // Alta
@@ -97,41 +113,135 @@ function AbmSimple({ titulo, singular, recurso, campoId }) {
 
   return (
     <div>
-      <h2>{titulo}</h2>
+      {/* Mismo encabezado que las grillas del MVC: titulo, linea descriptiva y
+          una separacion antes del contenido. */}
+      <div className="mb-4 pb-3 border-bottom">
+        <h1 className="fw-bold text-dark h2 mb-1">{titulo}</h1>
+        <p className="text-muted small m-0">
+          Panel de administración de {titulo.toLowerCase()}.
+        </p>
+      </div>
 
-      <form onSubmit={agregar}>
-        <input
-          value={descripcion}
-          onChange={(e) => setDescripcion(e.target.value)}
-          placeholder={`Nueva ${singular}`}
-        />
-        <button type="submit">Agregar</button>
-      </form>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <ul>
-        {items.map((item) => (
-          <li key={item[campoId]}>
-            {editandoId === item[campoId] ? (
-              <>
-                <input
-                  value={textoEdicion}
-                  onChange={(e) => setTextoEdicion(e.target.value)}
-                />
-                <button onClick={() => guardarEdicion(item[campoId])}>
-                  Guardar
-                </button>
-                <button onClick={() => setEditandoId(null)}>Cancelar</button>
-              </>
-            ) : (
-              <>
-                {item.descripcion}
-                <button onClick={() => empezarEdicion(item)}>Editar</button>
-                <button onClick={() => eliminar(item[campoId])}>Borrar</button>
-              </>
-            )}
-          </li>
-        ))}
-      </ul>
+      {/* La grilla limita el ancho: un input-group se estira hasta llenar lo que
+          lo contiene. En el celular ocupa todo; en pantallas mas grandes, menos
+          de la mitad. */}
+      <div className="row">
+        <div className="col-md-6 col-lg-5">
+          <form onSubmit={agregar} className="input-group mb-3">
+            <input
+              className="form-control"
+              value={descripcion}
+              onChange={(e) => setDescripcion(e.target.value)}
+              placeholder={`Nueva ${singular}`}
+              aria-label={`Nombre de la nueva ${singular}`}
+            />
+            <button type="submit" className="btn btn-success">
+              Agregar
+            </button>
+          </form>
+        </div>
+      </div>
+
+      {error && (
+        <div className="alert alert-danger" role="alert">
+          {error}
+        </div>
+      )}
+
+      {/* La tabla sigue a _TablaEntidad.cshtml del MVC: tarjeta sin borde,
+          cabecera oscura y botonera compacta en la ultima columna. */}
+      <div className="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
+        <div className="table-responsive">
+          <table className="table table-hover align-middle mb-0">
+            <thead className="table-dark">
+              <tr>
+                <th className="ps-4">Descripción</th>
+                <th className="text-center pe-4" style={{ width: '180px' }}>
+                  Acción
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {carga === 'cargando' && (
+                <tr>
+                  <td colSpan={2} className="p-4 text-center text-muted">
+                    Cargando {titulo.toLowerCase()}...
+                  </td>
+                </tr>
+              )}
+
+              {carga === 'listo' && items.length === 0 && (
+                <tr>
+                  <td colSpan={2} className="p-4 text-center text-muted">
+                    Todavía no hay {titulo.toLowerCase()} cargadas.
+                  </td>
+                </tr>
+              )}
+
+              {items.map((item) => {
+                const editando = editandoId === item[campoId];
+
+                return (
+                  <tr key={item[campoId]}>
+                    <td className="ps-4 fw-bold text-dark">
+                      {editando ? (
+                        <input
+                          className="form-control form-control-sm"
+                          value={textoEdicion}
+                          onChange={(e) => setTextoEdicion(e.target.value)}
+                          aria-label={`Nombre de la ${singular}`}
+                        />
+                      ) : (
+                        item.descripcion
+                      )}
+                    </td>
+
+                    <td className="text-center pe-4">
+                      <div className="btn-group btn-group-sm" role="group">
+                        {editando ? (
+                          <>
+                            <button
+                              type="button"
+                              className="btn btn-success fw-medium"
+                              onClick={() => guardarEdicion(item[campoId])}
+                            >
+                              Guardar
+                            </button>
+                            <button
+                              type="button"
+                              className="btn btn-outline-secondary fw-medium"
+                              onClick={() => setEditandoId(null)}
+                            >
+                              Cancelar
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button
+                              type="button"
+                              className="btn btn-outline-primary fw-medium"
+                              onClick={() => empezarEdicion(item)}
+                            >
+                              Editar
+                            </button>
+                            <button
+                              type="button"
+                              className="btn btn-outline-danger fw-medium"
+                              onClick={() => eliminar(item[campoId])}
+                            >
+                              Eliminar
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }
