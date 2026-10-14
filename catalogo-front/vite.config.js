@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
@@ -10,6 +10,13 @@ export default defineConfig({
     // El resultado compilado va directo a wwwroot, que es lo que sirve el MVC.
     outDir: '../catalogo-web-mvc/wwwroot/app',
     emptyOutDir: true,
+  },
+  test: {
+    // jsdom simula el DOM: sin el, React no tiene donde renderizar en Node.
+    environment: 'jsdom',
+    // describe/it/expect disponibles sin importarlos en cada archivo.
+    globals: true,
+    setupFiles: './src/configuracionTests.js',
   },
   server: {
     proxy: {
