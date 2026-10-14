@@ -18,4 +18,10 @@ export default defineConfig([
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
   },
+  {
+    // describe, it y expect no se importan: vite.config.js los deja globales con
+    // globals: true. Sin este bloque ESLint los marca como no definidos.
+    files: ['**/*.test.{js,jsx}'],
+    languageOptions: { globals: globals.vitest },
+  },
 ])
